@@ -1,0 +1,17 @@
+{
+  "dbLocation": "./db",
+  "collections": [
+    {
+      "name": "test",
+      "key": "_id"
+    }
+  ],
+  "indexes": [
+    {
+      "name": "test_idx01",
+      "collection": "test",
+      "fields": ["_id","dates.createdDate"]
+    }
+  ]
+
+}

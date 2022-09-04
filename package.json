@@ -9,7 +9,8 @@
   ],
   "scripts": {
     "compile": "tsc",
-    "compile.watch": "tsc-watch"
+    "compile.watch": "tsc-watch",
+    "test": "ts-node src/test/test.ts"
   },
   "dependencies": {
     "debug": "^4.3.2",
