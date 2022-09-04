@@ -1,0 +1,40 @@
+{
+  "name": "file-system-database",
+  "version": "0.0.1",
+  "description": "A simple socket framework for persistent JSON objects using the file system",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "compile": "tsc",
+    "compile.watch": "tsc-watch"
+  },
+  "dependencies": {
+    "debug": "^4.3.2",
+    "dotenv": "^10.0.0",
+    "moment": "^2.29.1",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.7",
+    "@types/node": "^16.9.6",
+    "@types/uuid": "^8.3.2",
+    "typescript": "^4.3.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsharples777/file-system-db.git"
+  },
+  "keywords": [
+    "File",
+    "DB"
+  ],
+  "author": "Jim Sharples",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jsharples777/file-system-db/issues"
+  },
+  "homepage": "https://github.com/jsharples777/file-system-db#readme"
+}
