@@ -41,11 +41,23 @@ export class ConfigManager {
                 result.collections.forEach((collection) => {
                     if (collection.name) {
                         if (collection.key) {
-                            const collectionDir = `${result.dbLocation}/${collection.name}`;
-                            logger(`Found collection ${collection.name} at ${collectionDir}`);
-                            if (!fs.existsSync(collectionDir)) {
-                                fs.mkdirSync(collectionDir);
+                            if (collection.bufferType !== undefined) {
+                                if (collection.entryFileType !== undefined) {
+                                    const collectionDir = `${result.dbLocation}/${collection.name}`;
+                                    logger(`Found collection ${collection.name} at ${collectionDir}`);
+                                    if (!fs.existsSync(collectionDir)) {
+                                        fs.mkdirSync(collectionDir);
+                                    }
+                                }
+                                else {
+                                    throw new InvalidConfiguration(`Collection ${collection.name} missing entry file type`);
+                                }
+
                             }
+                            else {
+                                throw new InvalidConfiguration(`Collection ${collection.name} missing buffer type`);
+                            }
+
                         }
                         else {
                             throw new InvalidConfiguration(`Collection ${collection.name} missing key`);

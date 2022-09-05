@@ -3,7 +3,9 @@
   "collections": [
     {
       "name": "test",
-      "key": "_id"
+      "key": "_id",
+      "bufferType": 1,
+      "entryFileType": 1
     }
   ],
   "indexes": [

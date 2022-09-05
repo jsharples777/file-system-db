@@ -1,6 +1,6 @@
 import debug from 'debug';
 import {Configurable} from "./Configurable";
-import {CollectionVersion, DBConfig, Index} from "./Types";
+import {BufferType, CollectionConfig, DBConfig, EntryFileType} from "./Types";
 import fs from "fs";
 import {Collection} from "./Collection";
 import {CollectionImplementation} from "./CollectionImplementation";
@@ -16,13 +16,17 @@ export class CollectionManager implements Configurable{
         return CollectionManager._instance;
     }
     private config: DBConfig | undefined;
-    private collectionVersions:CollectionVersion[] = [];
+    private collectionConfigs:CollectionConfig[] = [];
     private collectionImplementations:CollectionImplementation[] = [];
     private constructor(){}
 
-    private setupCollection(name:string):CollectionVersion {
+    private setupCollection(name:string):CollectionConfig {
         logger(`Setting up collection ${name}`);
-        let result:CollectionVersion= {
+        let result:CollectionConfig = {
+            bufferSize: 0,
+            bufferType: BufferType.NONE,
+            entryFileType: EntryFileType.ALL_IN_SINGLE_FILE,
+            key: "_id",
             version:1,
             name:name
         }
@@ -40,7 +44,7 @@ export class CollectionManager implements Configurable{
         else {
             const buffer = fs.readFileSync(versionFileName);
             logger(`Setting up collection ${name} - loading existing collection version file`);
-            result = <CollectionVersion>JSON.parse(buffer.toString());
+            result = <CollectionConfig>JSON.parse(buffer.toString());
         }
 
         logger(result);
@@ -52,14 +56,14 @@ export class CollectionManager implements Configurable{
 
         // check on each collection version file
         this.config.collections.forEach((collection) => {
-            const version = this.setupCollection(collection.name);
-            this.collectionVersions.push(version);
+            //const config = this.setupCollection(collection.name);
+            this.collectionConfigs.push(collection);
         });
     }
 
     public collections():string[] {
         let results:string[] = [];
-        this.collectionVersions.forEach((collection) => {
+        this.collectionConfigs.forEach((collection) => {
             results.push(collection.name);
         })
         return results;
@@ -68,13 +72,15 @@ export class CollectionManager implements Configurable{
     public getCollection(name:string):Collection {
         let result:Collection;
 
-        const foundIndex = this.collectionImplementations.findIndex((index) => index.getName() === name);
+        const foundIndex = this.collectionImplementations.findIndex((collection) => collection.getName() === name);
         if (foundIndex >= 0) {
             result = this.collectionImplementations[foundIndex];
         }
         else {
-            const version = this.setupCollection(name);
-            result = new CollectionImplementation(version);
+            const config = this.setupCollection(name);
+            const impl = new CollectionImplementation(config);
+            this.collectionImplementations.push(impl);
+            result = impl;
         }
         return result;
     }

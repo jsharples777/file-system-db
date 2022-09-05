@@ -1,19 +1,23 @@
 import {Collection} from "./Collection";
-import {CollectionVersion} from "./Types";
+import {CollectionConfig} from "./Types";
 
 export class CollectionImplementation implements Collection {
-    private versionConfig:CollectionVersion;
+    private config:CollectionConfig;
 
-    constructor(versionConfig:CollectionVersion) {
-        this.versionConfig = versionConfig;
+    constructor(config:CollectionConfig) {
+        this.config = config;
     }
 
     getVersion(): number {
-        return this.versionConfig.version;
+        return this.config.version;
     }
 
     getName(): string {
-        return this.versionConfig.name;
+        return this.config.name;
+    }
+
+    find(): any[] {
+        return [];
     }
 
 

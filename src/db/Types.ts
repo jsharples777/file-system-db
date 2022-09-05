@@ -3,29 +3,25 @@ export type OperationResult = {
     numberOfObjects: number,
     _id: string
 }
-/*
-{
-  "dbLocation": "./db",
-  "collections": [
-    {
-      "name": "test",
-      "key": "_id"
-    }
-  ],
-  "indexes": [
-    {
-      "name": "test_idx01",
-      "collection": "test",
-      "fields": ["_id","dates.createdDate"]
-    }
-  ]
 
+export enum BufferType {
+    NONE = 1,
+    ALL,
+    PARTIAL
 }
 
- */
-export type CollectionNameKey = {
+export enum EntryFileType {
+    ALL_IN_SINGLE_FILE=1,
+    FILE_PER_ENTRY
+}
+
+export type CollectionConfig = {
     name: string,
-    key: string
+    key: string,
+    entryFileType:EntryFileType,
+    bufferType:BufferType,
+    bufferSize?:number,
+    version:number
 }
 
 export type IndexConfig = {
@@ -36,7 +32,7 @@ export type IndexConfig = {
 
 export type DBConfig = {
     dbLocation: string,
-    collections: CollectionNameKey[],
+    collections: CollectionConfig[],
     indexes: IndexConfig[]
 }
 
@@ -61,10 +57,6 @@ export type IndexVersion = {
     version:number,
 }
 
-export type CollectionVersion = {
-    name:string,
-    version:number
-}
 
 export class MissingConfiguration extends Error {
     constructor(message: string) {
