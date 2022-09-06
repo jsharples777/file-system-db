@@ -7,20 +7,17 @@ export type OperationResult = {
 export enum BufferType {
     NONE = 1,
     ALL,
-    PARTIAL
+    FIFO,
+    LIFESPAN
 }
 
-export enum EntryFileType {
-    ALL_IN_SINGLE_FILE=1,
-    FILE_PER_ENTRY
-}
 
 export type CollectionConfig = {
     name: string,
     key: string,
-    entryFileType:EntryFileType,
     bufferType:BufferType,
     bufferSize?:number,
+    bufferItemLifecycleMilliseconds?:number,
     version:number
 }
 

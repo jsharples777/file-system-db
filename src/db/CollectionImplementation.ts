@@ -1,11 +1,15 @@
 import {Collection} from "./Collection";
 import {CollectionConfig} from "./Types";
+import {ObjectBuffer} from "./buffer/ObjectBuffer";
+import {BufferFactory} from "./buffer/BufferFactory";
 
 export class CollectionImplementation implements Collection {
     private config:CollectionConfig;
+    private buffer:ObjectBuffer;
 
     constructor(config:CollectionConfig) {
         this.config = config;
+        this.buffer = BufferFactory.getInstance().createBuffer(config);
     }
 
     getVersion(): number {
@@ -19,7 +23,5 @@ export class CollectionImplementation implements Collection {
     find(): any[] {
         return [];
     }
-
-
 
 }
