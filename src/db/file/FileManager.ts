@@ -47,6 +47,23 @@ export class FileManager implements Configurable{
         },this.fileQueueInterval);
     }
 
+    public isDuplicateKey(collection:string, key:string):boolean {
+        let result = false;
+        const collectionDir = `${this.config?.dbLocation}/${collection}`;
+        const files: string[] = fs.readdirSync(collectionDir);
+        files.every((file) => {
+            if (file.startsWith(key)) {
+                result = true;
+                return false;
+            }
+            else {
+                return true;
+            }
+        })
+
+        return result;
+    }
+
     public writeDataObjectFile(collection:string, key:string, object:any):void {
         this.fileWriteQueue.push({
             collection,
@@ -83,6 +100,16 @@ export class FileManager implements Configurable{
             fs.rmSync(objectFileName);
         }
         fs.writeFileSync(objectFileName,JSON.stringify(object));
+    }
+
+    public removeDataObjectFile(collection:string, key:string):boolean {
+        let result = false;
+        const objectFileName = `${this.config?.dbLocation}/${collection}/${key}.entry`;
+        if (fs.existsSync(objectFileName)) {
+            result = true;
+            fs.rmSync(objectFileName);
+        }
+        return result;
     }
 
 

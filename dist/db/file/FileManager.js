@@ -1,0 +1,119 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FileManager = void 0;
+const debug_1 = __importDefault(require("debug"));
+const fs_1 = __importDefault(require("fs"));
+const logger = (0, debug_1.default)('file-manager');
+class FileManager {
+    constructor() {
+        this.config = null;
+        this.fileWriteQueue = [];
+        this.isProcessingQueue = false;
+        const queueInterval = parseInt(process.env.FILE_QUEUE_INTERVAL || '500');
+        if (isNaN(queueInterval)) {
+            this.fileQueueInterval = 500;
+        }
+        else {
+            this.fileQueueInterval = queueInterval;
+        }
+        this.processFileQueue = this.processFileQueue.bind(this);
+    }
+    static getInstance() {
+        if (!FileManager._instance) {
+            FileManager._instance = new FileManager();
+        }
+        return FileManager._instance;
+    }
+    loadConfig(config) {
+        this.config = config;
+        const interval = setInterval(() => {
+            this.processFileQueue();
+        }, this.fileQueueInterval);
+    }
+    isDuplicateKey(collection, key) {
+        var _a;
+        let result = false;
+        const collectionDir = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}`;
+        const files = fs_1.default.readdirSync(collectionDir);
+        files.every((file) => {
+            if (file.startsWith(key)) {
+                result = true;
+                return false;
+            }
+            else {
+                return true;
+            }
+        });
+        return result;
+    }
+    writeDataObjectFile(collection, key, object) {
+        this.fileWriteQueue.push({
+            collection,
+            key,
+            object
+        });
+    }
+    readDataObjectFile(collection, key) {
+        var _a;
+        let result = null;
+        const objectFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}/${key}.entry`;
+        if (fs_1.default.existsSync(objectFileName)) {
+            logger(`File Not Found for collection ${collection}, entry ${key}`);
+            const content = fs_1.default.readFileSync(objectFileName);
+            try {
+                result = JSON.parse(content.toString());
+            }
+            catch (err) {
+                //invalid JSON - delete the file
+                fs_1.default.rmSync(objectFileName);
+            }
+        }
+        return result;
+    }
+    writeDataObjectFileContent(collection, key, object) {
+        var _a;
+        const objectFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}/${key}.entry`;
+        if (fs_1.default.existsSync(objectFileName)) {
+            logger(`File Found for collection ${collection}, entry ${key} - overwriting`);
+            fs_1.default.rmSync(objectFileName);
+        }
+        fs_1.default.writeFileSync(objectFileName, JSON.stringify(object));
+    }
+    removeDataObjectFile(collection, key) {
+        var _a;
+        let result = false;
+        const objectFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}/${key}.entry`;
+        if (fs_1.default.existsSync(objectFileName)) {
+            result = true;
+            fs_1.default.rmSync(objectFileName);
+        }
+        return result;
+    }
+    processFileQueue() {
+        if (!this.isProcessingQueue) {
+            this.isProcessingQueue = true;
+            this.fileWriteQueue.forEach((entry) => {
+                this.writeDataObjectFileContent(entry.collection, entry.key, entry.object);
+            });
+            this.isProcessingQueue = false;
+        }
+    }
+    readEntireCollection(collection) {
+        var _a;
+        let results = [];
+        const collectionDir = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}`;
+        const files = fs_1.default.readdirSync(collectionDir);
+        files.forEach((file) => {
+            if (file.endsWith('.entry')) {
+                const key = file.split('.')[0];
+                results.push(this.readDataObjectFile(collection, key));
+            }
+        });
+        return results;
+    }
+}
+exports.FileManager = FileManager;
+//# sourceMappingURL=FileManager.js.map

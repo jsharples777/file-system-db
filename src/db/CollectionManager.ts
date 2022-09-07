@@ -1,6 +1,6 @@
 import debug from 'debug';
 import {Configurable} from "./Configurable";
-import {BufferType, CollectionConfig, DBConfig, EntryFileType} from "./Types";
+import {BufferType, CollectionConfig, DBConfig} from "./Types";
 import fs from "fs";
 import {Collection} from "./Collection";
 import {CollectionImplementation} from "./CollectionImplementation";
@@ -25,7 +25,6 @@ export class CollectionManager implements Configurable{
         let result:CollectionConfig = {
             bufferSize: 0,
             bufferType: BufferType.NONE,
-            entryFileType: EntryFileType.ALL_IN_SINGLE_FILE,
             key: "_id",
             version:1,
             name:name
