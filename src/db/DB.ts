@@ -3,6 +3,7 @@ import debug from 'debug';
 import {CollectionManager} from "./CollectionManager";
 import {IndexManager} from "./IndexManager";
 import {Collection} from "./Collection";
+import {FileManager} from "./file/FileManager";
 
 const logger = debug('db');
 require('dotenv').config();
@@ -26,6 +27,7 @@ export class DB {
         if (!this.isInitialised) {
             const configLocation = process.env.FILE_SYSTEM_DB_CONFIG || 'cfg/config.json';
             const config = ConfigManager.getInstance().loadConfig(configLocation);
+            FileManager.getInstance().loadConfig(config);
             CollectionManager.getInstance().loadConfig(config);
             IndexManager.getInstance().loadConfig(config);
             this.isInitialised = true;

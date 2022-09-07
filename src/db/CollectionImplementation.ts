@@ -3,17 +3,20 @@ import {CollectionConfig, OperationResult} from "./Types";
 import {ObjectBuffer} from "./buffer/ObjectBuffer";
 import {BufferFactory} from "./buffer/BufferFactory";
 import {FileManager} from "./file/FileManager";
-import {v4} from "uuid";
+import debug from 'debug';
+
+const logger = debug('collection-implementation');
 
 
 export class CollectionImplementation implements Collection {
-    private config:CollectionConfig;
-    private buffer:ObjectBuffer;
+    private config: CollectionConfig;
+    private buffer: ObjectBuffer;
 
-    constructor(config:CollectionConfig) {
+    constructor(config: CollectionConfig) {
         this.config = config;
         this.buffer = BufferFactory.getInstance().createBuffer(config);
         if (this.buffer.isComplete()) {
+            logger(`Collection ${this.config.name} - buffer is complete - loading all`);
             // load all content
             const collection = FileManager.getInstance().readEntireCollection(this.config.name);
             this.buffer.initialise(collection);
@@ -21,14 +24,25 @@ export class CollectionImplementation implements Collection {
     }
 
     findByKey(key: string) {
-        let result:any|null = null;
+        logger(`Collection ${this.config.name} - find by key ${key}`);
+        let result: any | null = null;
         if (this.buffer.hasKey(key)) {
+            logger(`Collection ${this.config.name} - find by key ${key} - found in buffer`);
             result = this.buffer.getObject(key);
-        }
-        else {
-            result = FileManager.getInstance().readDataObjectFile(this.config.name,key);
+        } else {
+            // object could still be in write queue
+            result = FileManager.getInstance().checkWriteQueueForDataObject(this.config.name, key);
             if (result) {
-                this.buffer.addObject(key,result);
+                logger(`Collection ${this.config.name} - find by key ${key} - found in file manager write queue`);
+            } else {
+                logger(`Collection ${this.config.name} - find by key ${key} - trying to load from file`);
+                result = FileManager.getInstance().readDataObjectFile(this.config.name, key);
+                if (result) {
+                    logger(`Collection ${this.config.name} - find by key ${key} - found in file`);
+                    this.buffer.addObject(key, result);
+                }
+
+
             }
         }
         return result;
@@ -43,55 +57,53 @@ export class CollectionImplementation implements Collection {
     }
 
     find(): any[] {
-        let result:any[] = [];
+        logger(`Collection ${this.config.name} - find all`);
+        let result: any[] = [];
         if (this.buffer.isComplete()) {
+            logger(`Collection ${this.config.name} - find all - buffer is complete, getting from there`);
             result = this.buffer.objects();
-        }
-        else {
+        } else {
+            logger(`Collection ${this.config.name} - find all - loading all files`);
             const collection = FileManager.getInstance().readEntireCollection(this.config.name);
             this.buffer.initialise(collection);
+            result = collection;
         }
         return result;
     }
 
     insertObject(key: string, object: any): OperationResult {
-        let result:OperationResult = {
+        let result: OperationResult = {
             _id: key,
             completed: true,
             numberOfObjects: 1
         }
-        if (FileManager.getInstance().isDuplicateKey(this.config.name,key)) {
-            key = v4();
-            result._id = key;
-            FileManager.getInstance().writeDataObjectFile(this.config.name,key,object);
-        }
-        else {
-            FileManager.getInstance().writeDataObjectFile(this.config.name,key,object);
-        }
+
+        logger(`Collection ${this.config.name} - insert ${key}`);
+        FileManager.getInstance().writeDataObjectFile(this.config.name, key, object);
         this.buffer.addObject(key, object);
         return result;
     }
 
     removeObject(key: string): OperationResult {
-        let result:OperationResult = {
+        let result: OperationResult = {
             _id: key,
             completed: true,
-            numberOfObjects: 0
+            numberOfObjects: 1
         }
-        if (FileManager.getInstance().removeDataObjectFile(this.config.name,key)) {
-            result.numberOfObjects = 1;
-        }
+        logger(`Collection ${this.config.name} - remove ${key}`);
+        FileManager.getInstance().removeDataObjectFile(this.config.name, key);
         this.buffer.removeObject(key);
         return result;
     }
 
     updateObject(key: string, object: any): OperationResult {
-        let result:OperationResult = {
+        let result: OperationResult = {
             _id: key,
             completed: true,
             numberOfObjects: 1
         }
-        FileManager.getInstance().writeDataObjectFile(this.config.name,key,object);
+        logger(`Collection ${this.config.name} - update ${key}`);
+        FileManager.getInstance().writeDataObjectFile(this.config.name, key, object);
         this.buffer.replaceObject(key, object);
         return result;
     }

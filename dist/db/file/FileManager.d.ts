@@ -11,9 +11,11 @@ export declare class FileManager implements Configurable {
     loadConfig(config: DBConfig): void;
     isDuplicateKey(collection: string, key: string): boolean;
     writeDataObjectFile(collection: string, key: string, object: any): void;
+    removeDataObjectFile(collection: string, key: string): void;
     readDataObjectFile(collection: string, key: string): any | null;
     protected writeDataObjectFileContent(collection: string, key: string, object: any): void;
-    removeDataObjectFile(collection: string, key: string): boolean;
+    protected removeDataObjectFileContent(collection: string, key: string): boolean;
     protected processFileQueue(): void;
+    checkWriteQueueForDataObject(collection: string, key: string): any | null;
     readEntireCollection(collection: string): any[];
 }

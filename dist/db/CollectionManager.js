@@ -30,6 +30,10 @@ class CollectionManager {
             version: 1,
             name: name
         };
+        const foundIndex = this.collectionConfigs.findIndex((config) => config.name === name);
+        if (foundIndex >= 0) {
+            result = this.collectionConfigs[foundIndex];
+        }
         const collectionDir = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${name}`;
         if (!fs_1.default.existsSync(collectionDir)) {
             logger(`Setting up collection ${name} - making collection directory ${collectionDir}`);

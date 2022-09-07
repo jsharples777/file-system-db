@@ -4,8 +4,24 @@
     {
       "name": "test",
       "key": "_id",
-      "bufferType": 1,
-      "entryFileType": 1
+      "bufferType": 1
+    },
+    {
+      "name": "xxx",
+      "key": "_id",
+      "bufferType": 2
+    },
+    {
+      "name": "yyy",
+      "key": "_id",
+      "bufferType": 3,
+      "bufferSize": 5
+    },
+    {
+      "name": "zzz",
+      "key": "_id",
+      "bufferType": 4,
+      "bufferItemLifecycleSeconds": 10
     }
   ],
   "indexes": [

@@ -7,6 +7,11 @@ exports.FileManager = void 0;
 const debug_1 = __importDefault(require("debug"));
 const fs_1 = __importDefault(require("fs"));
 const logger = (0, debug_1.default)('file-manager');
+var FileQueueEntryOperation;
+(function (FileQueueEntryOperation) {
+    FileQueueEntryOperation[FileQueueEntryOperation["write"] = 0] = "write";
+    FileQueueEntryOperation[FileQueueEntryOperation["delete"] = 1] = "delete";
+})(FileQueueEntryOperation || (FileQueueEntryOperation = {}));
 class FileManager {
     constructor() {
         this.config = null;
@@ -32,6 +37,7 @@ class FileManager {
         const interval = setInterval(() => {
             this.processFileQueue();
         }, this.fileQueueInterval);
+        logger(`Starting file manager with queue interval of ${this.fileQueueInterval}`);
     }
     isDuplicateKey(collection, key) {
         var _a;
@@ -47,13 +53,23 @@ class FileManager {
                 return true;
             }
         });
+        logger(`Is duplicate key for collection ${collection} and key ${key} = ${result}`);
         return result;
     }
     writeDataObjectFile(collection, key, object) {
         this.fileWriteQueue.push({
             collection,
             key,
-            object
+            object,
+            operation: FileQueueEntryOperation.write
+        });
+    }
+    removeDataObjectFile(collection, key) {
+        this.fileWriteQueue.push({
+            collection,
+            key,
+            object: null,
+            operation: FileQueueEntryOperation.delete
         });
     }
     readDataObjectFile(collection, key) {
@@ -61,15 +77,18 @@ class FileManager {
         let result = null;
         const objectFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}/${key}.entry`;
         if (fs_1.default.existsSync(objectFileName)) {
-            logger(`File Not Found for collection ${collection}, entry ${key}`);
             const content = fs_1.default.readFileSync(objectFileName);
             try {
                 result = JSON.parse(content.toString());
+                logger(`Loading entry for collection ${collection}, entry ${key}`);
             }
             catch (err) {
                 //invalid JSON - delete the file
                 fs_1.default.rmSync(objectFileName);
             }
+        }
+        else {
+            logger(`File Not Found for collection ${collection}, entry ${key}`);
         }
         return result;
     }
@@ -82,13 +101,17 @@ class FileManager {
         }
         fs_1.default.writeFileSync(objectFileName, JSON.stringify(object));
     }
-    removeDataObjectFile(collection, key) {
+    removeDataObjectFileContent(collection, key) {
         var _a;
         let result = false;
         const objectFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}/${key}.entry`;
         if (fs_1.default.existsSync(objectFileName)) {
             result = true;
             fs_1.default.rmSync(objectFileName);
+            logger(`Deleting entry for collection ${collection}, entry ${key}`);
+        }
+        else {
+            logger(`Deleting entry for collection ${collection}, entry ${key} - File not found ${objectFileName}`);
         }
         return result;
     }
@@ -96,13 +119,31 @@ class FileManager {
         if (!this.isProcessingQueue) {
             this.isProcessingQueue = true;
             this.fileWriteQueue.forEach((entry) => {
-                this.writeDataObjectFileContent(entry.collection, entry.key, entry.object);
+                if (entry.operation === FileQueueEntryOperation.write) {
+                    this.writeDataObjectFileContent(entry.collection, entry.key, entry.object);
+                }
+                else {
+                    this.removeDataObjectFileContent(entry.collection, entry.key);
+                }
             });
+            this.fileWriteQueue = [];
             this.isProcessingQueue = false;
         }
     }
+    checkWriteQueueForDataObject(collection, key) {
+        let result = null;
+        this.fileWriteQueue.forEach((entry) => {
+            if (entry.operation === FileQueueEntryOperation.write) {
+                if (entry.key === key) {
+                    result = entry.object;
+                }
+            }
+        });
+        return result;
+    }
     readEntireCollection(collection) {
         var _a;
+        logger(`Loading collection ${collection}`);
         let results = [];
         const collectionDir = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}`;
         const files = fs_1.default.readdirSync(collectionDir);

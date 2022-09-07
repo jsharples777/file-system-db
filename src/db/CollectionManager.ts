@@ -29,6 +29,14 @@ export class CollectionManager implements Configurable{
             version:1,
             name:name
         }
+
+        const foundIndex = this.collectionConfigs.findIndex((config) => config.name === name);
+        if (foundIndex >= 0) {
+            result = this.collectionConfigs[foundIndex];
+        }
+
+
+
         const collectionDir = `${this.config?.dbLocation}/${name}`;
         if (!fs.existsSync(collectionDir)) {
             logger(`Setting up collection ${name} - making collection directory ${collectionDir}`);

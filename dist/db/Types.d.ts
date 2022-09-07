@@ -14,7 +14,7 @@ export declare type CollectionConfig = {
     key: string;
     bufferType: BufferType;
     bufferSize?: number;
-    bufferItemLifecycleMilliseconds?: number;
+    bufferItemLifecycleSeconds?: number;
     version: number;
 };
 export declare type IndexConfig = {

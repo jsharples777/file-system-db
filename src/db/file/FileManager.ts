@@ -6,10 +6,18 @@ import fs from "fs";
 
 const logger = debug('file-manager');
 
+enum FileQueueEntryOperation {
+    write,
+    delete
+
+}
+
+
 type FileQueueEntry = {
     collection:string,
     key:string,
-    object:any
+    object:any,
+    operation:FileQueueEntryOperation
 }
 
 export class FileManager implements Configurable{
@@ -45,6 +53,7 @@ export class FileManager implements Configurable{
         const interval = setInterval(() => {
             this.processFileQueue();
         },this.fileQueueInterval);
+        logger(`Starting file manager with queue interval of ${this.fileQueueInterval}`);
     }
 
     public isDuplicateKey(collection:string, key:string):boolean {
@@ -61,6 +70,7 @@ export class FileManager implements Configurable{
             }
         })
 
+        logger(`Is duplicate key for collection ${collection} and key ${key} = ${result}`);
         return result;
     }
 
@@ -68,7 +78,16 @@ export class FileManager implements Configurable{
         this.fileWriteQueue.push({
             collection,
             key,
-            object
+            object,
+            operation: FileQueueEntryOperation.write
+        });
+    }
+    public removeDataObjectFile(collection:string, key:string):void {
+        this.fileWriteQueue.push({
+            collection,
+            key,
+            object:null,
+            operation: FileQueueEntryOperation.delete
         });
     }
 
@@ -78,15 +97,18 @@ export class FileManager implements Configurable{
         const objectFileName = `${this.config?.dbLocation}/${collection}/${key}.entry`;
 
         if (fs.existsSync(objectFileName)) {
-            logger(`File Not Found for collection ${collection}, entry ${key}`);
             const content = fs.readFileSync(objectFileName);
             try {
                 result = JSON.parse(content.toString());
+                logger(`Loading entry for collection ${collection}, entry ${key}`);
             }
             catch (err) {
                 //invalid JSON - delete the file
                 fs.rmSync(objectFileName);
             }
+        }
+        else {
+            logger(`File Not Found for collection ${collection}, entry ${key}`);
         }
 
         return result;
@@ -102,12 +124,17 @@ export class FileManager implements Configurable{
         fs.writeFileSync(objectFileName,JSON.stringify(object));
     }
 
-    public removeDataObjectFile(collection:string, key:string):boolean {
+    protected removeDataObjectFileContent(collection:string, key:string):boolean {
         let result = false;
         const objectFileName = `${this.config?.dbLocation}/${collection}/${key}.entry`;
         if (fs.existsSync(objectFileName)) {
             result = true;
             fs.rmSync(objectFileName);
+            logger(`Deleting entry for collection ${collection}, entry ${key}`);
+        }
+        else {
+            logger(`Deleting entry for collection ${collection}, entry ${key} - File not found ${objectFileName}`);
+
         }
         return result;
     }
@@ -117,13 +144,34 @@ export class FileManager implements Configurable{
         if (!this.isProcessingQueue) {
             this.isProcessingQueue = true;
             this.fileWriteQueue.forEach((entry) => {
-                this.writeDataObjectFileContent(entry.collection,entry.key, entry.object);
+                if (entry.operation === FileQueueEntryOperation.write) {
+                    this.writeDataObjectFileContent(entry.collection,entry.key, entry.object);
+                }
+                else {
+                    this.removeDataObjectFileContent(entry.collection, entry.key);
+                }
+
             });
+            this.fileWriteQueue = [];
             this.isProcessingQueue = false;
         }
     }
 
+    public checkWriteQueueForDataObject(collection:string,key:string):any|null {
+        let result:any|null = null;
+        this.fileWriteQueue.forEach((entry) => {
+            if (entry.operation === FileQueueEntryOperation.write) {
+                if (entry.key === key) {
+                    result = entry.object;
+                }
+            }
+        });
+        return result;
+    }
+
     public readEntireCollection(collection:string):any[] {
+        logger(`Loading collection ${collection}`);
+
         let results:any[] = [];
         const collectionDir = `${this.config?.dbLocation}/${collection}`;
         const files: string[] = fs.readdirSync(collectionDir);

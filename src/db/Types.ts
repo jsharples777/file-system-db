@@ -17,7 +17,7 @@ export type CollectionConfig = {
     key: string,
     bufferType:BufferType,
     bufferSize?:number,
-    bufferItemLifecycleMilliseconds?:number,
+    bufferItemLifecycleSeconds?:number,
     version:number
 }
 
