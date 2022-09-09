@@ -4,6 +4,7 @@ import {CollectionManager} from "./collection/CollectionManager";
 import {IndexManager} from "./index/IndexManager";
 import {Collection} from "./collection/Collection";
 import {CollectionFileManager} from "./collection/CollectionFileManager";
+import {IndexFileManager} from "./index/IndexFileManager";
 
 const logger = debug('db');
 require('dotenv').config();
@@ -37,6 +38,7 @@ export class DB {
             const config = ConfigManager.getInstance().loadConfig(configLocation);
             CollectionFileManager.getInstance().loadConfig(config);
             CollectionManager.getInstance().loadConfig(config);
+            IndexFileManager.getInstance().loadConfig(config);
             IndexManager.getInstance().loadConfig(config);
             this.isInitialised = true;
         }

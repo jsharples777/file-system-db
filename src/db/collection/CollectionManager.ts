@@ -84,7 +84,19 @@ export class CollectionManager implements Configurable{
             result = this.collectionImplementations[foundIndex];
         }
         else {
-            const config = this.setupCollection(name);
+            const foundConfigIndex = this.collectionConfigs.findIndex((config) => config.name === name);
+            let config:CollectionConfig;
+            if (foundConfigIndex >= 0) {
+                config = this.collectionConfigs[foundConfigIndex];
+            }
+            else {
+                config = {
+                    bufferType: BufferType.ALL,
+                    key: "_id",
+                    name: name,
+                    version: 0
+                }
+            }
             const impl = new CollectionImplementation(config);
             this.collectionImplementations.push(impl);
             result = impl;

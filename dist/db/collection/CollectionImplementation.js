@@ -17,8 +17,13 @@ class CollectionImplementation {
         if (this.buffer.isComplete()) {
             logger(`Collection ${this.config.name} - buffer is complete - loading all`);
             // load all content
-            const collection = CollectionFileManager_1.CollectionFileManager.getInstance().readEntireCollection(this.config.name);
-            this.buffer.initialise(collection);
+            const contentAndConfig = CollectionFileManager_1.CollectionFileManager.getInstance().readEntireCollection(this.config);
+            this.buffer.initialise(contentAndConfig.content);
+            this.config = contentAndConfig.config;
+        }
+        else {
+            logger(`Collection ${this.config.name} - buffer is not complete - loading config`);
+            this.config = CollectionFileManager_1.CollectionFileManager.getInstance().readCollectionConfig(this.config);
         }
     }
     findByKey(key) {
@@ -60,9 +65,10 @@ class CollectionImplementation {
         }
         else {
             logger(`Collection ${this.config.name} - find all - loading all files`);
-            const collection = CollectionFileManager_1.CollectionFileManager.getInstance().readEntireCollection(this.config.name);
-            this.buffer.initialise(collection);
-            result = collection;
+            const contentAndConfig = CollectionFileManager_1.CollectionFileManager.getInstance().readEntireCollection(this.config);
+            this.buffer.initialise(contentAndConfig.content);
+            this.config = contentAndConfig.config;
+            result = contentAndConfig.content;
         }
         return result;
     }
@@ -107,6 +113,9 @@ class CollectionImplementation {
     }
     findBy(search) {
         return SearchProcessor_1.SearchProcessor.searchCollection(this, search);
+    }
+    upsertObject(key, object) {
+        return this.updateObject(key, object);
     }
 }
 exports.CollectionImplementation = CollectionImplementation;

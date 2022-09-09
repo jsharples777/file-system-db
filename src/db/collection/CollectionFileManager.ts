@@ -3,6 +3,7 @@ import {BufferType, CollectionConfig, DBConfig, DuplicateKey} from "../Types";
 import {Configurable} from "../Configurable";
 import fs from "fs";
 import {DB} from "../DB";
+import {Collection} from "./Collection";
 
 
 const logger = debug('collection-file-manager');
@@ -188,18 +189,41 @@ export class CollectionFileManager implements Configurable{
         return result;
     }
 
-    public readEntireCollection(collection:string):any[] {
-        logger(`Loading collection ${collection}`);
+    public readCollectionConfig(collectionConfig:CollectionConfig):CollectionConfig {
+        let result:CollectionConfig = DB.copyObject(collectionConfig);
+        const configFileName = `${this.config?.dbLocation}/${collectionConfig.name}/${collectionConfig.name}.vrs`;
+        if (!fs.existsSync(configFileName)) {
+            result.version = 1;
+            console.log('XXXXXXXXX');
+            fs.writeFileSync(configFileName,JSON.stringify(result));
+        }
+        else {
+            result = <CollectionConfig>JSON.parse(fs.readFileSync(configFileName).toString());
+        }
+        return result;
+    }
 
-        let results:any[] = [];
-        const collectionDir = `${this.config?.dbLocation}/${collection}`;
+    public readEntireCollection(collectionConfig:CollectionConfig):{
+        config:CollectionConfig,
+        content:any[]
+    } {
+        logger(`Loading collection ${collectionConfig.name}`);
+
+        let results:any = {
+            config: {},
+            content:[]
+        };
+        const collectionDir = `${this.config?.dbLocation}/${collectionConfig.name}`;
         const files: string[] = fs.readdirSync(collectionDir);
         files.forEach((file) => {
             if (file.endsWith('.entry')) {
                 const key = file.split('.')[0];
-                results.push(this.readDataObjectFile(collection,key));
+                results.content.push(this.readDataObjectFile(collectionConfig.name,key));
             }
         });
+        results.config = this.readCollectionConfig(collectionConfig);
+
+
 
         return results;
     }

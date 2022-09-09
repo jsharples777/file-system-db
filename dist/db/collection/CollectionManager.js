@@ -74,7 +74,19 @@ class CollectionManager {
             result = this.collectionImplementations[foundIndex];
         }
         else {
-            const config = this.setupCollection(name);
+            const foundConfigIndex = this.collectionConfigs.findIndex((config) => config.name === name);
+            let config;
+            if (foundConfigIndex >= 0) {
+                config = this.collectionConfigs[foundConfigIndex];
+            }
+            else {
+                config = {
+                    bufferType: Types_1.BufferType.ALL,
+                    key: "_id",
+                    name: name,
+                    version: 0
+                };
+            }
             const impl = new CollectionImplementation_1.CollectionImplementation(config);
             this.collectionImplementations.push(impl);
             result = impl;

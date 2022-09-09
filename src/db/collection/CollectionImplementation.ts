@@ -21,8 +21,13 @@ export class CollectionImplementation implements Collection {
         if (this.buffer.isComplete()) {
             logger(`Collection ${this.config.name} - buffer is complete - loading all`);
             // load all content
-            const collection = CollectionFileManager.getInstance().readEntireCollection(this.config.name);
-            this.buffer.initialise(collection);
+            const contentAndConfig = CollectionFileManager.getInstance().readEntireCollection(this.config);
+            this.buffer.initialise(contentAndConfig.content);
+            this.config = contentAndConfig.config;
+        }
+        else {
+            logger(`Collection ${this.config.name} - buffer is not complete - loading config`);
+            this.config = CollectionFileManager.getInstance().readCollectionConfig(this.config);
         }
     }
 
@@ -67,9 +72,10 @@ export class CollectionImplementation implements Collection {
             result = this.buffer.objects();
         } else {
             logger(`Collection ${this.config.name} - find all - loading all files`);
-            const collection = CollectionFileManager.getInstance().readEntireCollection(this.config.name);
-            this.buffer.initialise(collection);
-            result = collection;
+            const contentAndConfig = CollectionFileManager.getInstance().readEntireCollection(this.config);
+            this.buffer.initialise(contentAndConfig.content);
+            this.config = contentAndConfig.config;
+            result = contentAndConfig.content;
         }
         return result;
     }
@@ -119,6 +125,10 @@ export class CollectionImplementation implements Collection {
 
     findBy(search:SearchFilter):any[] {
         return SearchProcessor.searchCollection(this,search);
+    }
+
+    upsertObject(key: string, object: any): OperationResult {
+        return this.updateObject(key,object);
     }
 
 }

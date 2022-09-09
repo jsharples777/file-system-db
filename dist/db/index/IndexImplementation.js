@@ -32,6 +32,7 @@ class IndexImplementation {
         setInterval(() => {
             this.checkIndexUse();
         }, this.defaultLifespan / 2 * 1000);
+        logger(`Constructing index ${this.config.name} for collection ${this.config.collection}`);
     }
     checkIndexUse() {
         if (this.indexInUse) {
@@ -130,6 +131,11 @@ class IndexImplementation {
             logger(`Updating index entry for ${key}`);
             const newEntry = this.constructIndexEntry(key, object);
             this.content.entries.splice(foundIndex, 1, newEntry);
+        }
+        else {
+            logger(`Adding index entry for ${key}`);
+            const newEntry = this.constructIndexEntry(key, object);
+            this.content.entries.push(newEntry);
         }
         this.version.version = version;
         IndexFileManager_1.IndexFileManager.getInstance().writeIndexFile(this);

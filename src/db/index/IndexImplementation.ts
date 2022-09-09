@@ -41,6 +41,7 @@ export class IndexImplementation implements Index {
         setInterval(() => {
             this.checkIndexUse();
         }, this.defaultLifespan / 2 * 1000);
+        logger(`Constructing index ${this.config.name} for collection ${this.config.collection}`);
 
     }
 
@@ -116,6 +117,7 @@ export class IndexImplementation implements Index {
         logger(`Creating new index entry for ${key}`);
         this.content.entries.push(object);
         this.version.version = version;
+        this.content.version = version;
         IndexFileManager.getInstance().writeIndexFile(this);
     }
 
@@ -127,6 +129,7 @@ export class IndexImplementation implements Index {
             this.content.entries.splice(foundIndex, 1);
         }
         this.version.version = version;
+        this.content.version = version;
         IndexFileManager.getInstance().writeIndexFile(this);
     }
 
@@ -155,8 +158,15 @@ export class IndexImplementation implements Index {
             logger(`Updating index entry for ${key}`);
             const newEntry = this.constructIndexEntry(key, object);
             this.content.entries.splice(foundIndex, 1, newEntry);
+
+        }
+        else {
+            logger(`Adding index entry for ${key}`);
+            const newEntry = this.constructIndexEntry(key, object);
+            this.content.entries.push(newEntry);
         }
         this.version.version = version;
+        this.content.version = version;
         IndexFileManager.getInstance().writeIndexFile(this);
 
     }
@@ -164,6 +174,7 @@ export class IndexImplementation implements Index {
     setVersion(version: number): void {
         this.checkIndexLoaded();
         this.version.version = version;
+        this.content.version = version;
     }
 
     protected rebuildIndex(version: IndexVersion): void {

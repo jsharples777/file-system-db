@@ -18,5 +18,9 @@ export declare class CollectionFileManager implements Configurable {
     protected removeDataObjectFileContent(config: CollectionConfig, collection: string, key: string): boolean;
     protected processFileQueue(): void;
     checkWriteQueueForDataObject(collection: string, key: string): any | null;
-    readEntireCollection(collection: string): any[];
+    readCollectionConfig(collectionConfig: CollectionConfig): CollectionConfig;
+    readEntireCollection(collectionConfig: CollectionConfig): {
+        config: CollectionConfig;
+        content: any[];
+    };
 }

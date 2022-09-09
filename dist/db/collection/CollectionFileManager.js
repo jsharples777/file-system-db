@@ -161,18 +161,36 @@ class CollectionFileManager {
         });
         return result;
     }
-    readEntireCollection(collection) {
+    readCollectionConfig(collectionConfig) {
         var _a;
-        logger(`Loading collection ${collection}`);
-        let results = [];
-        const collectionDir = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}`;
+        let result = DB_1.DB.copyObject(collectionConfig);
+        const configFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collectionConfig.name}/${collectionConfig.name}.vrs`;
+        if (!fs_1.default.existsSync(configFileName)) {
+            result.version = 1;
+            console.log('XXXXXXXXX');
+            fs_1.default.writeFileSync(configFileName, JSON.stringify(result));
+        }
+        else {
+            result = JSON.parse(fs_1.default.readFileSync(configFileName).toString());
+        }
+        return result;
+    }
+    readEntireCollection(collectionConfig) {
+        var _a;
+        logger(`Loading collection ${collectionConfig.name}`);
+        let results = {
+            config: {},
+            content: []
+        };
+        const collectionDir = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collectionConfig.name}`;
         const files = fs_1.default.readdirSync(collectionDir);
         files.forEach((file) => {
             if (file.endsWith('.entry')) {
                 const key = file.split('.')[0];
-                results.push(this.readDataObjectFile(collection, key));
+                results.content.push(this.readDataObjectFile(collectionConfig.name, key));
             }
         });
+        results.config = this.readCollectionConfig(collectionConfig);
         return results;
     }
 }

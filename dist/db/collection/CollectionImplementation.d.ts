@@ -13,4 +13,5 @@ export declare class CollectionImplementation implements Collection {
     removeObject(key: string): OperationResult;
     updateObject(key: string, object: any): OperationResult;
     findBy(search: SearchFilter): any[];
+    upsertObject(key: string, object: any): OperationResult;
 }
