@@ -1,24 +1,18 @@
-import {Index} from "./Index";
-import {IndexConfig, IndexContent, IndexEntry, IndexVersion} from "../Types";
-import {CollectionManager} from "../collection/CollectionManager";
-import debug from 'debug';
-import {DB} from "../DB";
-import {IndexFileManager} from "./IndexFileManager";
-import {SearchFilter} from "../search/SearchTypes";
-
-const logger = debug('index-implementation');
-
-export class IndexImplementation implements Index {
-    private config: IndexConfig;
-    private dbLocation: string;
-    private version: IndexVersion;
-    private content: IndexContent;
-    private indexLoaded: boolean = false;
-    private indexInUse: boolean = false;
-    private defaultLifespan: number;
-
-
-    constructor(dbLocation: string, config: IndexConfig) {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.IndexImplementation = void 0;
+const CollectionManager_1 = require("../collection/CollectionManager");
+const debug_1 = __importDefault(require("debug"));
+const DB_1 = require("../DB");
+const IndexFileManager_1 = require("./IndexFileManager");
+const logger = (0, debug_1.default)('index-implementation');
+class IndexImplementation {
+    constructor(dbLocation, config) {
+        this.indexLoaded = false;
+        this.indexInUse = false;
         this.dbLocation = dbLocation;
         this.config = config;
         this.version = {
@@ -30,96 +24,79 @@ export class IndexImplementation implements Index {
             version: 1,
             entries: []
         };
-
         this.defaultLifespan = parseInt(process.env.DEFAULT_INDEX_LIFESPAN_SEC || '600');
         if (isNaN(this.defaultLifespan)) {
             this.defaultLifespan = 600;
         }
-
         this.checkIndexUse = this.checkIndexUse.bind(this);
-
         setInterval(() => {
             this.checkIndexUse();
         }, this.defaultLifespan / 2 * 1000);
-
     }
-
-    protected checkIndexUse(): void {
+    checkIndexUse() {
         if (this.indexInUse) {
             this.indexInUse = false;
-        } else {
-            if (this.indexLoaded) this.removeIndexBuffer();
+        }
+        else {
+            if (this.indexLoaded)
+                this.removeIndexBuffer();
         }
     }
-
-    protected removeIndexBuffer(): void {
+    removeIndexBuffer() {
         logger(`Index hasn't been used in ${this.defaultLifespan} seconds, removing buffer`);
         this.content.entries = [];
         this.indexLoaded = false;
         this.indexInUse = false;
     }
-
-
-    findMatchingKeys(searchFilter: SearchFilter): string[] {
+    findMatchingKeys(searchFilter) {
         this.checkIndexLoaded();
         return [];
     }
-
-    getCollection(): string {
+    getCollection() {
         return this.config.collection + '';
     }
-
-    protected checkIndexLoaded(): void {
+    checkIndexLoaded() {
         if (!this.indexLoaded) {
-            const result = IndexFileManager.getInstance().readIndex(this.config.collection, this.config.name);
+            const result = IndexFileManager_1.IndexFileManager.getInstance().readIndex(this.config.collection, this.config.name);
             this.version = result.version;
             this.content = result.content;
             this.indexLoaded = true;
         }
         this.indexInUse = true;
     }
-
-    getEntries(): IndexEntry[] {
+    getEntries() {
         this.checkIndexLoaded();
         return this.content.entries;
     }
-
-    getFields(): string[] {
-        return DB.copyObject(this.config.fields);
+    getFields() {
+        return DB_1.DB.copyObject(this.config.fields);
     }
-
-    getIndexContent(): IndexContent {
+    getIndexContent() {
         this.checkIndexLoaded();
         return this.content;
     }
-
-    getIndexVersion(): IndexVersion {
+    getIndexVersion() {
         this.checkIndexLoaded();
         return this.version;
     }
-
-    getName(): string {
+    getName() {
         return this.config.name + '';
     }
-
-    getVersion(): number {
+    getVersion() {
         this.checkIndexLoaded();
         return this.version.version;
     }
-
-    matchesFilter(searchFilter: SearchFilter): boolean {
+    matchesFilter(searchFilter) {
         return false;
     }
-
-    objectAdded(version: number, key: string, object: any): void {
+    objectAdded(version, key, object) {
         this.checkIndexLoaded();
         logger(`Creating new index entry for ${key}`);
         this.content.entries.push(object);
         this.version.version = version;
-        IndexFileManager.getInstance().writeIndexFile(this);
+        IndexFileManager_1.IndexFileManager.getInstance().writeIndexFile(this);
     }
-
-    objectRemoved(version: number, key: string): void {
+    objectRemoved(version, key) {
         this.checkIndexLoaded();
         const foundIndex = this.content.entries.findIndex((entry) => entry.keyValue === key);
         if (foundIndex >= 0) {
@@ -127,14 +104,13 @@ export class IndexImplementation implements Index {
             this.content.entries.splice(foundIndex, 1);
         }
         this.version.version = version;
-        IndexFileManager.getInstance().writeIndexFile(this);
+        IndexFileManager_1.IndexFileManager.getInstance().writeIndexFile(this);
     }
-
-    private constructIndexEntry(key: string, object: any): IndexEntry {
-        const indexEntry: IndexEntry = {
+    constructIndexEntry(key, object) {
+        const indexEntry = {
             keyValue: key,
             fieldValues: []
-        }
+        };
         // find each field for index config
         this.config.fields.forEach((field => {
             const fieldValue = this.getFieldValue(object, field);
@@ -147,8 +123,7 @@ export class IndexImplementation implements Index {
         }));
         return indexEntry;
     }
-
-    objectUpdated(version: number, key: string, object: any): void {
+    objectUpdated(version, key, object) {
         this.checkIndexLoaded();
         const foundIndex = this.content.entries.findIndex((entry) => entry.keyValue === key);
         if (foundIndex >= 0) {
@@ -157,29 +132,26 @@ export class IndexImplementation implements Index {
             this.content.entries.splice(foundIndex, 1, newEntry);
         }
         this.version.version = version;
-        IndexFileManager.getInstance().writeIndexFile(this);
-
+        IndexFileManager_1.IndexFileManager.getInstance().writeIndexFile(this);
     }
-
-    setVersion(version: number): void {
+    setVersion(version) {
         this.checkIndexLoaded();
         this.version.version = version;
     }
-
-    protected rebuildIndex(version: IndexVersion): void {
+    rebuildIndex(version) {
         if (this.config) {
-            const collection = CollectionManager.getInstance().getCollection(version.collection);
+            const collection = CollectionManager_1.CollectionManager.getInstance().getCollection(version.collection);
             const versionNumber = collection.getVersion();
-            const indexContent: IndexContent = {
+            const indexContent = {
                 version: versionNumber,
                 entries: []
-            }
+            };
             const entries = collection.find();
             entries.forEach((entry) => {
-                const indexEntry: IndexEntry = {
+                const indexEntry = {
                     keyValue: entry._id,
                     fieldValues: []
-                }
+                };
                 // find each field for index config
                 this.config.fields.forEach((field => {
                     const fieldValue = this.getFieldValue(entry, field);
@@ -194,9 +166,8 @@ export class IndexImplementation implements Index {
             });
         }
     }
-
-    protected getFieldValue(entry: any, field: string): any | undefined {
-        let result: any | undefined = undefined;
+    getFieldValue(entry, field) {
+        let result = undefined;
         // any dot notation?
         const fieldParts = field.split('.');
         if (fieldParts.length > 1) {
@@ -211,12 +182,12 @@ export class IndexImplementation implements Index {
                     }
                 }
             });
-
-        } else {
+        }
+        else {
             result = entry[field];
         }
         return result;
     }
-
-
 }
+exports.IndexImplementation = IndexImplementation;
+//# sourceMappingURL=IndexImplementation.js.map

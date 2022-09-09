@@ -1,4 +1,5 @@
-import {IndexContent, IndexEntry, IndexVersion, SearchFilter} from "../Types";
+import {IndexContent, IndexEntry, IndexVersion} from "../Types";
+import {SearchFilter} from "../search/SearchTypes";
 
 export interface Index {
     setVersion(version:number):void;

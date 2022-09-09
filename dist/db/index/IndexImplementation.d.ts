@@ -1,0 +1,32 @@
+import { Index } from "./Index";
+import { IndexConfig, IndexContent, IndexEntry, IndexVersion } from "../Types";
+import { SearchFilter } from "../search/SearchTypes";
+export declare class IndexImplementation implements Index {
+    private config;
+    private dbLocation;
+    private version;
+    private content;
+    private indexLoaded;
+    private indexInUse;
+    private defaultLifespan;
+    constructor(dbLocation: string, config: IndexConfig);
+    protected checkIndexUse(): void;
+    protected removeIndexBuffer(): void;
+    findMatchingKeys(searchFilter: SearchFilter): string[];
+    getCollection(): string;
+    protected checkIndexLoaded(): void;
+    getEntries(): IndexEntry[];
+    getFields(): string[];
+    getIndexContent(): IndexContent;
+    getIndexVersion(): IndexVersion;
+    getName(): string;
+    getVersion(): number;
+    matchesFilter(searchFilter: SearchFilter): boolean;
+    objectAdded(version: number, key: string, object: any): void;
+    objectRemoved(version: number, key: string): void;
+    private constructIndexEntry;
+    objectUpdated(version: number, key: string, object: any): void;
+    setVersion(version: number): void;
+    protected rebuildIndex(version: IndexVersion): void;
+    protected getFieldValue(entry: any, field: string): any | undefined;
+}

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.InvalidConfiguration = exports.MissingConfiguration = exports.BufferType = void 0;
+exports.DuplicateKey = exports.InvalidConfiguration = exports.MissingConfiguration = exports.BufferType = void 0;
 var BufferType;
 (function (BufferType) {
     BufferType[BufferType["NONE"] = 1] = "NONE";
@@ -20,4 +20,10 @@ class InvalidConfiguration extends Error {
     }
 }
 exports.InvalidConfiguration = InvalidConfiguration;
+class DuplicateKey extends Error {
+    constructor(message) {
+        super(message);
+    }
+}
+exports.DuplicateKey = DuplicateKey;
 //# sourceMappingURL=Types.js.map

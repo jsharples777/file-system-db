@@ -35,7 +35,7 @@ export declare type IndexEntry = {
     keyValue: string;
     fieldValues: IndexEntryFieldNameValue[];
 };
-export declare type Index = {
+export declare type IndexContent = {
     version: number;
     entries: IndexEntry[];
 };
@@ -48,5 +48,8 @@ export declare class MissingConfiguration extends Error {
     constructor(message: string);
 }
 export declare class InvalidConfiguration extends Error {
+    constructor(message: string);
+}
+export declare class DuplicateKey extends Error {
     constructor(message: string);
 }

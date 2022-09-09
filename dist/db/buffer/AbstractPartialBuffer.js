@@ -20,7 +20,7 @@ class AbstractPartialBuffer {
         else {
             this.maxFifoBufferSize = maxFifoBufferSize;
         }
-        const defaultBufferItemLifespan = parseInt(process.env.DEFAULT_BUFFER_ITEM_LIFESPAN || '600');
+        const defaultBufferItemLifespan = parseInt(process.env.DEFAULT_BUFFER_ITEM_LIFESPAN_SEC || '600');
         if (isNaN(defaultBufferItemLifespan)) {
             this.defaultBufferItemLifespan = 600;
         }
