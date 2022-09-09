@@ -1,6 +1,6 @@
 import debug from 'debug';
-import {Configurable} from "./Configurable";
-import {BufferType, CollectionConfig, DBConfig} from "./Types";
+import {Configurable} from "../Configurable";
+import {BufferType, CollectionConfig, DBConfig} from "../Types";
 import fs from "fs";
 import {Collection} from "./Collection";
 import {CollectionImplementation} from "./CollectionImplementation";

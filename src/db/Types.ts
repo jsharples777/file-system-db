@@ -43,16 +43,19 @@ export type IndexEntry = {
     fieldValues:IndexEntryFieldNameValue[]
 }
 
-export type Index = {
+export type IndexContent = {
     version:number,
-    entries: IndexEntry[]
+    entries:IndexEntry[]
 }
+
 
 export type IndexVersion = {
     name: string,
     collection: string,
     version:number,
 }
+
+
 
 
 export class MissingConfiguration extends Error {
@@ -62,6 +65,11 @@ export class MissingConfiguration extends Error {
 }
 
 export class InvalidConfiguration extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}
+export class DuplicateKey extends Error {
     constructor(message: string) {
         super(message);
     }

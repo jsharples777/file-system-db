@@ -157,4 +157,4 @@ class FileManager {
     }
 }
 exports.FileManager = FileManager;
-//# sourceMappingURL=FileManager.js.map
+//# sourceMappingURL=CollectionFileManager.js.map

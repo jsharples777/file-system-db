@@ -1,9 +1,9 @@
 import {ConfigManager} from "./ConfigManager";
 import debug from 'debug';
-import {CollectionManager} from "./CollectionManager";
-import {IndexManager} from "./IndexManager";
-import {Collection} from "./Collection";
-import {FileManager} from "./file/FileManager";
+import {CollectionManager} from "./collection/CollectionManager";
+import {IndexManager} from "./index/IndexManager";
+import {Collection} from "./collection/Collection";
+import {CollectionFileManager} from "./collection/CollectionFileManager";
 
 const logger = debug('db');
 require('dotenv').config();
@@ -17,6 +17,14 @@ export class DB {
         return DB._instance;
     }
 
+    public static copyObject(object:any):any {
+        let result = undefined;
+        if (object) {
+            result = JSON.parse(JSON.stringify(object));
+        }
+        return result;
+    }
+
     private isInitialised:boolean = false;
 
     private constructor(){
@@ -27,7 +35,7 @@ export class DB {
         if (!this.isInitialised) {
             const configLocation = process.env.FILE_SYSTEM_DB_CONFIG || 'cfg/config.json';
             const config = ConfigManager.getInstance().loadConfig(configLocation);
-            FileManager.getInstance().loadConfig(config);
+            CollectionFileManager.getInstance().loadConfig(config);
             CollectionManager.getInstance().loadConfig(config);
             IndexManager.getInstance().loadConfig(config);
             this.isInitialised = true;

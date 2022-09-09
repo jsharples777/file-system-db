@@ -1,9 +1,12 @@
 import {Collection} from "./Collection";
-import {CollectionConfig, OperationResult} from "./Types";
-import {ObjectBuffer} from "./buffer/ObjectBuffer";
-import {BufferFactory} from "./buffer/BufferFactory";
-import {FileManager} from "./file/FileManager";
+import {CollectionConfig, OperationResult} from "../Types";
+import {ObjectBuffer} from "../buffer/ObjectBuffer";
+import {BufferFactory} from "../buffer/BufferFactory";
+import {CollectionFileManager} from "./CollectionFileManager";
 import debug from 'debug';
+import {IndexManager} from "../index/IndexManager";
+import {SearchFilter} from "../search/SearchTypes";
+import {SearchProcessor} from "../search/SearchProcessor";
 
 const logger = debug('collection-implementation');
 
@@ -18,7 +21,7 @@ export class CollectionImplementation implements Collection {
         if (this.buffer.isComplete()) {
             logger(`Collection ${this.config.name} - buffer is complete - loading all`);
             // load all content
-            const collection = FileManager.getInstance().readEntireCollection(this.config.name);
+            const collection = CollectionFileManager.getInstance().readEntireCollection(this.config.name);
             this.buffer.initialise(collection);
         }
     }
@@ -31,12 +34,12 @@ export class CollectionImplementation implements Collection {
             result = this.buffer.getObject(key);
         } else {
             // object could still be in write queue
-            result = FileManager.getInstance().checkWriteQueueForDataObject(this.config.name, key);
+            result = CollectionFileManager.getInstance().checkWriteQueueForDataObject(this.config.name, key);
             if (result) {
                 logger(`Collection ${this.config.name} - find by key ${key} - found in file manager write queue`);
             } else {
                 logger(`Collection ${this.config.name} - find by key ${key} - trying to load from file`);
-                result = FileManager.getInstance().readDataObjectFile(this.config.name, key);
+                result = CollectionFileManager.getInstance().readDataObjectFile(this.config.name, key);
                 if (result) {
                     logger(`Collection ${this.config.name} - find by key ${key} - found in file`);
                     this.buffer.addObject(key, result);
@@ -64,7 +67,7 @@ export class CollectionImplementation implements Collection {
             result = this.buffer.objects();
         } else {
             logger(`Collection ${this.config.name} - find all - loading all files`);
-            const collection = FileManager.getInstance().readEntireCollection(this.config.name);
+            const collection = CollectionFileManager.getInstance().readEntireCollection(this.config.name);
             this.buffer.initialise(collection);
             result = collection;
         }
@@ -79,8 +82,10 @@ export class CollectionImplementation implements Collection {
         }
 
         logger(`Collection ${this.config.name} - insert ${key}`);
-        FileManager.getInstance().writeDataObjectFile(this.config.name, key, object);
+        this.config.version++;
+        CollectionFileManager.getInstance().writeDataObjectFile(this.config,this.config.name, key, object,true);
         this.buffer.addObject(key, object);
+        IndexManager.getInstance().entryInserted(this.config.name,key,this.config.version,object);
         return result;
     }
 
@@ -91,8 +96,10 @@ export class CollectionImplementation implements Collection {
             numberOfObjects: 1
         }
         logger(`Collection ${this.config.name} - remove ${key}`);
-        FileManager.getInstance().removeDataObjectFile(this.config.name, key);
+        this.config.version++;
+        CollectionFileManager.getInstance().removeDataObjectFile(this.config,this.config.name, key);
         this.buffer.removeObject(key);
+        IndexManager.getInstance().entryDeleted(this.config.name,key,this.config.version);
         return result;
     }
 
@@ -103,9 +110,15 @@ export class CollectionImplementation implements Collection {
             numberOfObjects: 1
         }
         logger(`Collection ${this.config.name} - update ${key}`);
-        FileManager.getInstance().writeDataObjectFile(this.config.name, key, object);
+        this.config.version++;
+        CollectionFileManager.getInstance().writeDataObjectFile(this.config,this.config.name, key, object,false);
         this.buffer.replaceObject(key, object);
+        IndexManager.getInstance().entryUpdated(this.config.name,key,this.config.version,object);
         return result;
+    }
+
+    findBy(search:SearchFilter):any[] {
+        return SearchProcessor.searchCollection(this,search);
     }
 
 }

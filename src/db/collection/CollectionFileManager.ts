@@ -1,12 +1,13 @@
 import debug from 'debug';
-import {BufferType, CollectionConfig, DBConfig} from "../Types";
+import {BufferType, CollectionConfig, DBConfig, DuplicateKey} from "../Types";
 import {Configurable} from "../Configurable";
 import fs from "fs";
+import {DB} from "../DB";
 
 
-const logger = debug('file-manager');
+const logger = debug('collection-file-manager');
 
-enum FileQueueEntryOperation {
+enum CollectionFileQueueEntryOperation {
     write,
     delete
 
@@ -14,19 +15,20 @@ enum FileQueueEntryOperation {
 
 
 type FileQueueEntry = {
+    config:CollectionConfig,
     collection:string,
     key:string,
     object:any,
-    operation:FileQueueEntryOperation
+    operation:CollectionFileQueueEntryOperation
 }
 
-export class FileManager implements Configurable{
-    private static _instance: FileManager;
-    public static getInstance(): FileManager {
-        if (!FileManager._instance) {
-            FileManager._instance = new FileManager();
+export class CollectionFileManager implements Configurable{
+    private static _instance: CollectionFileManager;
+    public static getInstance(): CollectionFileManager {
+        if (!CollectionFileManager._instance) {
+            CollectionFileManager._instance = new CollectionFileManager();
         }
-        return FileManager._instance;
+        return CollectionFileManager._instance;
     }
 
     private config:DBConfig|null = null;
@@ -74,20 +76,28 @@ export class FileManager implements Configurable{
         return result;
     }
 
-    public writeDataObjectFile(collection:string, key:string, object:any):void {
+    public writeDataObjectFile(config: CollectionConfig, collection:string, key:string, object:any, checkForDuplicateKey:boolean):void {
+        if (checkForDuplicateKey) {
+            if (this.isDuplicateKey(collection, key)) {
+                throw new DuplicateKey(`Key ${key} is already present in collection ${collection}`);
+            }
+        }
         this.fileWriteQueue.push({
+            config:DB.copyObject(config),
             collection,
             key,
             object,
-            operation: FileQueueEntryOperation.write
+            operation: CollectionFileQueueEntryOperation.write
         });
     }
-    public removeDataObjectFile(collection:string, key:string):void {
+
+    public removeDataObjectFile(config:CollectionConfig, collection:string, key:string):void {
         this.fileWriteQueue.push({
+            config:DB.copyObject(config),
             collection,
             key,
             object:null,
-            operation: FileQueueEntryOperation.delete
+            operation: CollectionFileQueueEntryOperation.delete
         });
     }
 
@@ -114,27 +124,37 @@ export class FileManager implements Configurable{
         return result;
     }
 
+    protected writeCollectionConfig(config:CollectionConfig):void {
+        const objectFileName = `${this.config?.dbLocation}/${config.name}/${config.name}.vrs`;
+        if (fs.existsSync(objectFileName)) {
+            logger(`Config File Found for collection ${config.name} - overwriting`);
+            fs.rmSync(objectFileName);
+        }
+        fs.writeFileSync(objectFileName,JSON.stringify(config));
 
-    protected writeDataObjectFileContent(collection:string, key:string,object:any):void {
+    }
+
+    protected writeDataObjectFileContent(config: CollectionConfig,collection:string, key:string,object:any):void {
         const objectFileName = `${this.config?.dbLocation}/${collection}/${key}.entry`;
         if (fs.existsSync(objectFileName)) {
             logger(`File Found for collection ${collection}, entry ${key} - overwriting`);
             fs.rmSync(objectFileName);
         }
         fs.writeFileSync(objectFileName,JSON.stringify(object));
+        this.writeCollectionConfig(config);
     }
 
-    protected removeDataObjectFileContent(collection:string, key:string):boolean {
+    protected removeDataObjectFileContent(config: CollectionConfig,collection:string, key:string):boolean {
         let result = false;
         const objectFileName = `${this.config?.dbLocation}/${collection}/${key}.entry`;
         if (fs.existsSync(objectFileName)) {
             result = true;
             fs.rmSync(objectFileName);
             logger(`Deleting entry for collection ${collection}, entry ${key}`);
+            this.writeCollectionConfig(config);
         }
         else {
             logger(`Deleting entry for collection ${collection}, entry ${key} - File not found ${objectFileName}`);
-
         }
         return result;
     }
@@ -144,13 +164,12 @@ export class FileManager implements Configurable{
         if (!this.isProcessingQueue) {
             this.isProcessingQueue = true;
             this.fileWriteQueue.forEach((entry) => {
-                if (entry.operation === FileQueueEntryOperation.write) {
-                    this.writeDataObjectFileContent(entry.collection,entry.key, entry.object);
+                if (entry.operation === CollectionFileQueueEntryOperation.write) {
+                    this.writeDataObjectFileContent(entry.config, entry.collection,entry.key, entry.object);
                 }
                 else {
-                    this.removeDataObjectFileContent(entry.collection, entry.key);
+                    this.removeDataObjectFileContent(entry.config, entry.collection, entry.key);
                 }
-
             });
             this.fileWriteQueue = [];
             this.isProcessingQueue = false;
@@ -160,7 +179,7 @@ export class FileManager implements Configurable{
     public checkWriteQueueForDataObject(collection:string,key:string):any|null {
         let result:any|null = null;
         this.fileWriteQueue.forEach((entry) => {
-            if (entry.operation === FileQueueEntryOperation.write) {
+            if (entry.operation === CollectionFileQueueEntryOperation.write) {
                 if (entry.key === key) {
                     result = entry.object;
                 }
