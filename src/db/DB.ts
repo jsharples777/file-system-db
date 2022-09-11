@@ -73,7 +73,7 @@ export class DB {
         return CollectionManager.getInstance().collections();
     }
 
-    public getCollection(name:string):Collection {
+    public collection(name:string):Collection {
         return CollectionManager.getInstance().getCollection(name);
     }
 

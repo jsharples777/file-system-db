@@ -11,7 +11,7 @@ export class test {
         try {
             const db = DB.getInstance().initialise();
             console.log(db.collections());
-            let collection = db.getCollection('test');
+            let collection = db.collection('test');
 
             let key1 = '1';
             let key2 = '2';

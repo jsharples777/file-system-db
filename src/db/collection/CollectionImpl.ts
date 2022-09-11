@@ -134,4 +134,15 @@ export class CollectionImpl implements Collection {
         return this.updateObject(key,object);
     }
 
+    findOne(search: SearchFilter): any {
+        let result:any = undefined;
+
+        const cursor = this.findBy(search);
+        const results = cursor.toArray();
+        if (results.length > 0) {
+            result = results[0];
+        }
+        return result;
+    }
+
 }

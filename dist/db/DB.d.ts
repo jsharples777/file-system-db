@@ -8,5 +8,5 @@ export declare class DB {
     private constructor();
     initialise(): DB;
     collections(): string[];
-    getCollection(name: string): Collection;
+    collection(name: string): Collection;
 }

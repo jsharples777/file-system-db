@@ -8,6 +8,7 @@ export interface Collection {
     getName():string;
     find():Cursor;
     findByKey(key:string):any|null;
+    findOne(search:SearchFilter):any;
     insertObject(key:string, object:any):OperationResult;
     upsertObject(key:string, object:any):OperationResult;
     updateObject(key:string, object:any):OperationResult;

@@ -118,6 +118,15 @@ class CollectionImpl {
     upsertObject(key, object) {
         return this.updateObject(key, object);
     }
+    findOne(search) {
+        let result = undefined;
+        const cursor = this.findBy(search);
+        const results = cursor.toArray();
+        if (results.length > 0) {
+            result = results[0];
+        }
+        return result;
+    }
 }
 exports.CollectionImpl = CollectionImpl;
 //# sourceMappingURL=CollectionImpl.js.map

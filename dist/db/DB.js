@@ -67,7 +67,7 @@ class DB {
     collections() {
         return CollectionManager_1.CollectionManager.getInstance().collections();
     }
-    getCollection(name) {
+    collection(name) {
         return CollectionManager_1.CollectionManager.getInstance().getCollection(name);
     }
 }
