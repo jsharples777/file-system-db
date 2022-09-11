@@ -20,12 +20,12 @@ export class test {
             let key5 = '5';
             let key6 = '6';
 
-            // collection.upsertObject(key1,{_id:key1,dates: { createdDate:5}})
-            // collection.upsertObject(key2,{_id:key2,dates: { createdDate:6}})
-            // collection.upsertObject(key3,{_id:key3,dates: { createdDate:7}})
-            // collection.upsertObject(key4,{_id:key4,dates: { createdDate:8}})
-            // collection.upsertObject(key5,{_id:key5,dates: { createdDate:9}})
-            // collection.upsertObject(key6,{_id:key6,dates: { createdDate:10}})
+            collection.upsertObject(key1,{_id:key1,dates: { createdDate:5},test:1})
+            collection.upsertObject(key2,{_id:key2,dates: { createdDate:6},test:2})
+            collection.upsertObject(key3,{_id:key3,dates: { createdDate:7},test:3})
+            collection.upsertObject(key4,{_id:key4,dates: { createdDate:8},test:4})
+            collection.upsertObject(key5,{_id:key5,dates: { createdDate:9},test:5})
+            collection.upsertObject(key6,{_id:key6,dates: { createdDate:10},test:6})
 
             const findAll = collection.find();
             while (findAll.hasNext()) {

@@ -67,8 +67,9 @@ class SearchProcessor {
     static searchItemsBruteForceForSearchItem(items, searchItem) {
         let results = [];
         items.forEach((item) => {
-            SearchProcessor.doesItemMatchSearchItem(item, searchItem);
-            results.push(item);
+            if (SearchProcessor.doesItemMatchSearchItem(item, searchItem)) {
+                results.push(item);
+            }
         });
         return results;
     }

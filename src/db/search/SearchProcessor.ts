@@ -70,8 +70,9 @@ export class SearchProcessor {
     private static searchItemsBruteForceForSearchItem(items:any[],searchItem:SearchItem):any[] {
         let results:any[] = [];
         items.forEach((item) => {
-            SearchProcessor.doesItemMatchSearchItem(item,searchItem);
-            results.push(item);
+            if (SearchProcessor.doesItemMatchSearchItem(item,searchItem)) {
+                results.push(item);
+            }
         });
         return results;
     }
