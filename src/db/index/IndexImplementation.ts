@@ -247,6 +247,16 @@ export class IndexImplementation implements Index {
         return result;
     }
 
+    protected checkVersionSync():void {
+        const collectionVersion = CollectionManager.getInstance().getCollection(this.config.collection).getVersion();
+        // check versions
+        if ((this.version.version !== collectionVersion) && (this.content.version !== collectionVersion)) {
+            logger(`Index ${this.config.name} has version ${this.version.version} which does not match collection ${this.config.collection} version ${collectionVersion} - rebuilding`);
+            this.version.version = collectionVersion;
+            this.rebuildIndex();
+        }
+    }
+
     search(search: SearchItem[]): Cursor {
         let results:any[] = [];
 
@@ -266,13 +276,8 @@ export class IndexImplementation implements Index {
         // for each entry in the index, check if the fields match
         this.checkIndexLoaded();
 
-        const collectionVersion = CollectionManager.getInstance().getCollection(this.config.collection).getVersion();
-        // check versions
-        if (this.version.version !== collectionVersion) {
-            logger(`Index ${this.config.name} has version ${this.version.version} which does not match collection ${this.config.collection} version ${collectionVersion} - rebuilding`);
-            this.version.version = collectionVersion;
-            this.rebuildIndex();
-        }
+
+        this.checkVersionSync();
         const matchingEntries:IndexEntry[] = [];
         this.content.entries.forEach((entry) => {
             dLogger(`Searching using index ${this.config.name} for collection ${this.config.collection} - checking entry`);

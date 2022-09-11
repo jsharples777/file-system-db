@@ -32,5 +32,6 @@ export declare class IndexImplementation implements Index {
     protected rebuildIndex(): void;
     private indexEntryFieldMatchesSearchItem;
     private indexEntryMatchesSearchItems;
+    protected checkVersionSync(): void;
     search(search: SearchItem[]): Cursor;
 }

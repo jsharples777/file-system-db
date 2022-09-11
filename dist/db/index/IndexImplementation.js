@@ -212,6 +212,15 @@ class IndexImplementation {
         });
         return result;
     }
+    checkVersionSync() {
+        const collectionVersion = CollectionManager_1.CollectionManager.getInstance().getCollection(this.config.collection).getVersion();
+        // check versions
+        if ((this.version.version !== collectionVersion) && (this.content.version !== collectionVersion)) {
+            logger(`Index ${this.config.name} has version ${this.version.version} which does not match collection ${this.config.collection} version ${collectionVersion} - rebuilding`);
+            this.version.version = collectionVersion;
+            this.rebuildIndex();
+        }
+    }
     search(search) {
         let results = [];
         logger(`Searching using index ${this.config.name} for collection ${this.config.collection} with search criteria`);
@@ -228,13 +237,7 @@ class IndexImplementation {
         logger(indexSearchItems);
         // for each entry in the index, check if the fields match
         this.checkIndexLoaded();
-        const collectionVersion = CollectionManager_1.CollectionManager.getInstance().getCollection(this.config.collection).getVersion();
-        // check versions
-        if (this.version.version !== collectionVersion) {
-            logger(`Index ${this.config.name} has version ${this.version.version} which does not match collection ${this.config.collection} version ${collectionVersion} - rebuilding`);
-            this.version.version = collectionVersion;
-            this.rebuildIndex();
-        }
+        this.checkVersionSync();
         const matchingEntries = [];
         this.content.entries.forEach((entry) => {
             dLogger(`Searching using index ${this.config.name} for collection ${this.config.collection} - checking entry`);
