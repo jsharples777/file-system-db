@@ -75,13 +75,16 @@ export class IndexManager implements Configurable {
     }
 
     loadConfig(config: DBConfig): void {
+        logger(`Loading index configurations`);
         this.config = config;
+        const rebuildIndexes = ((process.env.REBUILD_INDEXES_ON_STARTUP || 'N') === 'Y');
+        logger(`Will rebuild indexes? ${rebuildIndexes}`);
         if (this.config) {
-            logger(`Loading index configurations`);
             const dbLocation = this.config.dbLocation;
             // check on each index file
             this.config.indexes.forEach((indexConfig) => {
                 const index = new IndexImplementation(dbLocation,indexConfig);
+                if (rebuildIndexes) index.rebuild();
                 this.indexes.push(index);
             });
         }

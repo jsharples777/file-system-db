@@ -302,6 +302,10 @@ export class IndexImplementation implements Index {
         return new CursorImpl(results);
     }
 
+    rebuild(): void {
+        this.rebuildIndex();
+    }
+
 
 
 

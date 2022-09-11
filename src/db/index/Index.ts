@@ -18,4 +18,5 @@ export interface Index {
     getIndexVersion():IndexVersion;
     getIndexContent():IndexContent;
     search(search:SearchItem[]):Cursor;
+    rebuild():void;
 }

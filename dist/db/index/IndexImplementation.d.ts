@@ -34,4 +34,5 @@ export declare class IndexImplementation implements Index {
     private indexEntryMatchesSearchItems;
     protected checkVersionSync(): void;
     search(search: SearchItem[]): Cursor;
+    rebuild(): void;
 }

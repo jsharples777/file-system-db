@@ -260,6 +260,9 @@ class IndexImplementation {
         logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - loaded ${results.length} matching items`);
         return new CursorImpl_1.CursorImpl(results);
     }
+    rebuild() {
+        this.rebuildIndex();
+    }
 }
 exports.IndexImplementation = IndexImplementation;
 //# sourceMappingURL=IndexImplementation.js.map
