@@ -1,5 +1,5 @@
 import { SortOrderItem, SortOrderType } from "./SortTypes";
-import { SortedCursor } from "../cursor/SortedCursor";
+import { Cursor } from "../cursor/Cursor";
 export declare class Sorter {
     private sortOrder;
     constructor(sortOrder: SortOrderItem[]);
@@ -7,5 +7,5 @@ export declare class Sorter {
     sort(item1: any, item2: any): number;
 }
 export declare class SortProcessor {
-    static sortItems(items: any[], sortOrder: SortOrderItem[]): SortedCursor;
+    static sortItems(items: any[], sortOrder: SortOrderItem[]): Cursor;
 }

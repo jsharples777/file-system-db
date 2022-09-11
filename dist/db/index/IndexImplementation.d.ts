@@ -1,7 +1,7 @@
 import { Index } from "./Index";
 import { IndexConfig, IndexContent, IndexEntry, IndexVersion } from "../Types";
 import { SearchItem } from "../search/SearchTypes";
-import { SearchCursor } from "../cursor/SearchCursor";
+import { Cursor } from "../cursor/Cursor";
 export declare class IndexImplementation implements Index {
     private config;
     private dbLocation;
@@ -32,5 +32,5 @@ export declare class IndexImplementation implements Index {
     protected rebuildIndex(version: IndexVersion): void;
     private indexEntryFieldMatchesSearchItem;
     private indexEntryMatchesSearchItems;
-    search(search: SearchItem[]): SearchCursor;
+    search(search: SearchItem[]): Cursor;
 }

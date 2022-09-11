@@ -1,6 +1,6 @@
 import { IndexContent, IndexEntry, IndexVersion } from "../Types";
 import { SearchItem } from "../search/SearchTypes";
-import { SearchCursor } from "../cursor/SearchCursor";
+import { Cursor } from "../cursor/Cursor";
 export interface Index {
     setVersion(version: number): void;
     getVersion(): number;
@@ -16,5 +16,5 @@ export interface Index {
     findMatchingKeys(searchFilter: SearchItem[]): string[];
     getIndexVersion(): IndexVersion;
     getIndexContent(): IndexContent;
-    search(search: SearchItem[]): SearchCursor;
+    search(search: SearchItem[]): Cursor;
 }

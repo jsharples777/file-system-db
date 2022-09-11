@@ -7,7 +7,6 @@ import debug from 'debug';
 import {IndexManager} from "../index/IndexManager";
 import {SearchItem} from "../search/SearchTypes";
 import {SearchProcessor} from "../search/SearchProcessor";
-import {SearchCursor} from "../cursor/SearchCursor";
 import {CursorImpl} from "../cursor/CursorImpl";
 import {Cursor} from "../cursor/Cursor";
 
@@ -126,7 +125,7 @@ export class CollectionImpl implements Collection {
         return result;
     }
 
-    findBy(search:SearchItem[]):SearchCursor {
+    findBy(search:SearchItem[]):Cursor {
         return SearchProcessor.searchCollection(this,search);
     }
 

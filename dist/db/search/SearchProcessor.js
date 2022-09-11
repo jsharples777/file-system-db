@@ -5,10 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SearchProcessor = void 0;
 const SearchTypes_1 = require("./SearchTypes");
-const SearchCursorImpl_1 = require("./SearchCursorImpl");
 const IndexManager_1 = require("../index/IndexManager");
 const debug_1 = __importDefault(require("debug"));
 const DB_1 = require("../DB");
+const CursorImpl_1 = require("../cursor/CursorImpl");
 const logger = (0, debug_1.default)('search-processor');
 class SearchProcessor {
     static doesValueMatchSearchItem(fieldValue, searchItem) {
@@ -104,7 +104,7 @@ class SearchProcessor {
             // perform a manual search (not efficient!)
             logger(`No index - brute forcing`);
             const results = SearchProcessor.searchCollectionBruteForce(collection, search);
-            return new SearchCursorImpl_1.SearchCursorImpl(results);
+            return new CursorImpl_1.CursorImpl(results);
         }
     }
 }

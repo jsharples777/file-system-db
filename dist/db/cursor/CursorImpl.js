@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CursorImpl = void 0;
 const DB_1 = require("../DB");
+const SortProcessor_1 = require("../sort/SortProcessor");
 class CursorImpl {
     constructor(items) {
         this.items = DB_1.DB.copyObject(items);
@@ -20,6 +21,9 @@ class CursorImpl {
     }
     toArray() {
         return this.items;
+    }
+    sort(sortOrder) {
+        return SortProcessor_1.SortProcessor.sortItems(this.items, sortOrder);
     }
 }
 exports.CursorImpl = CursorImpl;

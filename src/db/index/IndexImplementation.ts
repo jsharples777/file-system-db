@@ -5,9 +5,10 @@ import debug from 'debug';
 import {DB} from "../DB";
 import {IndexFileManager} from "./IndexFileManager";
 import {SearchItem} from "../search/SearchTypes";
-import {SearchCursor} from "../cursor/SearchCursor";
 import {SearchProcessor} from "../search/SearchProcessor";
-import {SearchCursorImpl} from "../search/SearchCursorImpl";
+import {Cursor} from "../cursor/Cursor";
+import {CursorImpl} from "../cursor/CursorImpl";
+
 
 const logger = debug('index-implementation');
 const dLogger = debug('index-implementation-detail');
@@ -252,7 +253,7 @@ export class IndexImplementation implements Index {
         return result;
     }
 
-    search(search: SearchItem[]): SearchCursor {
+    search(search: SearchItem[]): Cursor {
         let results:any[] = [];
 
 
@@ -291,7 +292,7 @@ export class IndexImplementation implements Index {
         }
         logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - loaded ${results.length} matching items`);
 
-        return new SearchCursorImpl(results);
+        return new CursorImpl(results);
     }
 
 

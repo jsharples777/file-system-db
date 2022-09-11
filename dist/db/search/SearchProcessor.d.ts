@@ -1,10 +1,10 @@
 import { SearchItem } from "./SearchTypes";
 import { Collection } from "../collection/Collection";
-import { SearchCursor } from "../cursor/SearchCursor";
+import { Cursor } from "../cursor/Cursor";
 export declare class SearchProcessor {
     static doesValueMatchSearchItem(fieldValue: any, searchItem: SearchItem): boolean;
     static doesItemMatchSearchItem(item: any, searchItem: SearchItem): boolean;
     private static searchItemsBruteForceForSearchItem;
     private static searchCollectionBruteForce;
-    static searchCollection(collection: Collection, search: SearchItem[]): SearchCursor;
+    static searchCollection(collection: Collection, search: SearchItem[]): Cursor;
 }

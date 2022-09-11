@@ -9,7 +9,7 @@ const debug_1 = __importDefault(require("debug"));
 const DB_1 = require("../DB");
 const IndexFileManager_1 = require("./IndexFileManager");
 const SearchProcessor_1 = require("../search/SearchProcessor");
-const SearchCursorImpl_1 = require("../search/SearchCursorImpl");
+const CursorImpl_1 = require("../cursor/CursorImpl");
 const logger = (0, debug_1.default)('index-implementation');
 const dLogger = (0, debug_1.default)('index-implementation-detail');
 class IndexImplementation {
@@ -254,7 +254,7 @@ class IndexImplementation {
             });
         }
         logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - loaded ${results.length} matching items`);
-        return new SearchCursorImpl_1.SearchCursorImpl(results);
+        return new CursorImpl_1.CursorImpl(results);
     }
 }
 exports.IndexImplementation = IndexImplementation;

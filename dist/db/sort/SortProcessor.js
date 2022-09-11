@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SortProcessor = exports.Sorter = void 0;
 const SortTypes_1 = require("./SortTypes");
-const SortedCursorImpl_1 = require("./SortedCursorImpl");
 const DB_1 = require("../DB");
+const CursorImpl_1 = require("../cursor/CursorImpl");
 class Sorter {
     constructor(sortOrder) {
         this.sortOrder = sortOrder;
@@ -72,7 +72,7 @@ class SortProcessor {
     static sortItems(items, sortOrder) {
         const sorter = new Sorter(sortOrder);
         const sortedItems = items.sort(sorter.sort);
-        return new SortedCursorImpl_1.SortedCursorImpl(sortedItems);
+        return new CursorImpl_1.CursorImpl(sortedItems);
     }
 }
 exports.SortProcessor = SortProcessor;

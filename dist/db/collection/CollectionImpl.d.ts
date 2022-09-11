@@ -1,7 +1,6 @@
 import { Collection } from "./Collection";
 import { CollectionConfig, OperationResult } from "../Types";
 import { SearchItem } from "../search/SearchTypes";
-import { SearchCursor } from "../cursor/SearchCursor";
 import { Cursor } from "../cursor/Cursor";
 export declare class CollectionImpl implements Collection {
     private config;
@@ -14,7 +13,7 @@ export declare class CollectionImpl implements Collection {
     insertObject(key: string, object: any): OperationResult;
     removeObject(key: string): OperationResult;
     updateObject(key: string, object: any): OperationResult;
-    findBy(search: SearchItem[]): SearchCursor;
+    findBy(search: SearchItem[]): Cursor;
     upsertObject(key: string, object: any): OperationResult;
     findOne(search: SearchItem[]): any;
 }

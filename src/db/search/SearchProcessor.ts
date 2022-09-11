@@ -1,10 +1,10 @@
 import {SearchItem, SearchItemComparison} from "./SearchTypes";
 import {Collection} from "../collection/Collection";
-import {SearchCursor} from "../cursor/SearchCursor";
-import {SearchCursorImpl} from "./SearchCursorImpl";
 import {IndexManager} from "../index/IndexManager";
 import debug from 'debug';
 import {DB} from "../DB";
+import {Cursor} from "../cursor/Cursor";
+import {CursorImpl} from "../cursor/CursorImpl";
 
 const logger = debug('search-processor');
 
@@ -101,7 +101,7 @@ export class SearchProcessor {
         return results;
     }
 
-    public static searchCollection(collection:Collection, search:SearchItem[]):SearchCursor {
+    public static searchCollection(collection:Collection, search:SearchItem[]):Cursor {
 
         logger(`Looking for relevant indexes for collection ${collection.getName()} with criteria`);
         logger(search);
@@ -115,7 +115,7 @@ export class SearchProcessor {
             // perform a manual search (not efficient!)
             logger(`No index - brute forcing`);
             const results = SearchProcessor.searchCollectionBruteForce(collection, search);
-            return new SearchCursorImpl(results);
+            return new CursorImpl(results);
         }
     }
 }

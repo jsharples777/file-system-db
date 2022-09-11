@@ -1,5 +1,4 @@
 import {OperationResult} from "../Types";
-import {SearchCursor} from "../cursor/SearchCursor";
 import {Cursor} from "../cursor/Cursor";
 import {SearchItem} from "../search/SearchTypes";
 
@@ -13,5 +12,5 @@ export interface Collection {
     upsertObject(key:string, object:any):OperationResult;
     updateObject(key:string, object:any):OperationResult;
     removeObject(key:string):OperationResult;
-    findBy(search:SearchItem[]):SearchCursor;
+    findBy(search:SearchItem[]):Cursor;
 }
