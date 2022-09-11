@@ -134,7 +134,8 @@ export class IndexImplementation implements Index {
     objectAdded(version: number, key: string, object: any): void {
         this.checkIndexLoaded();
         logger(`Creating new index entry for ${key}`);
-        this.content.entries.push(object);
+        const newEntry = this.constructIndexEntry(key, object);
+        this.content.entries.push(newEntry);
         this.version.version = version;
         this.content.version = version;
         IndexFileManager.getInstance().writeIndexFile(this);

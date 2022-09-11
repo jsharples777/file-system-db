@@ -111,7 +111,8 @@ class IndexImplementation {
     objectAdded(version, key, object) {
         this.checkIndexLoaded();
         logger(`Creating new index entry for ${key}`);
-        this.content.entries.push(object);
+        const newEntry = this.constructIndexEntry(key, object);
+        this.content.entries.push(newEntry);
         this.version.version = version;
         this.content.version = version;
         IndexFileManager_1.IndexFileManager.getInstance().writeIndexFile(this);
