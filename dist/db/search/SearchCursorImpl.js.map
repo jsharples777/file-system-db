@@ -1,0 +1,1 @@
+{"version":3,"file":"SearchCursorImpl.js","sourceRoot":"","sources":["../../../src/db/search/SearchCursorImpl.ts"],"names":[],"mappings":";;;AACA,qDAAgD;AAEhD,yDAAoD;AAGpD,MAAa,gBAAiB,SAAQ,uBAAU;IAC5C,YAAY,KAAW;QACnB,KAAK,CAAC,KAAK,CAAC,CAAC;IACjB,CAAC;IAED,IAAI,CAAC,SAA0B;QAC3B,OAAO,6BAAa,CAAC,SAAS,CAAC,IAAI,CAAC,KAAK,EAAC,SAAS,CAAC,CAAC;IACzD,CAAC;CAGJ;AAVD,4CAUC"}

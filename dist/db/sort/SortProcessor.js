@@ -1,24 +1,22 @@
-import {SortOrderItem, SortOrderType} from "./SortTypes";
-import {SortedCursor} from "../cursor/SortedCursor";
-import {SortedCursorImpl} from "./SortedCursorImpl";
-import {DB} from "../DB";
-
-export class Sorter {
-    private sortOrder: SortOrderItem[];
-    constructor(sortOrder:SortOrderItem[]) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SortProcessor = exports.Sorter = void 0;
+const SortTypes_1 = require("./SortTypes");
+const SortedCursorImpl_1 = require("./SortedCursorImpl");
+const DB_1 = require("../DB");
+class Sorter {
+    constructor(sortOrder) {
         this.sortOrder = sortOrder;
-
         this.sort = this.sort.bind(this);
     }
-
-    public sortByFieldAndOrder(item1:any, item2:any, fieldName:string, order:SortOrderType):number {
+    sortByFieldAndOrder(item1, item2, fieldName, order) {
         let result = 0;
-        const fieldValue1 = DB.getFieldValue(item1,fieldName);
-        const fieldValue2 = DB.getFieldValue(item2,fieldName);
+        const fieldValue1 = DB_1.DB.getFieldValue(item1, fieldName);
+        const fieldValue2 = DB_1.DB.getFieldValue(item2, fieldName);
         if (fieldValue1) {
             if (fieldValue2) {
                 if (fieldValue1 > fieldValue2) {
-                    if (order === SortOrderType.ascending) {
+                    if (order === SortTypes_1.SortOrderType.ascending) {
                         result = 1;
                     }
                     else {
@@ -26,7 +24,7 @@ export class Sorter {
                     }
                 }
                 else if (fieldValue1 < fieldValue2) {
-                    if (order === SortOrderType.ascending) {
+                    if (order === SortTypes_1.SortOrderType.ascending) {
                         result = -1;
                     }
                     else {
@@ -35,7 +33,7 @@ export class Sorter {
                 }
             }
             else {
-                if (order === SortOrderType.ascending) {
+                if (order === SortTypes_1.SortOrderType.ascending) {
                     result = 1;
                 }
                 else {
@@ -44,7 +42,7 @@ export class Sorter {
             }
         }
         else if (fieldValue2) {
-            if (order === SortOrderType.ascending) {
+            if (order === SortTypes_1.SortOrderType.ascending) {
                 result = -1;
             }
             else {
@@ -53,8 +51,7 @@ export class Sorter {
         }
         return result;
     }
-
-    public sort(item1:any, item2:any):number {
+    sort(item1, item2) {
         let result = 0;
         // sort by each field
         this.sortOrder.every((sortItem) => {
@@ -70,12 +67,13 @@ export class Sorter {
         return result;
     }
 }
-
-
-export class SortProcessor {
-    public static sortItems(items:any[], sortOrder:SortOrderItem[]):SortedCursor {
+exports.Sorter = Sorter;
+class SortProcessor {
+    static sortItems(items, sortOrder) {
         const sorter = new Sorter(sortOrder);
         const sortedItems = items.sort(sorter.sort);
-        return new SortedCursorImpl(sortedItems);
+        return new SortedCursorImpl_1.SortedCursorImpl(sortedItems);
     }
 }
+exports.SortProcessor = SortProcessor;
+//# sourceMappingURL=SortProcessor.js.map

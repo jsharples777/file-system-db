@@ -30,6 +30,28 @@ class DB {
         }
         return result;
     }
+    static getFieldValue(entry, field) {
+        let result = undefined;
+        // any dot notation?
+        const fieldParts = field.split('.');
+        if (fieldParts.length > 1) {
+            let previousValue = entry;
+            fieldParts.forEach((fieldPart, index) => {
+                if (previousValue) {
+                    previousValue = previousValue[fieldPart];
+                    if (index === (fieldParts.length - 1)) {
+                        if (previousValue) {
+                            result = previousValue;
+                        }
+                    }
+                }
+            });
+        }
+        else {
+            result = entry[field];
+        }
+        return result;
+    }
     initialise() {
         if (!this.isInitialised) {
             const configLocation = process.env.FILE_SYSTEM_DB_CONFIG || 'cfg/config.json';

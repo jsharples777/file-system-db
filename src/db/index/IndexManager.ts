@@ -3,6 +3,7 @@ import {Configurable} from "../Configurable";
 import {DBConfig, IndexConfig} from "../Types";
 import {Index} from "./Index";
 import {IndexImplementation} from "./IndexImplementation";
+import {SearchFilter} from "../search/SearchTypes";
 
 
 const logger = debug('index-manager');
@@ -23,6 +24,40 @@ export class IndexManager implements Configurable {
     private constructor() {
     }
 
+    public getMatchingIndex(collection:string,search:SearchFilter):Index|null {
+        logger(`Looking for index for collection ${collection} for search criteria`);
+        logger(search);
+
+        let result:Index|null = null;
+        // look for full matches first
+        this.indexes.every((index) => {
+            if (collection === index.getCollection()) { // matches collection
+                const fullMatch = index.matchesFilter(search);
+                if (fullMatch) {
+                    logger(`Looking for index for collection ${collection} for search criteria, found full match index ${index.getName()}`);
+                    result = index;
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        if (!result) {
+            // look for partial matches next
+            this.indexes.every((index) => {
+                if (collection === index.getCollection()) { // matches collection
+                    const match = index.partiallyMatchesFilter(search);
+                    if (match) {
+                        logger(`Looking for index for collection ${collection} for search criteria, found partial match index ${index.getName()}`);
+                        result = index;
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+        return result;
+    }
 
 
 
@@ -42,6 +77,7 @@ export class IndexManager implements Configurable {
     loadConfig(config: DBConfig): void {
         this.config = config;
         if (this.config) {
+            logger(`Loading index configurations`);
             const dbLocation = this.config.dbLocation;
             // check on each index file
             this.config.indexes.forEach((indexConfig) => {
@@ -55,6 +91,7 @@ export class IndexManager implements Configurable {
         if (this.config) {
             this.indexes.forEach((index) => {
                 if (index.getCollection() === collection) {
+                    logger(`Adding entry for index ${index.getName()} for collection ${collection} with key ${keyValue}`);
                     index.objectAdded(version,keyValue,values);
                 }
             });
@@ -66,6 +103,7 @@ export class IndexManager implements Configurable {
         if (this.config) {
             this.indexes.forEach((index) => {
                 if (index.getCollection() === collection) {
+                    logger(`Updating entry for index ${index.getName()} for collection ${collection} with key ${keyValue}`);
                     index.objectUpdated(version,keyValue,values);
                 }
             });
@@ -76,6 +114,7 @@ export class IndexManager implements Configurable {
         if (this.config) {
             this.indexes.forEach((index) => {
                 if (index.getCollection() === collection) {
+                    logger(`Removing entry for index ${index.getName()} for collection ${collection} with key ${keyValue}`);
                     index.objectRemoved(version,keyValue);
                 }
             });

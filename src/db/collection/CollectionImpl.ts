@@ -8,6 +8,8 @@ import {IndexManager} from "../index/IndexManager";
 import {SearchFilter} from "../search/SearchTypes";
 import {SearchProcessor} from "../search/SearchProcessor";
 import {SearchCursor} from "../cursor/SearchCursor";
+import {CursorImpl} from "../cursor/CursorImpl";
+import {Cursor} from "../cursor/Cursor";
 
 const logger = debug('collection-implementation');
 
@@ -65,7 +67,7 @@ export class CollectionImpl implements Collection {
         return this.config.name;
     }
 
-    find(): any[] {
+    find(): Cursor {
         logger(`Collection ${this.config.name} - find all`);
         let result: any[] = [];
         if (this.buffer.isComplete()) {
@@ -78,7 +80,7 @@ export class CollectionImpl implements Collection {
             this.config = contentAndConfig.config;
             result = contentAndConfig.content;
         }
-        return result;
+        return new CursorImpl(result);
     }
 
     insertObject(key: string, object: any): OperationResult {

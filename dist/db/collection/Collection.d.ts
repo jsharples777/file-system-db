@@ -1,10 +1,11 @@
 import { OperationResult } from "../Types";
 import { SearchFilter } from "../search/SearchTypes";
 import { SearchCursor } from "../cursor/SearchCursor";
+import { Cursor } from "../cursor/Cursor";
 export interface Collection {
     getVersion(): number;
     getName(): string;
-    find(): any[];
+    find(): Cursor;
     findByKey(key: string): any | null;
     insertObject(key: string, object: any): OperationResult;
     upsertObject(key: string, object: any): OperationResult;

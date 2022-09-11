@@ -1,10 +1,11 @@
 import {DB} from "../db/DB";
 import debug from "debug";
-import {v4} from "uuid";
+import {SearchItem, SearchItemComparison} from "../db/search/SearchTypes";
+import {SortOrderItem, SortOrderType} from "../db/sort/SortTypes";
 
 export class test {
     public constructor() {
-        debug.enable('config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-manager');
+        debug.enable('config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
 
 
         try {
@@ -19,12 +20,38 @@ export class test {
             let key5 = '5';
             let key6 = '6';
 
-            collection.upsertObject(key1,{_id:key1,dates: { createdDate:5}})
-            collection.upsertObject(key2,{_id:key2,dates: { createdDate:6}})
-            collection.upsertObject(key3,{_id:key3,dates: { createdDate:7}})
-            collection.upsertObject(key4,{_id:key4,dates: { createdDate:8}})
-            collection.upsertObject(key5,{_id:key5,dates: { createdDate:9}})
-            collection.upsertObject(key6,{_id:key6,dates: { createdDate:10}})
+            // collection.upsertObject(key1,{_id:key1,dates: { createdDate:5}})
+            // collection.upsertObject(key2,{_id:key2,dates: { createdDate:6}})
+            // collection.upsertObject(key3,{_id:key3,dates: { createdDate:7}})
+            // collection.upsertObject(key4,{_id:key4,dates: { createdDate:8}})
+            // collection.upsertObject(key5,{_id:key5,dates: { createdDate:9}})
+            // collection.upsertObject(key6,{_id:key6,dates: { createdDate:10}})
+
+            const findAll = collection.find();
+            while (findAll.hasNext()) {
+                console.log(findAll.next());
+            }
+
+
+
+            const cursor = collection.findBy({items:[{
+                    comparison: SearchItemComparison.greaterThan,
+                    field: "dates.createdDate",
+                    value: 7
+                },{
+                    comparison: SearchItemComparison.greaterThan,
+                    field: "fake",
+                    value: 7
+                }]}).sort([{
+                field: "dates.createdDate",
+                order: SortOrderType.ascending
+            }]);
+
+            while (cursor.hasNext()) {
+                console.log(cursor.next())
+            }
+
+
 
             // collection = db.getCollection('xxx');
             // collection.upsertObject(key1,{_id:key1, value:'test1'});

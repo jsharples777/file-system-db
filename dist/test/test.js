@@ -6,9 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.test = void 0;
 const DB_1 = require("../db/DB");
 const debug_1 = __importDefault(require("debug"));
+const SearchTypes_1 = require("../db/search/SearchTypes");
+const SortTypes_1 = require("../db/sort/SortTypes");
 class test {
     constructor() {
-        debug_1.default.enable('config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-manager');
+        debug_1.default.enable('config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
         try {
             const db = DB_1.DB.getInstance().initialise();
             console.log(db.collections());
@@ -19,12 +21,31 @@ class test {
             let key4 = '4';
             let key5 = '5';
             let key6 = '6';
-            collection.upsertObject(key1, { _id: key1, dates: { createdDate: 5 } });
-            collection.upsertObject(key2, { _id: key2, dates: { createdDate: 6 } });
-            collection.upsertObject(key3, { _id: key3, dates: { createdDate: 7 } });
-            collection.upsertObject(key4, { _id: key4, dates: { createdDate: 8 } });
-            collection.upsertObject(key5, { _id: key5, dates: { createdDate: 9 } });
-            collection.upsertObject(key6, { _id: key6, dates: { createdDate: 10 } });
+            // collection.upsertObject(key1,{_id:key1,dates: { createdDate:5}})
+            // collection.upsertObject(key2,{_id:key2,dates: { createdDate:6}})
+            // collection.upsertObject(key3,{_id:key3,dates: { createdDate:7}})
+            // collection.upsertObject(key4,{_id:key4,dates: { createdDate:8}})
+            // collection.upsertObject(key5,{_id:key5,dates: { createdDate:9}})
+            // collection.upsertObject(key6,{_id:key6,dates: { createdDate:10}})
+            const findAll = collection.find();
+            while (findAll.hasNext()) {
+                console.log(findAll.next());
+            }
+            const cursor = collection.findBy({ items: [{
+                        comparison: SearchTypes_1.SearchItemComparison.greaterThan,
+                        field: "dates.createdDate",
+                        value: 7
+                    }, {
+                        comparison: SearchTypes_1.SearchItemComparison.greaterThan,
+                        field: "fake",
+                        value: 7
+                    }] }).sort([{
+                    field: "dates.createdDate",
+                    order: SortTypes_1.SortOrderType.ascending
+                }]);
+            while (cursor.hasNext()) {
+                console.log(cursor.next());
+            }
             // collection = db.getCollection('xxx');
             // collection.upsertObject(key1,{_id:key1, value:'test1'});
             // collection.upsertObject(key2,{_id:key2, value:'test2'});

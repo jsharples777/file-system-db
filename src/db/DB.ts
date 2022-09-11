@@ -26,6 +26,29 @@ export class DB {
         return result;
     }
 
+    public static getFieldValue(entry: any, field: string): any | undefined {
+        let result: any | undefined = undefined;
+        // any dot notation?
+        const fieldParts = field.split('.');
+        if (fieldParts.length > 1) {
+            let previousValue = entry;
+            fieldParts.forEach((fieldPart, index) => {
+                if (previousValue) {
+                    previousValue = previousValue[fieldPart];
+                    if (index === (fieldParts.length - 1)) {
+                        if (previousValue) {
+                            result = previousValue;
+                        }
+                    }
+                }
+            });
+
+        } else {
+            result = entry[field];
+        }
+        return result;
+    }
+
     private isInitialised:boolean = false;
 
     private constructor(){

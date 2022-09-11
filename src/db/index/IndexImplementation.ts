@@ -4,9 +4,13 @@ import {CollectionManager} from "../collection/CollectionManager";
 import debug from 'debug';
 import {DB} from "../DB";
 import {IndexFileManager} from "./IndexFileManager";
-import {SearchFilter} from "../search/SearchTypes";
+import {SearchFilter, SearchItem} from "../search/SearchTypes";
+import {SearchCursor} from "../cursor/SearchCursor";
+import {SearchProcessor} from "../search/SearchProcessor";
+import {SearchCursorImpl} from "../search/SearchCursorImpl";
 
 const logger = debug('index-implementation');
+const dLogger = debug('index-implementation-detail');
 
 export class IndexImplementation implements Index {
     private config: IndexConfig;
@@ -109,7 +113,21 @@ export class IndexImplementation implements Index {
     }
 
     matchesFilter(searchFilter: SearchFilter): boolean {
-        return false;
+        let result = true;
+        searchFilter.items.forEach((searchItem) => {
+           const foundIndex = this.config.fields.findIndex((field) => field === searchItem.field);
+           if (foundIndex < 0) result = false;
+        });
+        return result;
+    }
+
+    partiallyMatchesFilter(searchFilter: SearchFilter): boolean {
+        let result = false;
+        searchFilter.items.forEach((searchItem) => {
+            const foundIndex = this.config.fields.findIndex((field) => field === searchItem.field);
+            if (foundIndex >= 0) result = true;
+        });
+        return result;
     }
 
     objectAdded(version: number, key: string, object: any): void {
@@ -140,7 +158,7 @@ export class IndexImplementation implements Index {
         }
         // find each field for index config
         this.config.fields.forEach((field => {
-            const fieldValue = this.getFieldValue(object, field);
+            const fieldValue = DB.getFieldValue(object, field);
             if (fieldValue) {
                 indexEntry.fieldValues.push({
                     field: field,
@@ -185,7 +203,7 @@ export class IndexImplementation implements Index {
                 version: versionNumber,
                 entries: []
             }
-            const entries = collection.find();
+            const entries = collection.find().toArray();
             entries.forEach((entry) => {
                 const indexEntry: IndexEntry = {
                     keyValue: entry._id,
@@ -193,7 +211,7 @@ export class IndexImplementation implements Index {
                 }
                 // find each field for index config
                 this.config.fields.forEach((field => {
-                    const fieldValue = this.getFieldValue(entry, field);
+                    const fieldValue = DB.getFieldValue(entry, field);
                     if (fieldValue) {
                         indexEntry.fieldValues.push({
                             field: field,
@@ -206,28 +224,77 @@ export class IndexImplementation implements Index {
         }
     }
 
-    protected getFieldValue(entry: any, field: string): any | undefined {
-        let result: any | undefined = undefined;
-        // any dot notation?
-        const fieldParts = field.split('.');
-        if (fieldParts.length > 1) {
-            let previousValue = entry;
-            fieldParts.forEach((fieldPart, index) => {
-                if (previousValue) {
-                    previousValue = previousValue[fieldPart];
-                    if (index === (fieldParts.length - 1)) {
-                        if (previousValue) {
-                            result = previousValue;
-                        }
-                    }
-                }
-            });
+    private indexEntryFieldMatchesSearchItem(entry:IndexEntry, searchItem:SearchItem):boolean {
+        let result = false;
+        const foundIndex = entry.fieldValues.findIndex((fieldValue) => fieldValue.field === searchItem.field);
+        if (foundIndex >= 0) {
+            const entryValue = entry.fieldValues[foundIndex].value;
+            result = SearchProcessor.doesValueMatchSearchItem(entryValue,searchItem);
+            dLogger(`Comparing entry value ${entryValue} with ${searchItem.value} and comparison "${searchItem.comparison}" with result ${result}`);
 
-        } else {
-            result = entry[field];
         }
         return result;
     }
+
+    private indexEntryMatchesSearchItems(entry:IndexEntry, searchItems:SearchItem[]):boolean {
+        let result = true;
+        // every value must match
+        searchItems.every((searchItem) => {
+            if (this.indexEntryFieldMatchesSearchItem(entry, searchItem)) {
+                return true;
+            }
+            else {
+                result = false;
+                return false;
+            }
+
+        });
+        return result;
+    }
+
+    search(search: SearchFilter): SearchCursor {
+        let results:any[] = [];
+
+
+        logger(`Searching using index ${this.config.name} for collection ${this.config.collection} with search criteria`);
+        logger(search);
+        // what fields are we searching with?
+        const indexSearchItems:SearchItem[] = [];
+        search.items.forEach((searchItem) => {
+            const foundIndex = this.config.fields.findIndex((field) => field === searchItem.field);
+            if (foundIndex >= 0) {
+                indexSearchItems.push(searchItem);
+            }
+        });
+        logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - can only use criteria`);
+        logger(indexSearchItems);
+        // for each entry in the index, check if the fields match
+        this.checkIndexLoaded();
+        const matchingEntries:IndexEntry[] = [];
+        this.content.entries.forEach((entry) => {
+            dLogger(`Searching using index ${this.config.name} for collection ${this.config.collection} - checking entry`);
+            dLogger(entry);
+            if (this.indexEntryMatchesSearchItems(entry, indexSearchItems)) {
+                matchingEntries.push(entry);
+            }
+        });
+        logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - found ${matchingEntries.length} matching index entries`);
+        // for all found matches, load the items from the collection
+        if (matchingEntries.length > 0) {
+            const collection = CollectionManager.getInstance().getCollection(this.config.collection);
+            matchingEntries.forEach((matchingEntry) => {
+                const item = collection.findByKey(matchingEntry.keyValue);
+                if (item) {
+                    results.push(item);
+                }
+            })
+        }
+        logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - loaded ${results.length} matching items`);
+
+        return new SearchCursorImpl(results);
+    }
+
+
 
 
 }

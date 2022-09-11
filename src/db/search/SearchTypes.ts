@@ -1,12 +1,12 @@
 export enum SearchItemComparison {
-    notEquals = -1,
-    equals = 1,
-    lessThan,
-    lessThanEqual,
-    greaterThan,
-    greaterThanEqual,
-    isNull,
-    isNotNull,
+    notEquals = 'ne',
+    equals = 'eq',
+    lessThan = 'lt',
+    lessThanEqual = 'lte',
+    greaterThan = 'gt',
+    greaterThanEqual = 'gte',
+    isNull = 'null',
+    isNotNull = 'notnull',
 }
 
 export type SearchItem = {

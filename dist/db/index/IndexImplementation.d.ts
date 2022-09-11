@@ -1,6 +1,7 @@
 import { Index } from "./Index";
 import { IndexConfig, IndexContent, IndexEntry, IndexVersion } from "../Types";
 import { SearchFilter } from "../search/SearchTypes";
+import { SearchCursor } from "../cursor/SearchCursor";
 export declare class IndexImplementation implements Index {
     private config;
     private dbLocation;
@@ -22,11 +23,14 @@ export declare class IndexImplementation implements Index {
     getName(): string;
     getVersion(): number;
     matchesFilter(searchFilter: SearchFilter): boolean;
+    partiallyMatchesFilter(searchFilter: SearchFilter): boolean;
     objectAdded(version: number, key: string, object: any): void;
     objectRemoved(version: number, key: string): void;
     private constructIndexEntry;
     objectUpdated(version: number, key: string, object: any): void;
     setVersion(version: number): void;
     protected rebuildIndex(version: IndexVersion): void;
-    protected getFieldValue(entry: any, field: string): any | undefined;
+    private indexEntryFieldMatchesSearchItem;
+    private indexEntryMatchesSearchItems;
+    search(search: SearchFilter): SearchCursor;
 }

@@ -8,6 +8,6 @@ export type SortOrderItem = {
     order:SortOrderType,
 }
 
-export type SortOrder = {
-    items:SortOrderItem[]
-}
+// export type SortOrder = {
+//     items:SortOrderItem[]
+// }

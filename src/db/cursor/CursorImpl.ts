@@ -7,7 +7,7 @@ export class CursorImpl implements Cursor {
 
     constructor(items:any[]) {
         this.items = DB.copyObject(items);
-        this.position = -1;
+        this.position = 0;
     }
 
     hasNext(): boolean {
@@ -16,14 +16,16 @@ export class CursorImpl implements Cursor {
 
     next(): any {
         let result:any = null;
-        this.position ++;
         if (this.position < this.items.length) {
             result = this.items[this.position];
         }
+        this.position ++;
         return result;
     }
 
     toArray(): any[] {
         return this.items;
     }
+
+
 }
