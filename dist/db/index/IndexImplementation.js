@@ -180,7 +180,7 @@ class IndexImplementation {
             entries.forEach((entry) => {
                 const keyValue = entry[keyField];
                 if (keyValue) {
-                    const indexEntry = this.constructIndexEntry(entry.keyValue, entry);
+                    const indexEntry = this.constructIndexEntry(keyValue, entry);
                     indexContent.entries.push(indexEntry);
                 }
             });
