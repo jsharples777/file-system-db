@@ -250,7 +250,7 @@ export class IndexImplementation implements Index {
     protected checkVersionSync():void {
         const collectionVersion = CollectionManager.getInstance().getCollection(this.config.collection).getVersion();
         // check versions
-        if ((this.version.version !== collectionVersion) && (this.content.version !== collectionVersion)) {
+        if ((this.version.version !== collectionVersion) || (this.content.version !== collectionVersion)) {
             logger(`Index ${this.config.name} has version ${this.version.version} which does not match collection ${this.config.collection} version ${collectionVersion} - rebuilding`);
             this.version.version = collectionVersion;
             this.rebuildIndex();
