@@ -16,4 +16,5 @@ export declare class CollectionImpl implements Collection {
     findBy(search: SearchItem[]): Cursor;
     upsertObject(key: string, object: any): OperationResult;
     findOne(search: SearchItem[]): any;
+    getKeyFieldName(): string;
 }

@@ -127,6 +127,9 @@ class CollectionImpl {
         }
         return result;
     }
+    getKeyFieldName() {
+        return this.config.key;
+    }
 }
 exports.CollectionImpl = CollectionImpl;
 //# sourceMappingURL=CollectionImpl.js.map

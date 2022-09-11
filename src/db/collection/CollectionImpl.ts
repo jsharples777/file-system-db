@@ -144,4 +144,8 @@ export class CollectionImpl implements Collection {
         return result;
     }
 
+    getKeyFieldName(): string {
+        return this.config.key;
+    }
+
 }

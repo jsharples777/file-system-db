@@ -4,6 +4,7 @@ import { SearchItem } from "../search/SearchTypes";
 export interface Collection {
     getVersion(): number;
     getName(): string;
+    getKeyFieldName(): string;
     find(): Cursor;
     findByKey(key: string): any | null;
     findOne(search: SearchItem[]): any;

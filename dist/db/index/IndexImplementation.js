@@ -176,23 +176,15 @@ class IndexImplementation {
                 entries: []
             };
             const entries = collection.find().toArray();
+            const keyField = collection.getKeyFieldName();
             entries.forEach((entry) => {
-                const indexEntry = {
-                    keyValue: entry._id,
-                    fieldValues: []
-                };
-                // find each field for index config
-                this.config.fields.forEach((field => {
-                    const fieldValue = DB_1.DB.getFieldValue(entry, field);
-                    if (fieldValue) {
-                        indexEntry.fieldValues.push({
-                            field: field,
-                            value: fieldValue
-                        });
-                    }
-                }));
-                indexContent.entries.push(indexEntry);
+                const keyValue = entry[keyField];
+                if (keyValue) {
+                    const indexEntry = this.constructIndexEntry(entry.keyValue, entry);
+                    indexContent.entries.push(indexEntry);
+                }
             });
+            IndexFileManager_1.IndexFileManager.getInstance().writeIndexFile(this);
         }
     }
     indexEntryFieldMatchesSearchItem(entry, searchItem) {
@@ -235,6 +227,13 @@ class IndexImplementation {
         logger(indexSearchItems);
         // for each entry in the index, check if the fields match
         this.checkIndexLoaded();
+        const collectionVersion = CollectionManager_1.CollectionManager.getInstance().getCollection(this.config.collection).getVersion();
+        // check versions
+        if (this.version.version !== collectionVersion) {
+            logger(`Index ${this.config.name} has version ${this.version.version} which does not match collection ${this.config.collection} version ${collectionVersion} - rebuilding`);
+            this.version.version = collectionVersion;
+            this.rebuildIndex(this.version);
+        }
         const matchingEntries = [];
         this.content.entries.forEach((entry) => {
             dLogger(`Searching using index ${this.config.name} for collection ${this.config.collection} - checking entry`);
