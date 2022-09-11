@@ -4,7 +4,7 @@ export type { Collection } from './db/collection/Collection';
 export type { Cursor } from './db/cursor/Cursor';
 export type { SearchCursor } from './db/cursor/SearchCursor';
 export type { SortedCursor } from './db/cursor/SortedCursor';
-export type { SearchItem, SearchItemComparison, SearchFilter } from './db/search/SearchTypes';
+export type { SearchItem, SearchItemComparison } from './db/search/SearchTypes';
 export type { SortOrderType, SortOrderItem } from './db/sort/SortTypes';
 export { InvalidConfiguration, MissingConfiguration, DuplicateKey } from './db/Types';
 export { DB } from './db/DB';

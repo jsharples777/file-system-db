@@ -31,15 +31,15 @@ class test {
             while (findAll.hasNext()) {
                 console.log(findAll.next());
             }
-            const cursor = collection.findBy({ items: [{
-                        comparison: SearchTypes_1.SearchItemComparison.greaterThan,
-                        field: "dates.createdDate",
-                        value: 7
-                    }, {
-                        comparison: SearchTypes_1.SearchItemComparison.greaterThan,
-                        field: "fake",
-                        value: 7
-                    }] }).sort([{
+            const cursor = collection.findBy([{
+                    comparison: SearchTypes_1.SearchItemComparison.greaterThan,
+                    field: "dates.createdDate",
+                    value: 7
+                }, {
+                    comparison: SearchTypes_1.SearchItemComparison.greaterThan,
+                    field: "fake",
+                    value: 7
+                }]).sort([{
                     field: "dates.createdDate",
                     order: SortTypes_1.SortOrderType.ascending
                 }]);

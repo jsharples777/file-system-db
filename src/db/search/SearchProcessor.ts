@@ -1,4 +1,4 @@
-import {SearchFilter, SearchItem, SearchItemComparison} from "./SearchTypes";
+import {SearchItem, SearchItemComparison} from "./SearchTypes";
 import {Collection} from "../collection/Collection";
 import {SearchCursor} from "../cursor/SearchCursor";
 import {SearchCursorImpl} from "./SearchCursorImpl";
@@ -77,10 +77,10 @@ export class SearchProcessor {
     }
 
 
-    private static searchCollectionBruteForce(collection:Collection, search:SearchFilter):any[] {
+    private static searchCollectionBruteForce(collection:Collection, search:SearchItem[]):any[] {
         let results:any[] = collection.find().toArray();
         // go through each search filter and match the collection items
-        search.items.every((searchItem) => {
+        search.every((searchItem) => {
            // find the matching items for the current search item
            results = SearchProcessor.searchItemsBruteForceForSearchItem(results,searchItem);
            if (results.length > 0) {
@@ -101,7 +101,7 @@ export class SearchProcessor {
         return results;
     }
 
-    public static searchCollection(collection:Collection, search:SearchFilter):SearchCursor {
+    public static searchCollection(collection:Collection, search:SearchItem[]):SearchCursor {
 
         logger(`Looking for relevant indexes for collection ${collection.getName()} with criteria`);
         logger(search);

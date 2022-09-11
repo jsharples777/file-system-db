@@ -1,5 +1,5 @@
 import {IndexContent, IndexEntry, IndexVersion} from "../Types";
-import {SearchFilter} from "../search/SearchTypes";
+import {SearchItem} from "../search/SearchTypes";
 import {SearchCursor} from "../cursor/SearchCursor";
 
 export interface Index {
@@ -12,10 +12,10 @@ export interface Index {
     objectAdded(version:number, key:string,object:any):void;
     objectRemoved(version:number, key:string):void;
     objectUpdated(version:number, key:string,object:any):void;
-    matchesFilter(searchFilter:SearchFilter):boolean;
-    partiallyMatchesFilter(searchFilter:SearchFilter):boolean;
-    findMatchingKeys(searchFilter:SearchFilter):string[];
+    matchesFilter(searchFilter:SearchItem[]):boolean;
+    partiallyMatchesFilter(searchFilter:SearchItem[]):boolean;
+    findMatchingKeys(searchFilter:SearchItem[]):string[];
     getIndexVersion():IndexVersion;
     getIndexContent():IndexContent;
-    search(search:SearchFilter):SearchCursor;
+    search(search:SearchItem[]):SearchCursor;
 }

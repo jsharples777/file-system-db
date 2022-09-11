@@ -34,7 +34,7 @@ export class test {
 
 
 
-            const cursor = collection.findBy({items:[{
+            const cursor = collection.findBy([{
                     comparison: SearchItemComparison.greaterThan,
                     field: "dates.createdDate",
                     value: 7
@@ -42,7 +42,7 @@ export class test {
                     comparison: SearchItemComparison.greaterThan,
                     field: "fake",
                     value: 7
-                }]}).sort([{
+                }]).sort([{
                 field: "dates.createdDate",
                 order: SortOrderType.ascending
             }]);

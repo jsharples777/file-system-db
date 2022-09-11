@@ -5,7 +5,7 @@ import {BufferFactory} from "../buffer/BufferFactory";
 import {CollectionFileManager} from "./CollectionFileManager";
 import debug from 'debug';
 import {IndexManager} from "../index/IndexManager";
-import {SearchFilter} from "../search/SearchTypes";
+import {SearchItem} from "../search/SearchTypes";
 import {SearchProcessor} from "../search/SearchProcessor";
 import {SearchCursor} from "../cursor/SearchCursor";
 import {CursorImpl} from "../cursor/CursorImpl";
@@ -126,7 +126,7 @@ export class CollectionImpl implements Collection {
         return result;
     }
 
-    findBy(search:SearchFilter):SearchCursor {
+    findBy(search:SearchItem[]):SearchCursor {
         return SearchProcessor.searchCollection(this,search);
     }
 
@@ -134,7 +134,7 @@ export class CollectionImpl implements Collection {
         return this.updateObject(key,object);
     }
 
-    findOne(search: SearchFilter): any {
+    findOne(search: SearchItem[]): any {
         let result:any = undefined;
 
         const cursor = this.findBy(search);

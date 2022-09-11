@@ -3,7 +3,7 @@ import {Configurable} from "../Configurable";
 import {DBConfig, IndexConfig} from "../Types";
 import {Index} from "./Index";
 import {IndexImplementation} from "./IndexImplementation";
-import {SearchFilter} from "../search/SearchTypes";
+import {SearchItem} from "../search/SearchTypes";
 
 
 const logger = debug('index-manager');
@@ -24,7 +24,7 @@ export class IndexManager implements Configurable {
     private constructor() {
     }
 
-    public getMatchingIndex(collection:string,search:SearchFilter):Index|null {
+    public getMatchingIndex(collection:string,search:SearchItem[]):Index|null {
         logger(`Looking for index for collection ${collection} for search criteria`);
         logger(search);
 

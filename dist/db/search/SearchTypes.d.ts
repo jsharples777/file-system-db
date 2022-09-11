@@ -13,6 +13,3 @@ export declare type SearchItem = {
     comparison: SearchItemComparison;
     value?: any;
 };
-export declare type SearchFilter = {
-    items: SearchItem[];
-};

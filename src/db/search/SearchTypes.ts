@@ -15,6 +15,4 @@ export type SearchItem = {
     value?:any
 }
 
-export type SearchFilter = {
-    items:SearchItem[]
-}
+

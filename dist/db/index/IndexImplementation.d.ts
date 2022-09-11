@@ -1,6 +1,6 @@
 import { Index } from "./Index";
 import { IndexConfig, IndexContent, IndexEntry, IndexVersion } from "../Types";
-import { SearchFilter } from "../search/SearchTypes";
+import { SearchItem } from "../search/SearchTypes";
 import { SearchCursor } from "../cursor/SearchCursor";
 export declare class IndexImplementation implements Index {
     private config;
@@ -13,7 +13,7 @@ export declare class IndexImplementation implements Index {
     constructor(dbLocation: string, config: IndexConfig);
     protected checkIndexUse(): void;
     protected removeIndexBuffer(): void;
-    findMatchingKeys(searchFilter: SearchFilter): string[];
+    findMatchingKeys(searchFilter: SearchItem[]): string[];
     getCollection(): string;
     protected checkIndexLoaded(): void;
     getEntries(): IndexEntry[];
@@ -22,8 +22,8 @@ export declare class IndexImplementation implements Index {
     getIndexVersion(): IndexVersion;
     getName(): string;
     getVersion(): number;
-    matchesFilter(searchFilter: SearchFilter): boolean;
-    partiallyMatchesFilter(searchFilter: SearchFilter): boolean;
+    matchesFilter(searchFilter: SearchItem[]): boolean;
+    partiallyMatchesFilter(searchFilter: SearchItem[]): boolean;
     objectAdded(version: number, key: string, object: any): void;
     objectRemoved(version: number, key: string): void;
     private constructIndexEntry;
@@ -32,5 +32,5 @@ export declare class IndexImplementation implements Index {
     protected rebuildIndex(version: IndexVersion): void;
     private indexEntryFieldMatchesSearchItem;
     private indexEntryMatchesSearchItems;
-    search(search: SearchFilter): SearchCursor;
+    search(search: SearchItem[]): SearchCursor;
 }

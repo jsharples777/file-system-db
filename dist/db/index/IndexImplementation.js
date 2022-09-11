@@ -92,7 +92,7 @@ class IndexImplementation {
     }
     matchesFilter(searchFilter) {
         let result = true;
-        searchFilter.items.forEach((searchItem) => {
+        searchFilter.forEach((searchItem) => {
             const foundIndex = this.config.fields.findIndex((field) => field === searchItem.field);
             if (foundIndex < 0)
                 result = false;
@@ -101,7 +101,7 @@ class IndexImplementation {
     }
     partiallyMatchesFilter(searchFilter) {
         let result = false;
-        searchFilter.items.forEach((searchItem) => {
+        searchFilter.forEach((searchItem) => {
             const foundIndex = this.config.fields.findIndex((field) => field === searchItem.field);
             if (foundIndex >= 0)
                 result = true;
@@ -224,7 +224,7 @@ class IndexImplementation {
         logger(search);
         // what fields are we searching with?
         const indexSearchItems = [];
-        search.items.forEach((searchItem) => {
+        search.forEach((searchItem) => {
             const foundIndex = this.config.fields.findIndex((field) => field === searchItem.field);
             if (foundIndex >= 0) {
                 indexSearchItems.push(searchItem);

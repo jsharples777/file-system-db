@@ -4,7 +4,7 @@ import {CollectionManager} from "../collection/CollectionManager";
 import debug from 'debug';
 import {DB} from "../DB";
 import {IndexFileManager} from "./IndexFileManager";
-import {SearchFilter, SearchItem} from "../search/SearchTypes";
+import {SearchItem} from "../search/SearchTypes";
 import {SearchCursor} from "../cursor/SearchCursor";
 import {SearchProcessor} from "../search/SearchProcessor";
 import {SearchCursorImpl} from "../search/SearchCursorImpl";
@@ -65,7 +65,7 @@ export class IndexImplementation implements Index {
     }
 
 
-    findMatchingKeys(searchFilter: SearchFilter): string[] {
+    findMatchingKeys(searchFilter: SearchItem[]): string[] {
         this.checkIndexLoaded();
         return [];
     }
@@ -112,18 +112,18 @@ export class IndexImplementation implements Index {
         return this.version.version;
     }
 
-    matchesFilter(searchFilter: SearchFilter): boolean {
+    matchesFilter(searchFilter: SearchItem[]): boolean {
         let result = true;
-        searchFilter.items.forEach((searchItem) => {
+        searchFilter.forEach((searchItem) => {
            const foundIndex = this.config.fields.findIndex((field) => field === searchItem.field);
            if (foundIndex < 0) result = false;
         });
         return result;
     }
 
-    partiallyMatchesFilter(searchFilter: SearchFilter): boolean {
+    partiallyMatchesFilter(searchFilter: SearchItem[]): boolean {
         let result = false;
-        searchFilter.items.forEach((searchItem) => {
+        searchFilter.forEach((searchItem) => {
             const foundIndex = this.config.fields.findIndex((field) => field === searchItem.field);
             if (foundIndex >= 0) result = true;
         });
@@ -252,7 +252,7 @@ export class IndexImplementation implements Index {
         return result;
     }
 
-    search(search: SearchFilter): SearchCursor {
+    search(search: SearchItem[]): SearchCursor {
         let results:any[] = [];
 
 
@@ -260,7 +260,7 @@ export class IndexImplementation implements Index {
         logger(search);
         // what fields are we searching with?
         const indexSearchItems:SearchItem[] = [];
-        search.items.forEach((searchItem) => {
+        search.forEach((searchItem) => {
             const foundIndex = this.config.fields.findIndex((field) => field === searchItem.field);
             if (foundIndex >= 0) {
                 indexSearchItems.push(searchItem);

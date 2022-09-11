@@ -75,7 +75,7 @@ class SearchProcessor {
     static searchCollectionBruteForce(collection, search) {
         let results = collection.find().toArray();
         // go through each search filter and match the collection items
-        search.items.every((searchItem) => {
+        search.every((searchItem) => {
             // find the matching items for the current search item
             results = SearchProcessor.searchItemsBruteForceForSearchItem(results, searchItem);
             if (results.length > 0) {
