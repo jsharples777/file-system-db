@@ -7,7 +7,7 @@ exports.CollectionManager = void 0;
 const debug_1 = __importDefault(require("debug"));
 const Types_1 = require("../Types");
 const fs_1 = __importDefault(require("fs"));
-const CollectionImplementation_1 = require("./CollectionImplementation");
+const CollectionImpl_1 = require("./CollectionImpl");
 const logger = (0, debug_1.default)('collection-manager');
 class CollectionManager {
     constructor() {
@@ -87,7 +87,7 @@ class CollectionManager {
                     version: 0
                 };
             }
-            const impl = new CollectionImplementation_1.CollectionImplementation(config);
+            const impl = new CollectionImpl_1.CollectionImpl(config);
             this.collectionImplementations.push(impl);
             result = impl;
         }

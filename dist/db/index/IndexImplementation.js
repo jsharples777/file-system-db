@@ -95,6 +95,7 @@ class IndexImplementation {
         logger(`Creating new index entry for ${key}`);
         this.content.entries.push(object);
         this.version.version = version;
+        this.content.version = version;
         IndexFileManager_1.IndexFileManager.getInstance().writeIndexFile(this);
     }
     objectRemoved(version, key) {
@@ -105,6 +106,7 @@ class IndexImplementation {
             this.content.entries.splice(foundIndex, 1);
         }
         this.version.version = version;
+        this.content.version = version;
         IndexFileManager_1.IndexFileManager.getInstance().writeIndexFile(this);
     }
     constructIndexEntry(key, object) {
@@ -138,11 +140,13 @@ class IndexImplementation {
             this.content.entries.push(newEntry);
         }
         this.version.version = version;
+        this.content.version = version;
         IndexFileManager_1.IndexFileManager.getInstance().writeIndexFile(this);
     }
     setVersion(version) {
         this.checkIndexLoaded();
         this.version.version = version;
+        this.content.version = version;
     }
     rebuildIndex(version) {
         if (this.config) {

@@ -1,5 +1,6 @@
 import {OperationResult} from "../Types";
 import {SearchFilter} from "../search/SearchTypes";
+import {SearchCursor} from "../cursor/SearchCursor";
 
 export interface Collection {
     getVersion():number;
@@ -10,5 +11,5 @@ export interface Collection {
     upsertObject(key:string, object:any):OperationResult;
     updateObject(key:string, object:any):OperationResult;
     removeObject(key:string):OperationResult;
-    findBy(search:SearchFilter):any[];
+    findBy(search:SearchFilter):SearchCursor;
 }

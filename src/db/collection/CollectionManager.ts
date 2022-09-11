@@ -3,7 +3,7 @@ import {Configurable} from "../Configurable";
 import {BufferType, CollectionConfig, DBConfig} from "../Types";
 import fs from "fs";
 import {Collection} from "./Collection";
-import {CollectionImplementation} from "./CollectionImplementation";
+import {CollectionImpl} from "./CollectionImpl";
 
 const logger = debug('collection-manager');
 
@@ -17,7 +17,7 @@ export class CollectionManager implements Configurable{
     }
     private config: DBConfig | undefined;
     private collectionConfigs:CollectionConfig[] = [];
-    private collectionImplementations:CollectionImplementation[] = [];
+    private collectionImplementations:CollectionImpl[] = [];
     private constructor(){}
 
     private setupCollection(name:string):CollectionConfig {
@@ -97,7 +97,7 @@ export class CollectionManager implements Configurable{
                     version: 0
                 }
             }
-            const impl = new CollectionImplementation(config);
+            const impl = new CollectionImpl(config);
             this.collectionImplementations.push(impl);
             result = impl;
         }

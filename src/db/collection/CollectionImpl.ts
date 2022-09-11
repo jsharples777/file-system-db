@@ -7,11 +7,12 @@ import debug from 'debug';
 import {IndexManager} from "../index/IndexManager";
 import {SearchFilter} from "../search/SearchTypes";
 import {SearchProcessor} from "../search/SearchProcessor";
+import {SearchCursor} from "../cursor/SearchCursor";
 
 const logger = debug('collection-implementation');
 
 
-export class CollectionImplementation implements Collection {
+export class CollectionImpl implements Collection {
     private config: CollectionConfig;
     private buffer: ObjectBuffer;
 
@@ -123,7 +124,7 @@ export class CollectionImplementation implements Collection {
         return result;
     }
 
-    findBy(search:SearchFilter):any[] {
+    findBy(search:SearchFilter):SearchCursor {
         return SearchProcessor.searchCollection(this,search);
     }
 
