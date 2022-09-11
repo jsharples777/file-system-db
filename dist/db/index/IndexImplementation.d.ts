@@ -29,7 +29,7 @@ export declare class IndexImplementation implements Index {
     private constructIndexEntry;
     objectUpdated(version: number, key: string, object: any): void;
     setVersion(version: number): void;
-    protected rebuildIndex(version: IndexVersion): void;
+    protected rebuildIndex(): void;
     private indexEntryFieldMatchesSearchItem;
     private indexEntryMatchesSearchItems;
     search(search: SearchItem[]): Cursor;

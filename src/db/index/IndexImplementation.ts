@@ -197,9 +197,9 @@ export class IndexImplementation implements Index {
         this.content.version = version;
     }
 
-    protected rebuildIndex(version: IndexVersion): void {
+    protected rebuildIndex(): void {
         if (this.config) {
-            const collection = CollectionManager.getInstance().getCollection(version.collection);
+            const collection = CollectionManager.getInstance().getCollection(this.config.collection);
             const versionNumber = collection.getVersion();
             const indexContent: IndexContent = {
                 version: versionNumber,
@@ -214,6 +214,7 @@ export class IndexImplementation implements Index {
                     indexContent.entries.push(indexEntry);
                 }
             });
+            this.content = indexContent;
             IndexFileManager.getInstance().writeIndexFile(this);
         }
     }
@@ -270,7 +271,7 @@ export class IndexImplementation implements Index {
         if (this.version.version !== collectionVersion) {
             logger(`Index ${this.config.name} has version ${this.version.version} which does not match collection ${this.config.collection} version ${collectionVersion} - rebuilding`);
             this.version.version = collectionVersion;
-            this.rebuildIndex(this.version);
+            this.rebuildIndex();
         }
         const matchingEntries:IndexEntry[] = [];
         this.content.entries.forEach((entry) => {
