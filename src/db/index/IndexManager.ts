@@ -1,9 +1,10 @@
 import debug from 'debug';
-import {Configurable} from "../Configurable";
-import {DBConfig, IndexConfig} from "../Types";
+import {Configurable} from "../config/Configurable";
+import {DBConfig, IndexConfig} from "../config/Types";
 import {Index} from "./Index";
 import {IndexImplementation} from "./IndexImplementation";
 import {SearchItem} from "../search/SearchTypes";
+import {CollectionManager} from "../collection/CollectionManager";
 
 
 const logger = debug('index-manager');
@@ -85,43 +86,44 @@ export class IndexManager implements Configurable {
             this.config.indexes.forEach((indexConfig) => {
                 const index = new IndexImplementation(dbLocation,indexConfig);
                 if (rebuildIndexes) index.rebuild();
+                CollectionManager.getInstance().getCollection(indexConfig.collection).addListener(index);
                 this.indexes.push(index);
             });
         }
     }
 
-    entryInserted(collection: string, keyValue: string, version:number, values: any): void {
-        if (this.config) {
-            this.indexes.forEach((index) => {
-                if (index.getCollection() === collection) {
-                    logger(`Adding entry for index ${index.getName()} for collection ${collection} with key ${keyValue}`);
-                    index.objectAdded(version,keyValue,values);
-                }
-            });
-        }
-
-    }
-
-    entryUpdated(collection: string, keyValue: string, version:number, values: any): void {
-        if (this.config) {
-            this.indexes.forEach((index) => {
-                if (index.getCollection() === collection) {
-                    logger(`Updating entry for index ${index.getName()} for collection ${collection} with key ${keyValue}`);
-                    index.objectUpdated(version,keyValue,values);
-                }
-            });
-        }
-    }
-
-    entryDeleted(collection: string, keyValue: string, version:number ): void {
-        if (this.config) {
-            this.indexes.forEach((index) => {
-                if (index.getCollection() === collection) {
-                    logger(`Removing entry for index ${index.getName()} for collection ${collection} with key ${keyValue}`);
-                    index.objectRemoved(version,keyValue);
-                }
-            });
-        }
-    }
+    // entryInserted(collection: string, keyValue: string, version:number, values: any): void {
+    //     if (this.config) {
+    //         this.indexes.forEach((index) => {
+    //             if (index.getCollection() === collection) {
+    //                 logger(`Adding entry for index ${index.getName()} for collection ${collection} with key ${keyValue}`);
+    //                 index.objectAdded(version,keyValue,values);
+    //             }
+    //         });
+    //     }
+    //
+    // }
+    //
+    // entryUpdated(collection: string, keyValue: string, version:number, values: any): void {
+    //     if (this.config) {
+    //         this.indexes.forEach((index) => {
+    //             if (index.getCollection() === collection) {
+    //                 logger(`Updating entry for index ${index.getName()} for collection ${collection} with key ${keyValue}`);
+    //                 index.objectUpdated(version,keyValue,values);
+    //             }
+    //         });
+    //     }
+    // }
+    //
+    // entryDeleted(collection: string, keyValue: string, version:number ): void {
+    //     if (this.config) {
+    //         this.indexes.forEach((index) => {
+    //             if (index.getCollection() === collection) {
+    //                 logger(`Removing entry for index ${index.getName()} for collection ${collection} with key ${keyValue}`);
+    //                 index.objectRemoved(version,keyValue);
+    //             }
+    //         });
+    //     }
+    // }
 
 }

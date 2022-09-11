@@ -1,13 +1,14 @@
 import debug from 'debug';
-import {BufferType, CollectionConfig, DBConfig, IndexContent, IndexVersion} from "../Types";
-import {Configurable} from "../Configurable";
+import {BufferType, CollectionConfig, DBConfig, IndexContent, IndexVersion} from "../config/Types";
+import {Configurable} from "../config/Configurable";
 import fs from "fs";
 import {Index} from "./Index";
+import {Heartbeat} from "../life/Heartbeat";
 
 
 const logger = debug('index-file-manager');
 
-export class IndexFileManager implements Configurable{
+export class IndexFileManager implements Configurable, Heartbeat{
     private static _instance: IndexFileManager;
     public static getInstance(): IndexFileManager {
         if (!IndexFileManager._instance) {
@@ -35,9 +36,9 @@ export class IndexFileManager implements Configurable{
 
     loadConfig(config: DBConfig): void {
         this.config = config;
-        const interval = setInterval(() => {
-            this.processFileQueue();
-        },this.fileQueueInterval);
+        // const interval = setInterval(() => {
+        //     this.processFileQueue();
+        // },this.fileQueueInterval);
         logger(`Starting index file manager with queue interval of ${this.fileQueueInterval}`);
     }
 
@@ -116,6 +117,26 @@ export class IndexFileManager implements Configurable{
             this.fileWriteQueue = [];
             this.isProcessingQueue = false;
         }
+    }
+
+    die(): void {
+        this.processFileQueue();
+    }
+
+    getBPM(): number {
+        return Math.round(60000/this.fileQueueInterval);
+    }
+
+    heartbeat(): void {
+        this.processFileQueue();
+    }
+
+    isAlive(): boolean {
+        return true;
+    }
+
+    getName(): string {
+        return "Index File Manager";
     }
 
 

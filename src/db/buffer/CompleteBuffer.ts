@@ -1,4 +1,4 @@
-import {CollectionConfig} from "../Types";
+import {CollectionConfig} from "../config/Types";
 import debug from 'debug'
 import {AbstractPartialBuffer} from "./AbstractPartialBuffer";
 

@@ -5,7 +5,7 @@ import {SortOrderItem, SortOrderType} from "../db/sort/SortTypes";
 
 export class test {
     public constructor() {
-        debug.enable('config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
+        debug.enable('life-cycle-manager life-cycle-manager-detail config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
 
 
         try {

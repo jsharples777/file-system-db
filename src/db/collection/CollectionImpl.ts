@@ -1,14 +1,15 @@
 import {Collection} from "./Collection";
-import {CollectionConfig, OperationResult} from "../Types";
+import {CollectionConfig, OperationResult} from "../config/Types";
 import {ObjectBuffer} from "../buffer/ObjectBuffer";
 import {BufferFactory} from "../buffer/BufferFactory";
 import {CollectionFileManager} from "./CollectionFileManager";
 import debug from 'debug';
-import {IndexManager} from "../index/IndexManager";
 import {SearchItem} from "../search/SearchTypes";
 import {SearchProcessor} from "../search/SearchProcessor";
 import {CursorImpl} from "../cursor/CursorImpl";
 import {Cursor} from "../cursor/Cursor";
+import {CollectionListener} from "./CollectionListener";
+import {DB} from "../DB";
 
 const logger = debug('collection-implementation');
 
@@ -16,6 +17,7 @@ const logger = debug('collection-implementation');
 export class CollectionImpl implements Collection {
     private config: CollectionConfig;
     private buffer: ObjectBuffer;
+    private listeners:CollectionListener[] = [];
 
     constructor(config: CollectionConfig) {
         this.config = config;
@@ -31,6 +33,10 @@ export class CollectionImpl implements Collection {
             logger(`Collection ${this.config.name} - buffer is not complete - loading config`);
             this.config = CollectionFileManager.getInstance().readCollectionConfig(this.config);
         }
+    }
+
+    getConfig(): CollectionConfig {
+        return DB.copyObject(this.config);
     }
 
     findByKey(key: string) {
@@ -91,9 +97,10 @@ export class CollectionImpl implements Collection {
 
         logger(`Collection ${this.config.name} - insert ${key}`);
         this.config.version++;
-        CollectionFileManager.getInstance().writeDataObjectFile(this.config,this.config.name, key, object,true);
+        //CollectionFileManager.getInstance().writeDataObjectFile(this.config,this.config.name, key, object,true);
         this.buffer.addObject(key, object);
-        IndexManager.getInstance().entryInserted(this.config.name,key,this.config.version,object);
+        //IndexManager.getInstance().entryInserted(this.config.name,key,this.config.version,object);
+        this.listeners.forEach((listener) => listener.objectAdded(this,key, object));
         return result;
     }
 
@@ -105,9 +112,10 @@ export class CollectionImpl implements Collection {
         }
         logger(`Collection ${this.config.name} - remove ${key}`);
         this.config.version++;
-        CollectionFileManager.getInstance().removeDataObjectFile(this.config,this.config.name, key);
+        //CollectionFileManager.getInstance().removeDataObjectFile(this.config,this.config.name, key);
         this.buffer.removeObject(key);
-        IndexManager.getInstance().entryDeleted(this.config.name,key,this.config.version);
+        // IndexManager.getInstance().entryDeleted(this.config.name,key,this.config.version);
+        this.listeners.forEach((listener) => listener.objectRemoved(this,key));
         return result;
     }
 
@@ -119,9 +127,10 @@ export class CollectionImpl implements Collection {
         }
         logger(`Collection ${this.config.name} - update ${key}`);
         this.config.version++;
-        CollectionFileManager.getInstance().writeDataObjectFile(this.config,this.config.name, key, object,false);
+        //CollectionFileManager.getInstance().writeDataObjectFile(this.config,this.config.name, key, object,false);
         this.buffer.replaceObject(key, object);
-        IndexManager.getInstance().entryUpdated(this.config.name,key,this.config.version,object);
+        //IndexManager.getInstance().entryUpdated(this.config.name,key,this.config.version,object);
+        this.listeners.forEach((listener) => listener.objectUpdated(this,key, object));
         return result;
     }
 
@@ -146,6 +155,10 @@ export class CollectionImpl implements Collection {
 
     getKeyFieldName(): string {
         return this.config.key;
+    }
+
+    addListener(listener: CollectionListener) {
+        this.listeners.push(listener);
     }
 
 }

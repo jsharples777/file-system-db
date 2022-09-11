@@ -1,9 +1,10 @@
 import debug from 'debug';
-import {Configurable} from "../Configurable";
-import {BufferType, CollectionConfig, DBConfig} from "../Types";
+import {Configurable} from "../config/Configurable";
+import {BufferType, CollectionConfig, DBConfig} from "../config/Types";
 import fs from "fs";
 import {Collection} from "./Collection";
 import {CollectionImpl} from "./CollectionImpl";
+import {CollectionFileManager} from "./CollectionFileManager";
 
 const logger = debug('collection-manager');
 
@@ -99,6 +100,7 @@ export class CollectionManager implements Configurable{
             }
             const impl = new CollectionImpl(config);
             this.collectionImplementations.push(impl);
+            impl.addListener(CollectionFileManager.getInstance());
             result = impl;
         }
         return result;

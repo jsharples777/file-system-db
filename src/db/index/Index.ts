@@ -1,17 +1,15 @@
-import {IndexContent, IndexEntry, IndexVersion} from "../Types";
+import {IndexContent, IndexEntry, IndexVersion} from "../config/Types";
 import {SearchItem} from "../search/SearchTypes";
 import {Cursor} from "../cursor/Cursor";
+import {CollectionListener} from "../collection/CollectionListener";
 
-export interface Index {
+export interface Index extends CollectionListener{
     setVersion(version:number):void;
     getVersion():number;
     getName():string;
     getCollection():string;
     getFields():string[];
     getEntries():IndexEntry[];
-    objectAdded(version:number, key:string,object:any):void;
-    objectRemoved(version:number, key:string):void;
-    objectUpdated(version:number, key:string,object:any):void;
     matchesFilter(searchFilter:SearchItem[]):boolean;
     partiallyMatchesFilter(searchFilter:SearchItem[]):boolean;
     findMatchingKeys(searchFilter:SearchItem[]):string[];

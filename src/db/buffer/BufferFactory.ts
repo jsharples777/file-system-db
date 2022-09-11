@@ -1,5 +1,5 @@
 import debug from 'debug';
-import {BufferType, CollectionConfig} from "../Types";
+import {BufferType, CollectionConfig} from "../config/Types";
 import {ObjectBuffer} from "./ObjectBuffer";
 import {EmptyBuffer} from "./EmptyBuffer";
 import {CompleteBuffer} from "./CompleteBuffer";

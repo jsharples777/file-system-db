@@ -1,11 +1,13 @@
 import {BufferEntry, ObjectBuffer} from "./ObjectBuffer";
-import {BufferType, CollectionConfig} from "../Types";
+import {BufferType, CollectionConfig} from "../config/Types";
 import moment from "moment";
 import debug from 'debug';
+import {Heartbeat} from "../life/Heartbeat";
+import {LifeCycleManager} from "../life/LifeCycleManager";
 
 const logger = debug('abstract-partial-buffer');
 
-export class AbstractPartialBuffer implements ObjectBuffer {
+export class AbstractPartialBuffer implements ObjectBuffer,Heartbeat{
     protected bufferContent:BufferEntry[];
     protected config:CollectionConfig;
     protected bufferSize:number;
@@ -53,9 +55,10 @@ export class AbstractPartialBuffer implements ObjectBuffer {
                 else {
                     this.objectLifespan = this.defaultBufferItemLifespan;
                 }
-                const interval = setInterval(() => {
-                    this.checkObjectLifespans();
-                },(this.objectLifespan*1000)/2);
+                // const interval = setInterval(() => {
+                //     this.checkObjectLifespans();
+                // },(this.objectLifespan*1000)/2);
+                LifeCycleManager.getInstance().addLife(this);
                 logger(`Created Lifespan buffer for collection ${config.name} with object lifespan of ${this.objectLifespan} `);
                 break;
             }
@@ -200,6 +203,25 @@ export class AbstractPartialBuffer implements ObjectBuffer {
             }
         }
     }
+
+    getName():string {
+        return 'Lifespan Buffer'
+    }
+
+    isAlive():boolean {
+        return true;
+    }
+
+    heartbeat():void {
+        this.checkObjectLifespans();
+    }
+
+    die():void {}
+
+    getBPM():number {
+        return 60/(this.objectLifespan/2);
+    }
+
 
 
 }

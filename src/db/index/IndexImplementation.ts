@@ -1,5 +1,5 @@
 import {Index} from "./Index";
-import {IndexConfig, IndexContent, IndexEntry, IndexVersion} from "../Types";
+import {IndexConfig, IndexContent, IndexEntry, IndexVersion} from "../config/Types";
 import {CollectionManager} from "../collection/CollectionManager";
 import debug from 'debug';
 import {DB} from "../DB";
@@ -8,12 +8,15 @@ import {SearchItem} from "../search/SearchTypes";
 import {SearchProcessor} from "../search/SearchProcessor";
 import {Cursor} from "../cursor/Cursor";
 import {CursorImpl} from "../cursor/CursorImpl";
+import {Collection} from "../collection/Collection";
+import {Heartbeat} from "../life/Heartbeat";
+import {LifeCycleManager} from "../life/LifeCycleManager";
 
 
 const logger = debug('index-implementation');
 const dLogger = debug('index-implementation-detail');
 
-export class IndexImplementation implements Index {
+export class IndexImplementation implements Index,Heartbeat {
     private config: IndexConfig;
     private dbLocation: string;
     private version: IndexVersion;
@@ -43,9 +46,10 @@ export class IndexImplementation implements Index {
 
         this.checkIndexUse = this.checkIndexUse.bind(this);
 
-        setInterval(() => {
-            this.checkIndexUse();
-        }, this.defaultLifespan / 2 * 1000);
+        // setInterval(() => {
+        //     this.checkIndexUse();
+        // }, this.defaultLifespan / 2 * 1000);
+        LifeCycleManager.getInstance().addLife(this);
         logger(`Constructing index ${this.config.name} for collection ${this.config.collection}`);
 
     }
@@ -131,25 +135,27 @@ export class IndexImplementation implements Index {
         return result;
     }
 
-    objectAdded(version: number, key: string, object: any): void {
+    objectAdded(collection:Collection, key: string, object: any): void {
         this.checkIndexLoaded();
+        const config = collection.getConfig();
         logger(`Creating new index entry for ${key}`);
         const newEntry = this.constructIndexEntry(key, object);
         this.content.entries.push(newEntry);
-        this.version.version = version;
-        this.content.version = version;
+        this.version.version = config.version;
+        this.content.version = config.version;
         IndexFileManager.getInstance().writeIndexFile(this);
     }
 
-    objectRemoved(version: number, key: string): void {
+    objectRemoved(collection:Collection, key: string): void {
         this.checkIndexLoaded();
+        const config = collection.getConfig();
         const foundIndex = this.content.entries.findIndex((entry) => entry.keyValue === key);
         if (foundIndex >= 0) {
             logger(`Removing index entry for ${key}`);
             this.content.entries.splice(foundIndex, 1);
         }
-        this.version.version = version;
-        this.content.version = version;
+        this.version.version = config.version;
+        this.content.version = config.version;
         IndexFileManager.getInstance().writeIndexFile(this);
     }
 
@@ -171,8 +177,9 @@ export class IndexImplementation implements Index {
         return indexEntry;
     }
 
-    objectUpdated(version: number, key: string, object: any): void {
+    objectUpdated(collection:Collection, key: string, object: any): void {
         this.checkIndexLoaded();
+        const config = collection.getConfig();
         const foundIndex = this.content.entries.findIndex((entry) => entry.keyValue === key);
         if (foundIndex >= 0) {
             logger(`Updating index entry for ${key}`);
@@ -185,8 +192,8 @@ export class IndexImplementation implements Index {
             const newEntry = this.constructIndexEntry(key, object);
             this.content.entries.push(newEntry);
         }
-        this.version.version = version;
-        this.content.version = version;
+        this.version.version = config.version;
+        this.content.version = config.version;
         IndexFileManager.getInstance().writeIndexFile(this);
 
     }
@@ -304,6 +311,21 @@ export class IndexImplementation implements Index {
 
     rebuild(): void {
         this.rebuildIndex();
+    }
+
+    die(): void {
+    }
+
+    getBPM(): number {
+        return Math.round(60/(this.defaultLifespan / 2));
+    }
+
+    heartbeat(): void {
+        this.checkIndexUse();
+    }
+
+    isAlive(): boolean {
+        return true;
     }
 
 

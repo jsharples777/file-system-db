@@ -1,10 +1,11 @@
-import {ConfigManager} from "./ConfigManager";
+import {ConfigManager} from "./config/ConfigManager";
 import debug from 'debug';
 import {CollectionManager} from "./collection/CollectionManager";
 import {IndexManager} from "./index/IndexManager";
 import {Collection} from "./collection/Collection";
 import {CollectionFileManager} from "./collection/CollectionFileManager";
 import {IndexFileManager} from "./index/IndexFileManager";
+import {LifeCycleManager} from "./life/LifeCycleManager";
 
 const logger = debug('db');
 require('dotenv').config();
@@ -63,6 +64,11 @@ export class DB {
             CollectionManager.getInstance().loadConfig(config);
             IndexFileManager.getInstance().loadConfig(config);
             IndexManager.getInstance().loadConfig(config);
+
+            const lifecycleManger = LifeCycleManager.getInstance();
+            lifecycleManger.addLife(CollectionFileManager.getInstance());
+            lifecycleManger.addLife(IndexFileManager.getInstance());
+            lifecycleManger.birth();
             this.isInitialised = true;
         }
         return this;

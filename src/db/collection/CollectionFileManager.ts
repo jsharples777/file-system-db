@@ -1,9 +1,12 @@
 import debug from 'debug';
-import {BufferType, CollectionConfig, DBConfig, DuplicateKey} from "../Types";
-import {Configurable} from "../Configurable";
+import {BufferType, CollectionConfig, DBConfig, DuplicateKey} from "../config/Types";
+import {Configurable} from "../config/Configurable";
 import fs from "fs";
 import {DB} from "../DB";
 import {Collection} from "./Collection";
+import {Heartbeat} from "../life/Heartbeat";
+import {CollectionListener} from "./CollectionListener";
+import {CollectionManager} from "./CollectionManager";
 
 
 const logger = debug('collection-file-manager');
@@ -23,7 +26,7 @@ type FileQueueEntry = {
     operation:CollectionFileQueueEntryOperation
 }
 
-export class CollectionFileManager implements Configurable{
+export class CollectionFileManager implements Configurable, Heartbeat, CollectionListener{
     private static _instance: CollectionFileManager;
     public static getInstance(): CollectionFileManager {
         if (!CollectionFileManager._instance) {
@@ -53,9 +56,9 @@ export class CollectionFileManager implements Configurable{
 
     loadConfig(config: DBConfig): void {
         this.config = config;
-        const interval = setInterval(() => {
-            this.processFileQueue();
-        },this.fileQueueInterval);
+        // const interval = setInterval(() => {
+        //     this.processFileQueue();
+        // },this.fileQueueInterval);
         logger(`Starting file manager with queue interval of ${this.fileQueueInterval}`);
     }
 
@@ -194,7 +197,6 @@ export class CollectionFileManager implements Configurable{
         const configFileName = `${this.config?.dbLocation}/${collectionConfig.name}/${collectionConfig.name}.vrs`;
         if (!fs.existsSync(configFileName)) {
             result.version = 1;
-            console.log('XXXXXXXXX');
             fs.writeFileSync(configFileName,JSON.stringify(result));
         }
         else {
@@ -226,6 +228,38 @@ export class CollectionFileManager implements Configurable{
 
 
         return results;
+    }
+
+    die(): void {
+        this.processFileQueue();
+    }
+
+    getBPM(): number {
+        return Math.round(60000/this.fileQueueInterval);
+    }
+
+    heartbeat(): void {
+        this.processFileQueue();
+    }
+
+    isAlive(): boolean {
+        return true;
+    }
+
+    getName(): string {
+        return 'Collection File Manager'
+    }
+
+    objectAdded(collection: Collection, key: string, object: any): void {
+        this.writeDataObjectFile(collection.getConfig(),collection.getName(),key,object,true);
+    }
+
+    objectRemoved(collection: Collection, key: string): void {
+        this.removeDataObjectFile(collection.getConfig(),collection.getName(),key);
+    }
+
+    objectUpdated(collection: Collection, key: string, object: any): void {
+        this.writeDataObjectFile(collection.getConfig(),collection.getName(),key,object,false);
     }
 
 

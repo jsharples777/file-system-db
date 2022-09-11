@@ -4,7 +4,8 @@
     {
       "name": "test",
       "key": "_id",
-      "bufferType": 1
+      "bufferType": 4,
+      "bufferItemLifecycleSeconds": 10
     },
     {
       "name": "xxx",
