@@ -16,9 +16,9 @@ require('dotenv').config();
 
 export class DB {
     private static _instance: DB;
-    public static getInstance(): DB {
+    public static getInstance(configLocation?:string): DB {
         if (!DB._instance) {
-            DB._instance = new DB();
+            DB._instance = new DB(configLocation);
         }
         return DB._instance;
     }
@@ -28,16 +28,21 @@ export class DB {
 
 
     private isInitialised:boolean = false;
+    private configLocation?:string = undefined;
     private views:ObjectView[] = [];
 
-    private constructor(){
+    private constructor(configLocation?:string){
         this.initialise = this.initialise.bind(this);
         this.shutdown = this.shutdown.bind(this);
+        this.configLocation = configLocation;
     }
 
     public initialise():DB {
         if (!this.isInitialised) {
-            const configLocation = process.env.FILE_SYSTEM_DB_CONFIG || 'cfg/config.json';
+            let configLocation = process.env.FILE_SYSTEM_DB_CONFIG || 'cfg/config.json';
+            if (this.configLocation) {
+                configLocation = this.configLocation;
+            }
             const config = ConfigManager.getInstance().loadConfig(configLocation);
             CollectionFileManager.getInstance().loadConfig(config);
             CollectionManager.getInstance().loadConfig(config);

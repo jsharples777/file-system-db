@@ -15,21 +15,26 @@ const ObjectViewImpl_1 = require("./view/ObjectViewImpl");
 const logger = (0, debug_1.default)('db');
 require('dotenv').config();
 class DB {
-    constructor() {
+    constructor(configLocation) {
         this.isInitialised = false;
+        this.configLocation = undefined;
         this.views = [];
         this.initialise = this.initialise.bind(this);
         this.shutdown = this.shutdown.bind(this);
+        this.configLocation = configLocation;
     }
-    static getInstance() {
+    static getInstance(configLocation) {
         if (!DB._instance) {
-            DB._instance = new DB();
+            DB._instance = new DB(configLocation);
         }
         return DB._instance;
     }
     initialise() {
         if (!this.isInitialised) {
-            const configLocation = process.env.FILE_SYSTEM_DB_CONFIG || 'cfg/config.json';
+            let configLocation = process.env.FILE_SYSTEM_DB_CONFIG || 'cfg/config.json';
+            if (this.configLocation) {
+                configLocation = this.configLocation;
+            }
             const config = ConfigManager_1.ConfigManager.getInstance().loadConfig(configLocation);
             CollectionFileManager_1.CollectionFileManager.getInstance().loadConfig(config);
             CollectionManager_1.CollectionManager.getInstance().loadConfig(config);

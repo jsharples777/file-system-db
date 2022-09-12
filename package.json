@@ -16,6 +16,8 @@
     "debug": "^4.3.2",
     "dotenv": "^10.0.0",
     "moment": "^2.29.1",
+    "mongo-access-jps": "^1.0.1",
+    "mongodb": "^4.9.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

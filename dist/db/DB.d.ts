@@ -4,8 +4,9 @@ import { SortOrderItem } from "./sort/SortTypes";
 import { ObjectView } from "./view/ObjectView";
 export declare class DB {
     private static _instance;
-    static getInstance(): DB;
+    static getInstance(configLocation?: string): DB;
     private isInitialised;
+    private configLocation?;
     private views;
     private constructor();
     initialise(): DB;
