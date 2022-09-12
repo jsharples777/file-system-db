@@ -69,6 +69,6 @@ export class SortProcessor {
     public static sortItems(items: any[], sortOrder: SortOrderItem[]): Cursor {
         const sorter = new Sorter(sortOrder);
         const sortedItems = items.sort(sorter.sort);
-        return new CursorImpl(sortedItems);
+        return new CursorImpl(sortedItems,false);
     }
 }

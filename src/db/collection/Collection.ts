@@ -3,6 +3,11 @@ import {Cursor} from "../cursor/Cursor";
 import {SearchItem} from "../search/SearchTypes";
 import {CollectionListener} from "./CollectionListener";
 
+export type KeyObjectPair = {
+    key:string,
+    object:any
+}
+
 export interface Collection {
     getVersion():number;
     getName():string;
@@ -16,6 +21,7 @@ export interface Collection {
     updateObject(key:string, object:any):OperationResult;
     removeObject(key:string):OperationResult;
     findBy(search:SearchItem[]):Cursor;
-
     addListener(listener:CollectionListener):void;
+    insertMany(keyObjPairs:KeyObjectPair[]):void;
+    deleteMany(keys:string[]):void;
 }

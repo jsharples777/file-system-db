@@ -1,9 +1,9 @@
 import { CollectionConfig, DBConfig } from "../config/Types";
 import { Configurable } from "../config/Configurable";
 import { Collection } from "./Collection";
-import { Heartbeat } from "../life/Heartbeat";
+import { Life } from "../life/Life";
 import { CollectionListener } from "./CollectionListener";
-export declare class CollectionFileManager implements Configurable, Heartbeat, CollectionListener {
+export declare class CollectionFileManager implements Configurable, Life, CollectionListener {
     private static _instance;
     static getInstance(): CollectionFileManager;
     private config;
@@ -31,6 +31,7 @@ export declare class CollectionFileManager implements Configurable, Heartbeat, C
     heartbeat(): void;
     isAlive(): boolean;
     getName(): string;
+    birth(): void;
     objectAdded(collection: Collection, key: string, object: any): void;
     objectRemoved(collection: Collection, key: string): void;
     objectUpdated(collection: Collection, key: string, object: any): void;

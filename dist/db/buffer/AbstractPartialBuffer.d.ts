@@ -1,7 +1,7 @@
 import { BufferEntry, ObjectBuffer } from "./ObjectBuffer";
 import { CollectionConfig } from "../config/Types";
-import { Heartbeat } from "../life/Heartbeat";
-export declare class AbstractPartialBuffer implements ObjectBuffer, Heartbeat {
+import { Life } from "../life/Life";
+export declare class AbstractPartialBuffer implements ObjectBuffer, Life {
     protected bufferContent: BufferEntry[];
     protected config: CollectionConfig;
     protected bufferSize: number;
@@ -22,6 +22,7 @@ export declare class AbstractPartialBuffer implements ObjectBuffer, Heartbeat {
     getName(): string;
     isAlive(): boolean;
     heartbeat(): void;
+    birth(): void;
     die(): void;
     getBPM(): number;
 }

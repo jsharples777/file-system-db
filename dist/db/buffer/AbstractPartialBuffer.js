@@ -188,6 +188,8 @@ class AbstractPartialBuffer {
     heartbeat() {
         this.checkObjectLifespans();
     }
+    birth() {
+    }
     die() { }
     getBPM() {
         return 60 / (this.objectLifespan / 2);

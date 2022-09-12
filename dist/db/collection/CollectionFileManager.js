@@ -207,6 +207,8 @@ class CollectionFileManager {
     getName() {
         return 'Collection File Manager';
     }
+    birth() {
+    }
     objectAdded(collection, key, object) {
         this.writeDataObjectFile(collection.getConfig(), collection.getName(), key, object, true);
     }

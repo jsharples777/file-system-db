@@ -4,7 +4,7 @@ import {Configurable} from "../config/Configurable";
 import fs from "fs";
 import {DB} from "../DB";
 import {Collection} from "./Collection";
-import {Heartbeat} from "../life/Heartbeat";
+import {Life} from "../life/Life";
 import {CollectionListener} from "./CollectionListener";
 import {CollectionManager} from "./CollectionManager";
 
@@ -26,7 +26,7 @@ type FileQueueEntry = {
     operation:CollectionFileQueueEntryOperation
 }
 
-export class CollectionFileManager implements Configurable, Heartbeat, CollectionListener{
+export class CollectionFileManager implements Configurable, Life, CollectionListener{
     private static _instance: CollectionFileManager;
     public static getInstance(): CollectionFileManager {
         if (!CollectionFileManager._instance) {
@@ -248,6 +248,9 @@ export class CollectionFileManager implements Configurable, Heartbeat, Collectio
 
     getName(): string {
         return 'Collection File Manager'
+    }
+
+    birth() {
     }
 
     objectAdded(collection: Collection, key: string, object: any): void {

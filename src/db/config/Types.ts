@@ -4,6 +4,7 @@ export type OperationResult = {
     _id: string
 }
 
+
 export enum BufferType {
     NONE = 1,
     ALL,

@@ -279,6 +279,8 @@ class IndexImplementation {
     isAlive() {
         return true;
     }
+    birth() {
+    }
 }
 exports.IndexImplementation = IndexImplementation;
 //# sourceMappingURL=IndexImplementation.js.map

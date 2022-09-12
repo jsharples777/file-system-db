@@ -3,7 +3,7 @@ import { SortOrderItem } from "../sort/SortTypes";
 export declare class CursorImpl implements Cursor {
     protected items: any[];
     protected position: number;
-    constructor(items: any[]);
+    constructor(items: any[], copyObjects?: boolean);
     hasNext(): boolean;
     next(): any;
     toArray(): any[];

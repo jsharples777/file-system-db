@@ -140,6 +140,16 @@ class CollectionImpl {
     addListener(listener) {
         this.listeners.push(listener);
     }
+    deleteMany(keys) {
+        keys.forEach((key) => {
+            this.removeObject(key);
+        });
+    }
+    insertMany(keyObjPairs) {
+        keyObjPairs.forEach((keyObjPair) => {
+            this.upsertObject(keyObjPair.key, keyObjPair.object);
+        });
+    }
 }
 exports.CollectionImpl = CollectionImpl;
 //# sourceMappingURL=CollectionImpl.js.map

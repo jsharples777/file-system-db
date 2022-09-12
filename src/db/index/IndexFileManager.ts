@@ -3,12 +3,12 @@ import {BufferType, CollectionConfig, DBConfig, IndexContent, IndexVersion} from
 import {Configurable} from "../config/Configurable";
 import fs from "fs";
 import {Index} from "./Index";
-import {Heartbeat} from "../life/Heartbeat";
+import {Life} from "../life/Life";
 
 
 const logger = debug('index-file-manager');
 
-export class IndexFileManager implements Configurable, Heartbeat{
+export class IndexFileManager implements Configurable, Life{
     private static _instance: IndexFileManager;
     public static getInstance(): IndexFileManager {
         if (!IndexFileManager._instance) {
@@ -137,6 +137,9 @@ export class IndexFileManager implements Configurable, Heartbeat{
 
     getName(): string {
         return "Index File Manager";
+    }
+
+    birth() {
     }
 
 

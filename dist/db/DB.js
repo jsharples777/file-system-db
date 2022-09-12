@@ -11,12 +11,14 @@ const IndexManager_1 = require("./index/IndexManager");
 const CollectionFileManager_1 = require("./collection/CollectionFileManager");
 const IndexFileManager_1 = require("./index/IndexFileManager");
 const LifeCycleManager_1 = require("./life/LifeCycleManager");
+const ObjectViewImpl_1 = require("./view/ObjectViewImpl");
 const logger = (0, debug_1.default)('db');
 require('dotenv').config();
 class DB {
     constructor() {
         this.isInitialised = false;
         this.initialise = this.initialise.bind(this);
+        this.shutdown = this.shutdown.bind(this);
     }
     static getInstance() {
         if (!DB._instance) {
@@ -66,6 +68,9 @@ class DB {
             lifecycleManger.addLife(IndexFileManager_1.IndexFileManager.getInstance());
             lifecycleManger.birth();
             this.isInitialised = true;
+            process.on('SIGINT', () => {
+                this.shutdown();
+            });
         }
         return this;
     }
@@ -74,6 +79,12 @@ class DB {
     }
     collection(name) {
         return CollectionManager_1.CollectionManager.getInstance().getCollection(name);
+    }
+    shutdown() {
+        LifeCycleManager_1.LifeCycleManager.getInstance().death();
+    }
+    addView(collection, fields, search, sort) {
+        return new ObjectViewImpl_1.ObjectViewImpl(collection, search, sort);
     }
 }
 exports.DB = DB;

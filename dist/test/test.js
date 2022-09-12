@@ -10,7 +10,7 @@ const SearchTypes_1 = require("../db/search/SearchTypes");
 const SortTypes_1 = require("../db/sort/SortTypes");
 class test {
     constructor() {
-        debug_1.default.enable('life-cycle-manager life-cycle-manager-detail config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
+        debug_1.default.enable('life-cycle-manager life-cycle-manager-hb config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
         try {
             const db = DB_1.DB.getInstance().initialise();
             console.log(db.collections());

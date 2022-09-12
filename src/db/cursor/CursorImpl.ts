@@ -7,8 +7,13 @@ export class CursorImpl implements Cursor {
     protected items: any[];
     protected position: number;
 
-    constructor(items:any[]) {
-        this.items = DB.copyObject(items);
+    constructor(items:any[],copyObjects:boolean = true) {
+        if (copyObjects) {
+            this.items = DB.copyObject(items);
+        }
+        else {
+            this.items = items;
+        }
         this.position = 0;
     }
 

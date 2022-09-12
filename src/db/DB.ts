@@ -6,6 +6,10 @@ import {Collection} from "./collection/Collection";
 import {CollectionFileManager} from "./collection/CollectionFileManager";
 import {IndexFileManager} from "./index/IndexFileManager";
 import {LifeCycleManager} from "./life/LifeCycleManager";
+import {SearchItem} from "./search/SearchTypes";
+import {SortOrderItem} from "./sort/SortTypes";
+import {ObjectView} from "./view/ObjectView";
+import {ObjectViewImpl} from "./view/ObjectViewImpl";
 
 const logger = debug('db');
 require('dotenv').config();
@@ -54,6 +58,7 @@ export class DB {
 
     private constructor(){
         this.initialise = this.initialise.bind(this);
+        this.shutdown = this.shutdown.bind(this);
     }
 
     public initialise():DB {
@@ -70,6 +75,10 @@ export class DB {
             lifecycleManger.addLife(IndexFileManager.getInstance());
             lifecycleManger.birth();
             this.isInitialised = true;
+
+            process.on('SIGINT', () => {
+                this.shutdown();
+            });
         }
         return this;
 
@@ -83,6 +92,11 @@ export class DB {
         return CollectionManager.getInstance().getCollection(name);
     }
 
+    protected shutdown():void {
+        LifeCycleManager.getInstance().death();
+    }
 
-
+    public addView(collection:string, fields:string[], search?:SearchItem[], sort?:SortOrderItem[]):ObjectView {
+        return new ObjectViewImpl(collection,search, sort);
+    }
 }

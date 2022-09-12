@@ -72,7 +72,7 @@ class SortProcessor {
     static sortItems(items, sortOrder) {
         const sorter = new Sorter(sortOrder);
         const sortedItems = items.sort(sorter.sort);
-        return new CursorImpl_1.CursorImpl(sortedItems);
+        return new CursorImpl_1.CursorImpl(sortedItems, false);
     }
 }
 exports.SortProcessor = SortProcessor;

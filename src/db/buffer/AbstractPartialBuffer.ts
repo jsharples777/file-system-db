@@ -2,12 +2,12 @@ import {BufferEntry, ObjectBuffer} from "./ObjectBuffer";
 import {BufferType, CollectionConfig} from "../config/Types";
 import moment from "moment";
 import debug from 'debug';
-import {Heartbeat} from "../life/Heartbeat";
+import {Life} from "../life/Life";
 import {LifeCycleManager} from "../life/LifeCycleManager";
 
 const logger = debug('abstract-partial-buffer');
 
-export class AbstractPartialBuffer implements ObjectBuffer,Heartbeat{
+export class AbstractPartialBuffer implements ObjectBuffer,Life{
     protected bufferContent:BufferEntry[];
     protected config:CollectionConfig;
     protected bufferSize:number;
@@ -69,6 +69,8 @@ export class AbstractPartialBuffer implements ObjectBuffer,Heartbeat{
         }
 
     }
+
+
 
     isComplete(): boolean {
         return false;
@@ -214,6 +216,10 @@ export class AbstractPartialBuffer implements ObjectBuffer,Heartbeat{
 
     heartbeat():void {
         this.checkObjectLifespans();
+    }
+
+    birth(): void {
+
     }
 
     die():void {}

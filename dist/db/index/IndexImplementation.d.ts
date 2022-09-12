@@ -3,8 +3,8 @@ import { IndexConfig, IndexContent, IndexEntry, IndexVersion } from "../config/T
 import { SearchItem } from "../search/SearchTypes";
 import { Cursor } from "../cursor/Cursor";
 import { Collection } from "../collection/Collection";
-import { Heartbeat } from "../life/Heartbeat";
-export declare class IndexImplementation implements Index, Heartbeat {
+import { Life } from "../life/Life";
+export declare class IndexImplementation implements Index, Life {
     private config;
     private dbLocation;
     private version;
@@ -41,4 +41,5 @@ export declare class IndexImplementation implements Index, Heartbeat {
     getBPM(): number;
     heartbeat(): void;
     isAlive(): boolean;
+    birth(): void;
 }

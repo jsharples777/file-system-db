@@ -4,8 +4,13 @@ exports.CursorImpl = void 0;
 const DB_1 = require("../DB");
 const SortProcessor_1 = require("../sort/SortProcessor");
 class CursorImpl {
-    constructor(items) {
-        this.items = DB_1.DB.copyObject(items);
+    constructor(items, copyObjects = true) {
+        if (copyObjects) {
+            this.items = DB_1.DB.copyObject(items);
+        }
+        else {
+            this.items = items;
+        }
         this.position = 0;
     }
     hasNext() {

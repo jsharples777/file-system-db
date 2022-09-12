@@ -1,4 +1,4 @@
-import { Collection } from "./Collection";
+import { Collection, KeyObjectPair } from "./Collection";
 import { CollectionConfig, OperationResult } from "../config/Types";
 import { SearchItem } from "../search/SearchTypes";
 import { Cursor } from "../cursor/Cursor";
@@ -21,4 +21,6 @@ export declare class CollectionImpl implements Collection {
     findOne(search: SearchItem[]): any;
     getKeyFieldName(): string;
     addListener(listener: CollectionListener): void;
+    deleteMany(keys: string[]): void;
+    insertMany(keyObjPairs: KeyObjectPair[]): void;
 }

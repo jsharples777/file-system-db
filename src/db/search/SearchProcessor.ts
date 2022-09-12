@@ -116,7 +116,7 @@ export class SearchProcessor {
             // perform a manual search (not efficient!)
             logger(`No index - brute forcing`);
             const results = SearchProcessor.searchCollectionBruteForce(collection, search);
-            return new CursorImpl(results);
+            return new CursorImpl(results,false);
         }
     }
 }

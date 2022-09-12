@@ -1,4 +1,4 @@
-import {Collection} from "./Collection";
+import {Collection, KeyObjectPair} from "./Collection";
 import {CollectionConfig, OperationResult} from "../config/Types";
 import {ObjectBuffer} from "../buffer/ObjectBuffer";
 import {BufferFactory} from "../buffer/BufferFactory";
@@ -159,6 +159,19 @@ export class CollectionImpl implements Collection {
 
     addListener(listener: CollectionListener) {
         this.listeners.push(listener);
+    }
+
+    deleteMany(keys: string[]): void {
+        keys.forEach((key) => {
+            this.removeObject(key);
+        })
+    }
+
+    insertMany(keyObjPairs: KeyObjectPair[]): void {
+        keyObjPairs.forEach((keyObjPair) => {
+            this.upsertObject(keyObjPair.key,keyObjPair.object);
+        })
+
     }
 
 }

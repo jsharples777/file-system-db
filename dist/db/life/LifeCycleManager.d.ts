@@ -1,4 +1,4 @@
-import { Heartbeat } from "./Heartbeat";
+import { Life } from "./Life";
 export declare class LifeCycleManager {
     private static _instance;
     static getInstance(): LifeCycleManager;
@@ -8,7 +8,7 @@ export declare class LifeCycleManager {
     private beatSpacing;
     private interval;
     private constructor();
-    addLife(heartbeat: Heartbeat): void;
+    addLife(life: Life): void;
     birth(): void;
     protected aging(): void;
     death(): void;

@@ -1,8 +1,8 @@
 import { DBConfig, IndexContent, IndexVersion } from "../config/Types";
 import { Configurable } from "../config/Configurable";
 import { Index } from "./Index";
-import { Heartbeat } from "../life/Heartbeat";
-export declare class IndexFileManager implements Configurable, Heartbeat {
+import { Life } from "../life/Life";
+export declare class IndexFileManager implements Configurable, Life {
     private static _instance;
     static getInstance(): IndexFileManager;
     private config;
@@ -23,4 +23,5 @@ export declare class IndexFileManager implements Configurable, Heartbeat {
     heartbeat(): void;
     isAlive(): boolean;
     getName(): string;
+    birth(): void;
 }

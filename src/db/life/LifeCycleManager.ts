@@ -1,13 +1,13 @@
 import debug from 'debug';
-import {Heartbeat} from "./Heartbeat";
+import {Life} from "./Life";
 import {clearInterval} from "timers";
 
 
 const logger = debug('life-cycle-manager');
 const dLogger = debug('life-cycle-manager-detail');
-
+const hbLogger = debug('life-cycle-manager-hb');
 type HeartbeatConfig = {
-    heartbeat:Heartbeat,
+    life:Life,
     nextBeat:number
 }
 
@@ -21,7 +21,7 @@ export class LifeCycleManager {
         return LifeCycleManager._instance;
     }
 
-    private heartbeats:Heartbeat[] = [];
+    private heartbeats:Life[] = [];
     private configs:HeartbeatConfig[] = [];
     private numberOfBeats:number = 0;
     private beatSpacing:number = 500;
@@ -32,9 +32,9 @@ export class LifeCycleManager {
         this.aging = this.aging.bind(this);
     }
 
-    public addLife(heartbeat:Heartbeat):void {
-        logger(`Adding heartbeat ${heartbeat.getName()}`);
-        this.heartbeats.push(heartbeat);
+    public addLife(life:Life):void {
+        logger(`Adding heartbeat ${life.getName()}`);
+        this.heartbeats.push(life);
     }
 
     public birth():void {
@@ -42,16 +42,17 @@ export class LifeCycleManager {
         this.numberOfBeats = 0;
         const numberOfTicksPerMinute = 60000/this.beatSpacing;
         logger(`Birth - number of ticks per minute ${numberOfTicksPerMinute}`);
-        this.heartbeats.forEach((heartbeat) => {
-            let nextBeatDueEveryLifeCycleManagerTick = Math.round(numberOfTicksPerMinute/heartbeat.getBPM());
+        this.heartbeats.forEach((life) => {
+            let nextBeatDueEveryLifeCycleManagerTick = Math.round(numberOfTicksPerMinute/life.getBPM());
             if (nextBeatDueEveryLifeCycleManagerTick < 1) nextBeatDueEveryLifeCycleManagerTick = 1;
-            dLogger(`Heartbeat ${heartbeat.getName()} - beat every ${nextBeatDueEveryLifeCycleManagerTick} ticks`);
+            dLogger(`Heartbeat ${life.getName()} - beat every ${nextBeatDueEveryLifeCycleManagerTick} ticks`);
             const config:HeartbeatConfig = {
-                heartbeat,
+                life,
                 nextBeat: nextBeatDueEveryLifeCycleManagerTick
             }
             this.configs.push(config);
-            heartbeat.heartbeat();
+            life.birth();
+            life.heartbeat();
         });
         this.numberOfBeats ++;
 
@@ -64,11 +65,11 @@ export class LifeCycleManager {
         this.numberOfBeats++;
         dLogger(`Aging, number of heart beats ${this.numberOfBeats}`);
         this.configs.forEach((config) => {
-            if (config.heartbeat.isAlive()) {
-                dLogger(`Checking ${config.heartbeat.getName()} who should beat every ${config.nextBeat} beats`);
+            if (config.life.isAlive()) {
+                dLogger(`Checking ${config.life.getName()} who should beat every ${config.nextBeat} beats`);
                 if (this.numberOfBeats % config.nextBeat === 0) {
-                    dLogger(`Checking ${config.heartbeat.getName()} who should beat every ${config.nextBeat} beats - beating now`)
-                    config.heartbeat.heartbeat();
+                    hbLogger(`Checking ${config.life.getName()} who should beat every ${config.nextBeat} beats - beating now`)
+                    config.life.heartbeat();
                 }
             }
         })

@@ -9,14 +9,14 @@ import {SearchProcessor} from "../search/SearchProcessor";
 import {Cursor} from "../cursor/Cursor";
 import {CursorImpl} from "../cursor/CursorImpl";
 import {Collection} from "../collection/Collection";
-import {Heartbeat} from "../life/Heartbeat";
+import {Life} from "../life/Life";
 import {LifeCycleManager} from "../life/LifeCycleManager";
 
 
 const logger = debug('index-implementation');
 const dLogger = debug('index-implementation-detail');
 
-export class IndexImplementation implements Index,Heartbeat {
+export class IndexImplementation implements Index,Life {
     private config: IndexConfig;
     private dbLocation: string;
     private version: IndexVersion;
@@ -327,8 +327,8 @@ export class IndexImplementation implements Index,Heartbeat {
     isAlive(): boolean {
         return true;
     }
-
-
+    birth() {
+    }
 
 
 }

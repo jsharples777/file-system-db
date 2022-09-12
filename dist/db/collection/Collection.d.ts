@@ -2,6 +2,10 @@ import { CollectionConfig, OperationResult } from "../config/Types";
 import { Cursor } from "../cursor/Cursor";
 import { SearchItem } from "../search/SearchTypes";
 import { CollectionListener } from "./CollectionListener";
+export declare type KeyObjectPair = {
+    key: string;
+    object: any;
+};
 export interface Collection {
     getVersion(): number;
     getName(): string;
@@ -16,4 +20,6 @@ export interface Collection {
     removeObject(key: string): OperationResult;
     findBy(search: SearchItem[]): Cursor;
     addListener(listener: CollectionListener): void;
+    insertMany(keyObjPairs: KeyObjectPair[]): void;
+    deleteMany(keys: string[]): void;
 }

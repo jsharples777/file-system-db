@@ -120,6 +120,8 @@ class IndexFileManager {
     getName() {
         return "Index File Manager";
     }
+    birth() {
+    }
 }
 exports.IndexFileManager = IndexFileManager;
 //# sourceMappingURL=IndexFileManager.js.map
