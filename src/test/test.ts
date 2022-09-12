@@ -5,7 +5,7 @@ import {SortOrderItem, SortOrderType} from "../db/sort/SortTypes";
 
 export class test {
     public constructor() {
-        debug.enable('life-cycle-manager life-cycle-manager-hb config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
+        debug.enable('life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
 
 
         try {
@@ -51,7 +51,28 @@ export class test {
                 console.log(cursor.next())
             }
 
+            const view = DB.getInstance().addView('test','test',['_id','dates.createdDate'],[{
+                comparison: SearchItemComparison.greaterThan,
+                field: "dates.createdDate",
+                value: 7
+            }],[{
+                field: "dates.createdDate",
+                order: SortOrderType.ascending
+            }]);;
 
+            let viewCursor = view.content();
+            while (viewCursor.hasNext()) {
+                console.log(viewCursor.next());
+            }
+
+            collection.upsertObject(key6,{_id:key6,dates: { createdDate:11},test:6})
+            collection.upsertObject(key6,{_id:key6,dates: { createdDate:6},test:6})
+            collection.upsertObject(key6,{_id:key6,dates: { createdDate:10},test:6})
+
+            viewCursor = view.content();
+            while (viewCursor.hasNext()) {
+                console.log(viewCursor.next());
+            }
 
             // collection = db.getCollection('xxx');
             // collection.upsertObject(key1,{_id:key1, value:'test1'});

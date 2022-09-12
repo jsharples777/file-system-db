@@ -5,16 +5,31 @@ import { CollectionListener } from "../collection/CollectionListener";
 import { Collection } from "../collection/Collection";
 import { SearchItem } from "../search/SearchTypes";
 import { SortOrderItem } from "../sort/SortTypes";
-export declare class ObjectViewImpl implements ObjectView, CollectionListener {
+import { Life } from "../life/Life";
+export declare class ObjectViewImpl implements ObjectView, CollectionListener, Life {
     private listeners;
     private collection;
     private searchFilter?;
     private sortOrder?;
-    constructor(collection: string, searchFilter?: SearchItem[], sortOrder?: SortOrderItem[]);
+    private items;
+    private isInitialised;
+    private recentlyUsed;
+    private fields;
+    private name;
+    private defaultLifespan;
+    constructor(collectionName: string, name: string, fields: string[], searchFilter?: SearchItem[], sortOrder?: SortOrderItem[]);
     addListener(listener: ObjectViewListener): void;
+    protected checkViewLoaded(): void;
     content(): Cursor;
     getName(): string;
     objectAdded(collection: Collection, key: string, object: any): void;
     objectRemoved(collection: Collection, key: string): void;
     objectUpdated(collection: Collection, key: string, object: any): void;
+    protected constructViewItemFromItem(item: any): any;
+    protected doesEntryMatchViewCriteria(item: any): boolean;
+    birth(): void;
+    die(): void;
+    getBPM(): number;
+    heartbeat(): void;
+    isAlive(): boolean;
 }

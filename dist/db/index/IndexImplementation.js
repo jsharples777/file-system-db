@@ -6,11 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.IndexImplementation = void 0;
 const CollectionManager_1 = require("../collection/CollectionManager");
 const debug_1 = __importDefault(require("debug"));
-const DB_1 = require("../DB");
 const IndexFileManager_1 = require("./IndexFileManager");
 const SearchProcessor_1 = require("../search/SearchProcessor");
 const CursorImpl_1 = require("../cursor/CursorImpl");
 const LifeCycleManager_1 = require("../life/LifeCycleManager");
+const Util_1 = require("../util/Util");
 const logger = (0, debug_1.default)('index-implementation');
 const dLogger = (0, debug_1.default)('index-implementation-detail');
 class IndexImplementation {
@@ -33,9 +33,6 @@ class IndexImplementation {
             this.defaultLifespan = 600;
         }
         this.checkIndexUse = this.checkIndexUse.bind(this);
-        // setInterval(() => {
-        //     this.checkIndexUse();
-        // }, this.defaultLifespan / 2 * 1000);
         LifeCycleManager_1.LifeCycleManager.getInstance().addLife(this);
         logger(`Constructing index ${this.config.name} for collection ${this.config.collection}`);
     }
@@ -75,7 +72,7 @@ class IndexImplementation {
         return this.content.entries;
     }
     getFields() {
-        return DB_1.DB.copyObject(this.config.fields);
+        return Util_1.Util.copyObject(this.config.fields);
     }
     getIndexContent() {
         this.checkIndexLoaded();
@@ -139,7 +136,7 @@ class IndexImplementation {
         };
         // find each field for index config
         this.config.fields.forEach((field => {
-            const fieldValue = DB_1.DB.getFieldValue(object, field);
+            const fieldValue = Util_1.Util.getFieldValue(object, field);
             if (fieldValue) {
                 indexEntry.fieldValues.push({
                     field: field,

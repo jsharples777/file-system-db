@@ -23,38 +23,12 @@ export class DB {
         return DB._instance;
     }
 
-    public static copyObject(object:any):any {
-        let result = undefined;
-        if (object) {
-            result = JSON.parse(JSON.stringify(object));
-        }
-        return result;
-    }
 
-    public static getFieldValue(entry: any, field: string): any | undefined {
-        let result: any | undefined = undefined;
-        // any dot notation?
-        const fieldParts = field.split('.');
-        if (fieldParts.length > 1) {
-            let previousValue = entry;
-            fieldParts.forEach((fieldPart, index) => {
-                if (previousValue) {
-                    previousValue = previousValue[fieldPart];
-                    if (index === (fieldParts.length - 1)) {
-                        if (previousValue) {
-                            result = previousValue;
-                        }
-                    }
-                }
-            });
 
-        } else {
-            result = entry[field];
-        }
-        return result;
-    }
+
 
     private isInitialised:boolean = false;
+    private views:ObjectView[] = [];
 
     private constructor(){
         this.initialise = this.initialise.bind(this);
@@ -96,7 +70,19 @@ export class DB {
         LifeCycleManager.getInstance().death();
     }
 
-    public addView(collection:string, fields:string[], search?:SearchItem[], sort?:SortOrderItem[]):ObjectView {
-        return new ObjectViewImpl(collection,search, sort);
+    public addView(collection:string, name:string, fields:string[], search?:SearchItem[], sort?:SortOrderItem[]):ObjectView {
+        const view = new ObjectViewImpl(collection,name,fields,search, sort);
+        this.views.push(view);
+        return view;
+    }
+
+    public getView(name:string):ObjectView|null {
+        let result:ObjectView|null = null;
+        const foundIndex = this.views.findIndex((view) => view.getName() === name);
+        if (foundIndex >= 0) {
+            result = this.views[foundIndex];
+        }
+
+        return result;
     }
 }

@@ -10,6 +10,7 @@ import {CursorImpl} from "../cursor/CursorImpl";
 import {Cursor} from "../cursor/Cursor";
 import {CollectionListener} from "./CollectionListener";
 import {DB} from "../DB";
+import {Util} from "../util/Util";
 
 const logger = debug('collection-implementation');
 
@@ -36,7 +37,7 @@ export class CollectionImpl implements Collection {
     }
 
     getConfig(): CollectionConfig {
-        return DB.copyObject(this.config);
+        return Util.copyObject(this.config);
     }
 
     findByKey(key: string) {

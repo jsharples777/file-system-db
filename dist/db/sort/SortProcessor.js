@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SortProcessor = exports.Sorter = void 0;
 const SortTypes_1 = require("./SortTypes");
-const DB_1 = require("../DB");
 const CursorImpl_1 = require("../cursor/CursorImpl");
+const Util_1 = require("../util/Util");
 class Sorter {
     constructor(sortOrder) {
         this.sortOrder = sortOrder;
@@ -11,8 +11,8 @@ class Sorter {
     }
     sortByFieldAndOrder(item1, item2, fieldName, order) {
         let result = 0;
-        const fieldValue1 = DB_1.DB.getFieldValue(item1, fieldName);
-        const fieldValue2 = DB_1.DB.getFieldValue(item2, fieldName);
+        const fieldValue1 = Util_1.Util.getFieldValue(item1, fieldName);
+        const fieldValue2 = Util_1.Util.getFieldValue(item2, fieldName);
         if (fieldValue1) {
             if (fieldValue2) {
                 if (fieldValue1 > fieldValue2) {

@@ -9,17 +9,30 @@ import {SortOrderItem} from "../sort/SortTypes";
 import {SortProcessor} from "../sort/SortProcessor";
 import {SearchProcessor} from "../search/SearchProcessor";
 import {CollectionManager} from "../collection/CollectionManager";
+import {Util} from "../util/Util";
+import {Life} from "../life/Life";
+import {LifeCycleManager} from "../life/LifeCycleManager";
+import debug from 'debug';
 
-export class ObjectViewImpl implements ObjectView, CollectionListener {
+const logger = debug('object-view');
+
+export class ObjectViewImpl implements ObjectView, CollectionListener,Life {
     private listeners:ObjectViewListener[] = [];
     private collection:string;
     private searchFilter?:SearchItem[];
     private sortOrder?:SortOrderItem[];
     private items:any[] = [];
     private isInitialised:boolean = false;
+    private recentlyUsed:boolean = false;
+    private fields: string[];
+    private name: string;
+    private defaultLifespan: number;
 
-    constructor(collection:string, searchFilter?:SearchItem[], sortOrder?:SortOrderItem[]) {
-        this.collection = collection;
+    constructor(collectionName:string, name:string, fields:string[],searchFilter?:SearchItem[], sortOrder?:SortOrderItem[]) {
+        const collection = CollectionManager.getInstance().getCollection(collectionName);
+        this.collection = collectionName;
+        this.name = name;
+        this.fields = fields;
         this.searchFilter = searchFilter;
         this.sortOrder = sortOrder;
 
@@ -28,38 +41,63 @@ export class ObjectViewImpl implements ObjectView, CollectionListener {
         this.objectRemoved = this.objectRemoved.bind(this);
         this.objectUpdated = this.objectUpdated.bind(this);
 
+        this.defaultLifespan = parseInt(process.env.DEFAULT_VIEW_LIFESPAN_SEC || '600');
+        if (isNaN(this.defaultLifespan)) {
+            this.defaultLifespan = 600;
+        }
+        logger(`Adding new view ${name} for collection ${collectionName} with fields ${fields}`);
+        if (searchFilter) logger(searchFilter);
+        if (sortOrder) logger(sortOrder);
+
+        if (collection) {
+            LifeCycleManager.getInstance().addLife(this);
+            collection.addListener(this);
+        }
     }
 
     addListener(listener: ObjectViewListener): void {
         this.listeners.push(listener);
     }
 
-    content(): Cursor {
+    protected checkViewLoaded():void {
         if (!this.isInitialised) {
+            logger(`View ${this.name} not initialised, loading content from collection and filtering (if defined)`)
             this.items = [];
-            const collection = CollectionManager.getInstance().getCollection(this.collection).find().toArray();
-            collection.forEach((item) => {
-                if (this.doesEntryMatchViewCriteria(item)) {
-                    const viewItem = this.constructViewItemFromItem(item);
-                    this.items.push(viewItem);
-                }
-            });
+            const collection = CollectionManager.getInstance().getCollection(this.collection);
+            if (collection) {
+                const collectionContent = collection.find().toArray();
+                collectionContent.forEach((item) => {
+                    if (this.doesEntryMatchViewCriteria(item)) {
+                        const viewItem = this.constructViewItemFromItem(item);
+                        this.items.push(viewItem);
+                    }
+                });
 
-            if (this.sortOrder) {
-                this.items = SortProcessor.sortItems(this.items,this.sortOrder).toArray();
+                if (this.sortOrder) {
+                    this.items = SortProcessor.sortItems(this.items,this.sortOrder).toArray();
+                }
+
             }
             this.isInitialised = true;
         }
+    }
+
+    content(): Cursor {
+        this.recentlyUsed = true;
+        this.checkViewLoaded();
+
         return new CursorImpl(this.items,false);
     }
 
     getName(): string {
-        return "";
+        return this.name;
     }
 
     objectAdded(collection: Collection, key: string, object: any): void {
+        this.recentlyUsed = true;
         if (!this.isInitialised) return;
         if (this.doesEntryMatchViewCriteria(object)) {
+            logger(`View ${this.name} - new item ${key} added to collection which meets criteria, adding and sorting`)
             const viewItem = this.constructViewItemFromItem(object);
             this.items.push({key, viewItem});
             if (this.sortOrder) {
@@ -70,32 +108,50 @@ export class ObjectViewImpl implements ObjectView, CollectionListener {
     }
 
     objectRemoved(collection: Collection, key: string): void {
+        this.recentlyUsed = true;
         if (!this.isInitialised) return;
         const keyField = collection.getKeyFieldName();
         const foundIndex = this.items.findIndex((item) => item[keyField] === key);
         if (foundIndex >= 0) {
+            logger(`View ${this.name} - item ${key} removed from collection in view`)
             this.items.splice(foundIndex,1);
             this.listeners.forEach((listener) => listener.itemRemoved(this,key));
         }
     }
 
     objectUpdated(collection: Collection, key: string, object: any): void {
+        this.recentlyUsed = true;
         if (!this.isInitialised) return;
-
         const keyField = collection.getKeyFieldName();
         const foundIndex = this.items.findIndex((item) => item[keyField] === key);
-        if (foundIndex >= 0) {
+        if (this.doesEntryMatchViewCriteria(object)) {
             const viewItem = this.constructViewItemFromItem(object);
-            this.items.splice(foundIndex,1, viewItem);
-            this.listeners.forEach((listener) => listener.itemUpdated(this,key,viewItem));
+            if (foundIndex >= 0) {
+                logger(`View ${this.name} - item ${key} updated in collection in view`)
+                this.items.splice(foundIndex, 1, viewItem);
+                this.listeners.forEach((listener) => listener.itemUpdated(this, key, viewItem));
+            }
+            else {
+                logger(`View ${this.name} - item ${key} added which now meets view criteria - adding`)
+                this.items.push(viewItem);
+                this.listeners.forEach((listener) => listener.itemAdded(this, key, viewItem));
+            }
+        }
+        else {
+            if (foundIndex >= 0) {
+                logger(`View ${this.name} - item ${key} updated in collection and no longer meets the view criteria - removing`)
+                this.items.splice(foundIndex, 1);
+                this.listeners.forEach((listener) => listener.itemRemoved(this, key));
+            }
         }
     }
 
     protected constructViewItemFromItem(item:any):any {
         let result:any = {}
-
-
-
+        this.fields.forEach((field) => {
+            const fieldValue = Util.getFieldValue(item,field);
+            Util.setFieldValue(result,field,fieldValue);
+        });
         return result;
     }
 
@@ -110,6 +166,33 @@ export class ObjectViewImpl implements ObjectView, CollectionListener {
             result = true;
         }
         return result;
+    }
+
+    birth(): void {
+    }
+
+    die(): void {
+    }
+
+    getBPM(): number {
+        return Math.round(60/(this.defaultLifespan / 2));
+    }
+
+    heartbeat(): void {
+        if (this.recentlyUsed) {
+            this.recentlyUsed = false;
+        }
+        else {
+            if (this.isInitialised) {
+                this.isInitialised = false;
+                logger(`View ${this.name} - unused for lifespan of ${this.defaultLifespan} seconds - resetting`);
+                this.items = [];
+            }
+        }
+    }
+
+    isAlive(): boolean {
+        return true;
     }
 
 }

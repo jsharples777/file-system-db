@@ -7,8 +7,8 @@ exports.SearchProcessor = void 0;
 const SearchTypes_1 = require("./SearchTypes");
 const IndexManager_1 = require("../index/IndexManager");
 const debug_1 = __importDefault(require("debug"));
-const DB_1 = require("../DB");
 const CursorImpl_1 = require("../cursor/CursorImpl");
+const Util_1 = require("../util/Util");
 const logger = (0, debug_1.default)('search-processor');
 class SearchProcessor {
     static doesValueMatchSearchItem(fieldValue, searchItem) {
@@ -60,8 +60,27 @@ class SearchProcessor {
     }
     static doesItemMatchSearchItem(item, searchItem) {
         let result = false;
-        const fieldValue = DB_1.DB.getFieldValue(item, searchItem.field);
+        const fieldValue = Util_1.Util.getFieldValue(item, searchItem.field);
         result = SearchProcessor.doesValueMatchSearchItem(fieldValue, searchItem);
+        return result;
+    }
+    static doesItemMatchSearchItems(item, search) {
+        let result = false;
+        search.every((searchItem, index) => {
+            // find the matching items for the current search item
+            if (SearchProcessor.doesItemMatchSearchItem(item, searchItem)) {
+                logger(`Item matches for search item - continuing if more criteria`);
+                logger(searchItem);
+                if (index === (search.length - 1))
+                    result = true;
+                return true;
+            }
+            else {
+                logger(`No match for item for search item`);
+                logger(searchItem);
+                return false;
+            }
+        });
         return result;
     }
     static searchItemsBruteForceForSearchItem(items, searchItem) {
@@ -73,14 +92,13 @@ class SearchProcessor {
         });
         return results;
     }
-    static searchCollectionBruteForce(collection, search) {
-        let results = collection.find().toArray();
+    static searchItemsByBruteForce(items, search) {
         // go through each search filter and match the collection items
         search.every((searchItem) => {
             // find the matching items for the current search item
-            results = SearchProcessor.searchItemsBruteForceForSearchItem(results, searchItem);
-            if (results.length > 0) {
-                logger(`Found ${results.length} matching items for search item - continuing if more criteria`);
+            items = SearchProcessor.searchItemsBruteForceForSearchItem(items, searchItem);
+            if (items.length > 0) {
+                logger(`Found ${items.length} matching items for search item - continuing if more criteria`);
                 logger(searchItem);
                 return true;
             }
@@ -90,6 +108,11 @@ class SearchProcessor {
                 return false;
             }
         });
+        return items;
+    }
+    static searchCollectionBruteForce(collection, search) {
+        let results = collection.find().toArray();
+        results = SearchProcessor.searchItemsByBruteForce(results, search);
         return results;
     }
     static searchCollection(collection, search) {

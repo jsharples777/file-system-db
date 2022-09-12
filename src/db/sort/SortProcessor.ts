@@ -2,6 +2,7 @@ import {SortOrderItem, SortOrderType} from "./SortTypes";
 import {DB} from "../DB";
 import {CursorImpl} from "../cursor/CursorImpl";
 import {Cursor} from "../cursor/Cursor";
+import {Util} from "../util/Util";
 
 export class Sorter {
     private sortOrder: SortOrderItem[];
@@ -14,8 +15,8 @@ export class Sorter {
 
     public sortByFieldAndOrder(item1: any, item2: any, fieldName: string, order: SortOrderType): number {
         let result = 0;
-        const fieldValue1 = DB.getFieldValue(item1, fieldName);
-        const fieldValue2 = DB.getFieldValue(item2, fieldName);
+        const fieldValue1 = Util.getFieldValue(item1, fieldName);
+        const fieldValue2 = Util.getFieldValue(item2, fieldName);
         if (fieldValue1) {
             if (fieldValue2) {
                 if (fieldValue1 > fieldValue2) {

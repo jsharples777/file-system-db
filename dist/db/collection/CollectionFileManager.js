@@ -7,7 +7,7 @@ exports.CollectionFileManager = void 0;
 const debug_1 = __importDefault(require("debug"));
 const Types_1 = require("../config/Types");
 const fs_1 = __importDefault(require("fs"));
-const DB_1 = require("../DB");
+const Util_1 = require("../util/Util");
 const logger = (0, debug_1.default)('collection-file-manager');
 var CollectionFileQueueEntryOperation;
 (function (CollectionFileQueueEntryOperation) {
@@ -65,7 +65,7 @@ class CollectionFileManager {
             }
         }
         this.fileWriteQueue.push({
-            config: DB_1.DB.copyObject(config),
+            config: Util_1.Util.copyObject(config),
             collection,
             key,
             object,
@@ -74,7 +74,7 @@ class CollectionFileManager {
     }
     removeDataObjectFile(config, collection, key) {
         this.fileWriteQueue.push({
-            config: DB_1.DB.copyObject(config),
+            config: Util_1.Util.copyObject(config),
             collection,
             key,
             object: null,
@@ -163,7 +163,7 @@ class CollectionFileManager {
     }
     readCollectionConfig(collectionConfig) {
         var _a;
-        let result = DB_1.DB.copyObject(collectionConfig);
+        let result = Util_1.Util.copyObject(collectionConfig);
         const configFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collectionConfig.name}/${collectionConfig.name}.vrs`;
         if (!fs_1.default.existsSync(configFileName)) {
             result.version = 1;

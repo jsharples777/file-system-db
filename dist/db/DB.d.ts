@@ -5,13 +5,13 @@ import { ObjectView } from "./view/ObjectView";
 export declare class DB {
     private static _instance;
     static getInstance(): DB;
-    static copyObject(object: any): any;
-    static getFieldValue(entry: any, field: string): any | undefined;
     private isInitialised;
+    private views;
     private constructor();
     initialise(): DB;
     collections(): string[];
     collection(name: string): Collection;
     protected shutdown(): void;
-    addView(collection: string, fields: string[], search?: SearchItem[], sort?: SortOrderItem[]): ObjectView;
+    addView(collection: string, name: string, fields: string[], search?: SearchItem[], sort?: SortOrderItem[]): ObjectView;
+    getView(name: string): ObjectView | null;
 }

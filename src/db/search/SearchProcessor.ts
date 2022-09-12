@@ -5,6 +5,7 @@ import debug from 'debug';
 import {DB} from "../DB";
 import {Cursor} from "../cursor/Cursor";
 import {CursorImpl} from "../cursor/CursorImpl";
+import {Util} from "../util/Util";
 
 const logger = debug('search-processor');
 
@@ -62,7 +63,7 @@ export class SearchProcessor {
 
     public static doesItemMatchSearchItem(item:any,searchItem:SearchItem):boolean {
         let result = false;
-        const fieldValue = DB.getFieldValue(item,searchItem.field);
+        const fieldValue = Util.getFieldValue(item,searchItem.field);
         result = SearchProcessor.doesValueMatchSearchItem(fieldValue,searchItem);
         return result;
     }

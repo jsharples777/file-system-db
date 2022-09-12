@@ -23,9 +23,27 @@ class LifeCycleManager {
         }
         return LifeCycleManager._instance;
     }
+    configNewLife(life) {
+        const numberOfTicksPerMinute = 60000 / this.beatSpacing;
+        let nextBeatDueEveryLifeCycleManagerTick = Math.round(numberOfTicksPerMinute / life.getBPM());
+        if (nextBeatDueEveryLifeCycleManagerTick < 1)
+            nextBeatDueEveryLifeCycleManagerTick = 1;
+        dLogger(`Heartbeat ${life.getName()} - beat every ${nextBeatDueEveryLifeCycleManagerTick} ticks`);
+        const config = {
+            life,
+            nextBeat: nextBeatDueEveryLifeCycleManagerTick
+        };
+        this.configs.push(config);
+    }
     addLife(life) {
         logger(`Adding heartbeat ${life.getName()}`);
         this.heartbeats.push(life);
+        // if already birthed, start this new life
+        if (this.numberOfBeats > 0) {
+            this.configNewLife(life);
+            life.birth();
+            life.heartbeat();
+        }
     }
     birth() {
         // go through the heartbeats find give an initial beat
@@ -33,15 +51,7 @@ class LifeCycleManager {
         const numberOfTicksPerMinute = 60000 / this.beatSpacing;
         logger(`Birth - number of ticks per minute ${numberOfTicksPerMinute}`);
         this.heartbeats.forEach((life) => {
-            let nextBeatDueEveryLifeCycleManagerTick = Math.round(numberOfTicksPerMinute / life.getBPM());
-            if (nextBeatDueEveryLifeCycleManagerTick < 1)
-                nextBeatDueEveryLifeCycleManagerTick = 1;
-            dLogger(`Heartbeat ${life.getName()} - beat every ${nextBeatDueEveryLifeCycleManagerTick} ticks`);
-            const config = {
-                life,
-                nextBeat: nextBeatDueEveryLifeCycleManagerTick
-            };
-            this.configs.push(config);
+            this.configNewLife(life);
             life.birth();
             life.heartbeat();
         });
@@ -67,6 +77,7 @@ class LifeCycleManager {
         logger('Death');
         if (this.interval)
             (0, timers_1.clearInterval)(this.interval);
+        this.numberOfBeats = 0;
         this.heartbeats.forEach((heartbeat) => {
             heartbeat.die();
         });

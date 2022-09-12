@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CursorImpl = void 0;
-const DB_1 = require("../DB");
 const SortProcessor_1 = require("../sort/SortProcessor");
+const Util_1 = require("../util/Util");
 class CursorImpl {
     constructor(items, copyObjects = true) {
         if (copyObjects) {
-            this.items = DB_1.DB.copyObject(items);
+            this.items = Util_1.Util.copyObject(items);
         }
         else {
             this.items = items;

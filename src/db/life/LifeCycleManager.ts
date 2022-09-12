@@ -32,9 +32,28 @@ export class LifeCycleManager {
         this.aging = this.aging.bind(this);
     }
 
+    protected configNewLife(life:Life):void {
+        const numberOfTicksPerMinute = 60000/this.beatSpacing;
+        let nextBeatDueEveryLifeCycleManagerTick = Math.round(numberOfTicksPerMinute/life.getBPM());
+        if (nextBeatDueEveryLifeCycleManagerTick < 1) nextBeatDueEveryLifeCycleManagerTick = 1;
+        dLogger(`Heartbeat ${life.getName()} - beat every ${nextBeatDueEveryLifeCycleManagerTick} ticks`);
+        const config:HeartbeatConfig = {
+            life,
+            nextBeat: nextBeatDueEveryLifeCycleManagerTick
+        }
+        this.configs.push(config);
+
+    }
+
     public addLife(life:Life):void {
         logger(`Adding heartbeat ${life.getName()}`);
         this.heartbeats.push(life);
+        // if already birthed, start this new life
+        if (this.numberOfBeats > 0) {
+            this.configNewLife(life);
+            life.birth();
+            life.heartbeat();
+        }
     }
 
     public birth():void {
@@ -43,14 +62,7 @@ export class LifeCycleManager {
         const numberOfTicksPerMinute = 60000/this.beatSpacing;
         logger(`Birth - number of ticks per minute ${numberOfTicksPerMinute}`);
         this.heartbeats.forEach((life) => {
-            let nextBeatDueEveryLifeCycleManagerTick = Math.round(numberOfTicksPerMinute/life.getBPM());
-            if (nextBeatDueEveryLifeCycleManagerTick < 1) nextBeatDueEveryLifeCycleManagerTick = 1;
-            dLogger(`Heartbeat ${life.getName()} - beat every ${nextBeatDueEveryLifeCycleManagerTick} ticks`);
-            const config:HeartbeatConfig = {
-                life,
-                nextBeat: nextBeatDueEveryLifeCycleManagerTick
-            }
-            this.configs.push(config);
+            this.configNewLife(life);
             life.birth();
             life.heartbeat();
         });
@@ -79,6 +91,7 @@ export class LifeCycleManager {
     public death():void {
         logger('Death');
         if (this.interval) clearInterval(this.interval);
+        this.numberOfBeats = 0;
         this.heartbeats.forEach((heartbeat) => {
             heartbeat.die();
         })

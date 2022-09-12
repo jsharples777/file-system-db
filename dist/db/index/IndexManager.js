@@ -50,16 +50,6 @@ class IndexManager {
         }
         return result;
     }
-    getIndexConfig(name) {
-        let result = null;
-        if (this.config) {
-            const foundIndex = this.config.indexes.findIndex((index) => index.name === name);
-            if (foundIndex >= 0) {
-                result = this.config.indexes[foundIndex];
-            }
-        }
-        return result;
-    }
     loadConfig(config) {
         logger(`Loading index configurations`);
         this.config = config;

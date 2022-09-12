@@ -8,6 +8,7 @@ export declare class LifeCycleManager {
     private beatSpacing;
     private interval;
     private constructor();
+    protected configNewLife(life: Life): void;
     addLife(life: Life): void;
     birth(): void;
     protected aging(): void;

@@ -9,7 +9,7 @@ const CollectionFileManager_1 = require("./CollectionFileManager");
 const debug_1 = __importDefault(require("debug"));
 const SearchProcessor_1 = require("../search/SearchProcessor");
 const CursorImpl_1 = require("../cursor/CursorImpl");
-const DB_1 = require("../DB");
+const Util_1 = require("../util/Util");
 const logger = (0, debug_1.default)('collection-implementation');
 class CollectionImpl {
     constructor(config) {
@@ -29,7 +29,7 @@ class CollectionImpl {
         }
     }
     getConfig() {
-        return DB_1.DB.copyObject(this.config);
+        return Util_1.Util.copyObject(this.config);
     }
     findByKey(key) {
         logger(`Collection ${this.config.name} - find by key ${key}`);

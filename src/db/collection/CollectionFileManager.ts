@@ -7,6 +7,7 @@ import {Collection} from "./Collection";
 import {Life} from "../life/Life";
 import {CollectionListener} from "./CollectionListener";
 import {CollectionManager} from "./CollectionManager";
+import {Util} from "../util/Util";
 
 
 const logger = debug('collection-file-manager');
@@ -87,7 +88,7 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
             }
         }
         this.fileWriteQueue.push({
-            config:DB.copyObject(config),
+            config:Util.copyObject(config),
             collection,
             key,
             object,
@@ -97,7 +98,7 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
 
     public removeDataObjectFile(config:CollectionConfig, collection:string, key:string):void {
         this.fileWriteQueue.push({
-            config:DB.copyObject(config),
+            config:Util.copyObject(config),
             collection,
             key,
             object:null,
@@ -193,7 +194,7 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
     }
 
     public readCollectionConfig(collectionConfig:CollectionConfig):CollectionConfig {
-        let result:CollectionConfig = DB.copyObject(collectionConfig);
+        let result:CollectionConfig = Util.copyObject(collectionConfig);
         const configFileName = `${this.config?.dbLocation}/${collectionConfig.name}/${collectionConfig.name}.vrs`;
         if (!fs.existsSync(configFileName)) {
             result.version = 1;

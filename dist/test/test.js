@@ -10,7 +10,7 @@ const SearchTypes_1 = require("../db/search/SearchTypes");
 const SortTypes_1 = require("../db/sort/SortTypes");
 class test {
     constructor() {
-        debug_1.default.enable('life-cycle-manager life-cycle-manager-hb config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
+        debug_1.default.enable('life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
         try {
             const db = DB_1.DB.getInstance().initialise();
             console.log(db.collections());
@@ -45,6 +45,26 @@ class test {
                 }]);
             while (cursor.hasNext()) {
                 console.log(cursor.next());
+            }
+            const view = DB_1.DB.getInstance().addView('test', 'test', ['_id', 'dates.createdDate'], [{
+                    comparison: SearchTypes_1.SearchItemComparison.greaterThan,
+                    field: "dates.createdDate",
+                    value: 7
+                }], [{
+                    field: "dates.createdDate",
+                    order: SortTypes_1.SortOrderType.ascending
+                }]);
+            ;
+            let viewCursor = view.content();
+            while (viewCursor.hasNext()) {
+                console.log(viewCursor.next());
+            }
+            collection.upsertObject(key6, { _id: key6, dates: { createdDate: 11 }, test: 6 });
+            collection.upsertObject(key6, { _id: key6, dates: { createdDate: 6 }, test: 6 });
+            collection.upsertObject(key6, { _id: key6, dates: { createdDate: 10 }, test: 6 });
+            viewCursor = view.content();
+            while (viewCursor.hasNext()) {
+                console.log(viewCursor.next());
             }
             // collection = db.getCollection('xxx');
             // collection.upsertObject(key1,{_id:key1, value:'test1'});

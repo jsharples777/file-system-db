@@ -11,6 +11,7 @@ import {CursorImpl} from "../cursor/CursorImpl";
 import {Collection} from "../collection/Collection";
 import {Life} from "../life/Life";
 import {LifeCycleManager} from "../life/LifeCycleManager";
+import {Util} from "../util/Util";
 
 
 const logger = debug('index-implementation');
@@ -45,10 +46,6 @@ export class IndexImplementation implements Index,Life {
         }
 
         this.checkIndexUse = this.checkIndexUse.bind(this);
-
-        // setInterval(() => {
-        //     this.checkIndexUse();
-        // }, this.defaultLifespan / 2 * 1000);
         LifeCycleManager.getInstance().addLife(this);
         logger(`Constructing index ${this.config.name} for collection ${this.config.collection}`);
 
@@ -95,7 +92,7 @@ export class IndexImplementation implements Index,Life {
     }
 
     getFields(): string[] {
-        return DB.copyObject(this.config.fields);
+        return Util.copyObject(this.config.fields);
     }
 
     getIndexContent(): IndexContent {
@@ -166,7 +163,7 @@ export class IndexImplementation implements Index,Life {
         }
         // find each field for index config
         this.config.fields.forEach((field => {
-            const fieldValue = DB.getFieldValue(object, field);
+            const fieldValue = Util.getFieldValue(object, field);
             if (fieldValue) {
                 indexEntry.fieldValues.push({
                     field: field,

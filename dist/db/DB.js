@@ -17,6 +17,7 @@ require('dotenv').config();
 class DB {
     constructor() {
         this.isInitialised = false;
+        this.views = [];
         this.initialise = this.initialise.bind(this);
         this.shutdown = this.shutdown.bind(this);
     }
@@ -25,35 +26,6 @@ class DB {
             DB._instance = new DB();
         }
         return DB._instance;
-    }
-    static copyObject(object) {
-        let result = undefined;
-        if (object) {
-            result = JSON.parse(JSON.stringify(object));
-        }
-        return result;
-    }
-    static getFieldValue(entry, field) {
-        let result = undefined;
-        // any dot notation?
-        const fieldParts = field.split('.');
-        if (fieldParts.length > 1) {
-            let previousValue = entry;
-            fieldParts.forEach((fieldPart, index) => {
-                if (previousValue) {
-                    previousValue = previousValue[fieldPart];
-                    if (index === (fieldParts.length - 1)) {
-                        if (previousValue) {
-                            result = previousValue;
-                        }
-                    }
-                }
-            });
-        }
-        else {
-            result = entry[field];
-        }
-        return result;
     }
     initialise() {
         if (!this.isInitialised) {
@@ -83,8 +55,18 @@ class DB {
     shutdown() {
         LifeCycleManager_1.LifeCycleManager.getInstance().death();
     }
-    addView(collection, fields, search, sort) {
-        return new ObjectViewImpl_1.ObjectViewImpl(collection, search, sort);
+    addView(collection, name, fields, search, sort) {
+        const view = new ObjectViewImpl_1.ObjectViewImpl(collection, name, fields, search, sort);
+        this.views.push(view);
+        return view;
+    }
+    getView(name) {
+        let result = null;
+        const foundIndex = this.views.findIndex((view) => view.getName() === name);
+        if (foundIndex >= 0) {
+            result = this.views[foundIndex];
+        }
+        return result;
     }
 }
 exports.DB = DB;

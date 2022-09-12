@@ -2,6 +2,7 @@ import {Cursor} from "./Cursor";
 import {DB} from "../DB";
 import {SortOrderItem} from "../sort/SortTypes";
 import {SortProcessor} from "../sort/SortProcessor";
+import {Util} from "../util/Util";
 
 export class CursorImpl implements Cursor {
     protected items: any[];
@@ -9,7 +10,7 @@ export class CursorImpl implements Cursor {
 
     constructor(items:any[],copyObjects:boolean = true) {
         if (copyObjects) {
-            this.items = DB.copyObject(items);
+            this.items = Util.copyObject(items);
         }
         else {
             this.items = items;

@@ -60,21 +60,6 @@ export class IndexManager implements Configurable {
         return result;
     }
 
-
-
-
-    protected getIndexConfig(name: string): IndexConfig | null {
-        let result: IndexConfig | null = null;
-        if (this.config) {
-            const foundIndex = this.config.indexes.findIndex((index) => index.name === name);
-            if (foundIndex >= 0) {
-                result = this.config.indexes[foundIndex];
-            }
-        }
-
-        return result;
-    }
-
     loadConfig(config: DBConfig): void {
         logger(`Loading index configurations`);
         this.config = config;
@@ -92,38 +77,5 @@ export class IndexManager implements Configurable {
         }
     }
 
-    // entryInserted(collection: string, keyValue: string, version:number, values: any): void {
-    //     if (this.config) {
-    //         this.indexes.forEach((index) => {
-    //             if (index.getCollection() === collection) {
-    //                 logger(`Adding entry for index ${index.getName()} for collection ${collection} with key ${keyValue}`);
-    //                 index.objectAdded(version,keyValue,values);
-    //             }
-    //         });
-    //     }
-    //
-    // }
-    //
-    // entryUpdated(collection: string, keyValue: string, version:number, values: any): void {
-    //     if (this.config) {
-    //         this.indexes.forEach((index) => {
-    //             if (index.getCollection() === collection) {
-    //                 logger(`Updating entry for index ${index.getName()} for collection ${collection} with key ${keyValue}`);
-    //                 index.objectUpdated(version,keyValue,values);
-    //             }
-    //         });
-    //     }
-    // }
-    //
-    // entryDeleted(collection: string, keyValue: string, version:number ): void {
-    //     if (this.config) {
-    //         this.indexes.forEach((index) => {
-    //             if (index.getCollection() === collection) {
-    //                 logger(`Removing entry for index ${index.getName()} for collection ${collection} with key ${keyValue}`);
-    //                 index.objectRemoved(version,keyValue);
-    //             }
-    //         });
-    //     }
-    // }
 
 }
