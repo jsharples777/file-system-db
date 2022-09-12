@@ -23,7 +23,7 @@ exports.MigrateMongoDB = void 0;
 const mongo_access_jps_1 = require("mongo-access-jps");
 const fs = __importStar(require("fs"));
 const Types_1 = require("../config/Types");
-const DB_1 = require("../DB");
+const FileSystemDB_1 = require("../FileSystemDB");
 class MigrateMongoDB {
     constructor() {
         // connect to the two databases
@@ -54,7 +54,7 @@ class MigrateMongoDB {
             // write the config file
             fs.writeFileSync(this.configFileLocation, JSON.stringify(dbConfig));
             // now load the configuration into the file system database
-            const fileSystemDB = DB_1.DB.getInstance(this.configFileLocation).initialise();
+            const fileSystemDB = FileSystemDB_1.FileSystemDB.getInstance(this.configFileLocation).initialise();
             collections.forEach((collection) => {
                 this.mongoDB.getDatabase().collection(collection.collectionName).find({}).toArray().then((fullCollection) => {
                     console.log(`Copying ${collection.collectionName}`);

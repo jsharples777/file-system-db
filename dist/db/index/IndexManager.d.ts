@@ -2,12 +2,12 @@ import { Configurable } from "../config/Configurable";
 import { DBConfig } from "../config/Types";
 import { Index } from "./Index";
 import { SearchItem } from "../search/SearchTypes";
+import { DatabaseManagers } from "../DatabaseManagers";
 export declare class IndexManager implements Configurable {
-    private static _instance;
-    static getInstance(): IndexManager;
     private config;
     private indexes;
-    private constructor();
+    private managers;
+    constructor(managers: DatabaseManagers);
     getMatchingIndex(collection: string, search: SearchItem[]): Index | null;
     loadConfig(config: DBConfig): void;
 }

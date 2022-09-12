@@ -28,12 +28,6 @@ class CollectionFileManager {
         }
         this.processFileQueue = this.processFileQueue.bind(this);
     }
-    static getInstance() {
-        if (!CollectionFileManager._instance) {
-            CollectionFileManager._instance = new CollectionFileManager();
-        }
-        return CollectionFileManager._instance;
-    }
     loadConfig(config) {
         this.config = config;
         // const interval = setInterval(() => {

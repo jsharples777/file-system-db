@@ -6,14 +6,8 @@ import {Configurable} from "./Configurable";
 const logger = debug('config-manager');
 
 export class ConfigManager {
-    private static _instance: ConfigManager;
-    public static getInstance(): ConfigManager {
-        if (!ConfigManager._instance) {
-            ConfigManager._instance = new ConfigManager();
-        }
-        return ConfigManager._instance;
-    }
-    private constructor(){}
+
+    public constructor(){}
 
     public loadConfig(configLocation:string):DBConfig {
         let result:DBConfig;
@@ -34,7 +28,7 @@ export class ConfigManager {
                 }
             }
             else {
-                throw new InvalidConfiguration('Configuration missing DB Location');
+                throw new InvalidConfiguration('Configuration missing FileSystemDB Location');
             }
 
             if (result.collections) {

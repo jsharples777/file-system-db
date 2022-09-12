@@ -1,5 +1,5 @@
 import {Cursor} from "./Cursor";
-import {DB} from "../DB";
+import {FileSystemDB} from "../FileSystemDB";
 import {SortOrderItem} from "../sort/SortTypes";
 import {SortProcessor} from "../sort/SortProcessor";
 import {Util} from "../util/Util";

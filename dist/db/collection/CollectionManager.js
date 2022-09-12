@@ -8,18 +8,12 @@ const debug_1 = __importDefault(require("debug"));
 const Types_1 = require("../config/Types");
 const fs_1 = __importDefault(require("fs"));
 const CollectionImpl_1 = require("./CollectionImpl");
-const CollectionFileManager_1 = require("./CollectionFileManager");
 const logger = (0, debug_1.default)('collection-manager');
 class CollectionManager {
-    constructor() {
+    constructor(managers) {
         this.collectionConfigs = [];
         this.collectionImplementations = [];
-    }
-    static getInstance() {
-        if (!CollectionManager._instance) {
-            CollectionManager._instance = new CollectionManager();
-        }
-        return CollectionManager._instance;
+        this.managers = managers;
     }
     setupCollection(name) {
         var _a, _b;
@@ -88,9 +82,9 @@ class CollectionManager {
                     version: 0
                 };
             }
-            const impl = new CollectionImpl_1.CollectionImpl(config);
+            const impl = new CollectionImpl_1.CollectionImpl(config, this.managers);
             this.collectionImplementations.push(impl);
-            impl.addListener(CollectionFileManager_1.CollectionFileManager.getInstance());
+            impl.addListener(this.managers.getCollectionFileManager());
             result = impl;
         }
         return result;

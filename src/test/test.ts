@@ -1,4 +1,4 @@
-import {DB} from "../db/DB";
+import {FileSystemDB} from "../db/FileSystemDB";
 import debug from "debug";
 import {SearchItem, SearchItemComparison} from "../db/search/SearchTypes";
 import {SortOrderItem, SortOrderType} from "../db/sort/SortTypes";
@@ -9,7 +9,7 @@ export class test {
 
 
         try {
-            const db = DB.getInstance().initialise();
+            const db = FileSystemDB.getInstance().initialise();
             console.log(db.collections());
             let collection = db.collection('test');
 
@@ -51,7 +51,7 @@ export class test {
                 console.log(cursor.next())
             }
 
-            const view = DB.getInstance().addView('test','test',['_id','dates.createdDate'],[{
+            const view = FileSystemDB.getInstance().addView('test','test',['_id','dates.createdDate'],[{
                 comparison: SearchItemComparison.greaterThan,
                 field: "dates.createdDate",
                 value: 7

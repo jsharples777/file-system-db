@@ -6,17 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.IndexManager = void 0;
 const debug_1 = __importDefault(require("debug"));
 const IndexImplementation_1 = require("./IndexImplementation");
-const CollectionManager_1 = require("../collection/CollectionManager");
 const logger = (0, debug_1.default)('index-manager');
 class IndexManager {
-    constructor() {
+    constructor(managers) {
         this.indexes = [];
-    }
-    static getInstance() {
-        if (!IndexManager._instance) {
-            IndexManager._instance = new IndexManager();
-        }
-        return IndexManager._instance;
+        this.managers = managers;
     }
     getMatchingIndex(collection, search) {
         logger(`Looking for index for collection ${collection} for search criteria`);
@@ -59,10 +53,10 @@ class IndexManager {
             const dbLocation = this.config.dbLocation;
             // check on each index file
             this.config.indexes.forEach((indexConfig) => {
-                const index = new IndexImplementation_1.IndexImplementation(dbLocation, indexConfig);
+                const index = new IndexImplementation_1.IndexImplementation(dbLocation, indexConfig, this.managers);
                 if (rebuildIndexes)
                     index.rebuild();
-                CollectionManager_1.CollectionManager.getInstance().getCollection(indexConfig.collection).addListener(index);
+                this.managers.getCollectionManager().getCollection(indexConfig.collection).addListener(index);
                 this.indexes.push(index);
             });
         }

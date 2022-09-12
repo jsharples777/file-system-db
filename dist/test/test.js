@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.test = void 0;
-const DB_1 = require("../db/DB");
+const FileSystemDB_1 = require("../db/FileSystemDB");
 const debug_1 = __importDefault(require("debug"));
 const SearchTypes_1 = require("../db/search/SearchTypes");
 const SortTypes_1 = require("../db/sort/SortTypes");
@@ -12,7 +12,7 @@ class test {
     constructor() {
         debug_1.default.enable('life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
         try {
-            const db = DB_1.DB.getInstance().initialise();
+            const db = FileSystemDB_1.FileSystemDB.getInstance().initialise();
             console.log(db.collections());
             let collection = db.collection('test');
             let key1 = '1';
@@ -46,7 +46,7 @@ class test {
             while (cursor.hasNext()) {
                 console.log(cursor.next());
             }
-            const view = DB_1.DB.getInstance().addView('test', 'test', ['_id', 'dates.createdDate'], [{
+            const view = FileSystemDB_1.FileSystemDB.getInstance().addView('test', 'test', ['_id', 'dates.createdDate'], [{
                     comparison: SearchTypes_1.SearchItemComparison.greaterThan,
                     field: "dates.createdDate",
                     value: 7

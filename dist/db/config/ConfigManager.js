@@ -29,12 +29,6 @@ const debug_1 = __importDefault(require("debug"));
 const logger = (0, debug_1.default)('config-manager');
 class ConfigManager {
     constructor() { }
-    static getInstance() {
-        if (!ConfigManager._instance) {
-            ConfigManager._instance = new ConfigManager();
-        }
-        return ConfigManager._instance;
-    }
     loadConfig(configLocation) {
         let result;
         if (fs.existsSync(configLocation)) {
@@ -53,7 +47,7 @@ class ConfigManager {
                 }
             }
             else {
-                throw new Types_1.InvalidConfiguration('Configuration missing DB Location');
+                throw new Types_1.InvalidConfiguration('Configuration missing FileSystemDB Location');
             }
             if (result.collections) {
                 result.collections.forEach((collection) => {

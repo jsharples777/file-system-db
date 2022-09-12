@@ -14,9 +14,11 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
     protected objectLifespan:number;
     private maxFifoBufferSize:number;
     private defaultBufferItemLifespan:number;
+    private lifeManager: LifeCycleManager|undefined;
 
-    constructor(config:CollectionConfig) {
+    constructor(config:CollectionConfig,lifeManager?:LifeCycleManager) {
         this.config = config;
+        this.lifeManager = lifeManager;
         this.bufferContent = [];
         this.checkObjectLifespans = this.checkObjectLifespans.bind(this);
 
@@ -55,10 +57,7 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
                 else {
                     this.objectLifespan = this.defaultBufferItemLifespan;
                 }
-                // const interval = setInterval(() => {
-                //     this.checkObjectLifespans();
-                // },(this.objectLifespan*1000)/2);
-                LifeCycleManager.getInstance().addLife(this);
+                if (this.lifeManager) this.lifeManager.addLife(this);
                 logger(`Created Lifespan buffer for collection ${config.name} with object lifespan of ${this.objectLifespan} `);
                 break;
             }

@@ -1,13 +1,13 @@
 import { Configurable } from "../config/Configurable";
 import { DBConfig } from "../config/Types";
 import { Collection } from "./Collection";
+import { DatabaseManagers } from "../DatabaseManagers";
 export declare class CollectionManager implements Configurable {
-    private static _instance;
-    static getInstance(): CollectionManager;
     private config;
     private collectionConfigs;
     private collectionImplementations;
-    private constructor();
+    private managers;
+    constructor(managers: DatabaseManagers);
     private setupCollection;
     loadConfig(config: DBConfig): void;
     collections(): string[];

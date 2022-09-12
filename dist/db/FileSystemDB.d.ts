@@ -2,14 +2,15 @@ import { Collection } from "./collection/Collection";
 import { SearchItem } from "./search/SearchTypes";
 import { SortOrderItem } from "./sort/SortTypes";
 import { ObjectView } from "./view/ObjectView";
-export declare class DB {
+export declare class FileSystemDB {
     private static _instance;
-    static getInstance(configLocation?: string): DB;
+    private managers;
+    static getInstance(configLocation?: string): FileSystemDB;
     private isInitialised;
     private configLocation?;
     private views;
-    private constructor();
-    initialise(): DB;
+    constructor(configLocation?: string);
+    initialise(): FileSystemDB;
     collections(): string[];
     collection(name: string): Collection;
     protected shutdown(): void;

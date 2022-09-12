@@ -20,7 +20,7 @@ class BufferFactory {
         }
         return BufferFactory._instance;
     }
-    createBuffer(config) {
+    createBuffer(config, lifeManager) {
         let result;
         switch (config.bufferType) {
             case Types_1.BufferType.NONE: {
@@ -36,7 +36,7 @@ class BufferFactory {
                 break;
             }
             case Types_1.BufferType.LIFESPAN: {
-                result = new LifespanBuffer_1.LifespanBuffer(config);
+                result = new LifespanBuffer_1.LifespanBuffer(config, lifeManager);
                 break;
             }
         }

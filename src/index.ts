@@ -7,7 +7,7 @@ export type {SortOrderItem} from './db/sort/SortTypes'
 
 
 export {InvalidConfiguration,MissingConfiguration,DuplicateKey} from './db/config/Types';
-export {DB} from './db/DB';
+export {FileSystemDB} from './db/FileSystemDB';
 export {BufferType} from './db/config/Types';
 export {SearchItemComparison} from './db/search/SearchTypes';
 export {SortOrderType} from './db/sort/SortTypes';

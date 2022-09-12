@@ -7,11 +7,11 @@ exports.AbstractPartialBuffer = void 0;
 const Types_1 = require("../config/Types");
 const moment_1 = __importDefault(require("moment"));
 const debug_1 = __importDefault(require("debug"));
-const LifeCycleManager_1 = require("../life/LifeCycleManager");
 const logger = (0, debug_1.default)('abstract-partial-buffer');
 class AbstractPartialBuffer {
-    constructor(config) {
+    constructor(config, lifeManager) {
         this.config = config;
+        this.lifeManager = lifeManager;
         this.bufferContent = [];
         this.checkObjectLifespans = this.checkObjectLifespans.bind(this);
         const maxFifoBufferSize = parseInt(process.env.MAX_FIFO_BUFFER_SIZE || '1000');
@@ -48,10 +48,8 @@ class AbstractPartialBuffer {
                 else {
                     this.objectLifespan = this.defaultBufferItemLifespan;
                 }
-                // const interval = setInterval(() => {
-                //     this.checkObjectLifespans();
-                // },(this.objectLifespan*1000)/2);
-                LifeCycleManager_1.LifeCycleManager.getInstance().addLife(this);
+                if (this.lifeManager)
+                    this.lifeManager.addLife(this);
                 logger(`Created Lifespan buffer for collection ${config.name} with object lifespan of ${this.objectLifespan} `);
                 break;
             }

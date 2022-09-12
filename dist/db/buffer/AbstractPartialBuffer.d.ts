@@ -1,6 +1,7 @@
 import { BufferEntry, ObjectBuffer } from "./ObjectBuffer";
 import { CollectionConfig } from "../config/Types";
 import { Life } from "../life/Life";
+import { LifeCycleManager } from "../life/LifeCycleManager";
 export declare class AbstractPartialBuffer implements ObjectBuffer, Life {
     protected bufferContent: BufferEntry[];
     protected config: CollectionConfig;
@@ -8,7 +9,8 @@ export declare class AbstractPartialBuffer implements ObjectBuffer, Life {
     protected objectLifespan: number;
     private maxFifoBufferSize;
     private defaultBufferItemLifespan;
-    constructor(config: CollectionConfig);
+    private lifeManager;
+    constructor(config: CollectionConfig, lifeManager?: LifeCycleManager);
     isComplete(): boolean;
     private _addObject;
     addObject(key: string, object: any): void;

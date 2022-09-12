@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SearchProcessor = void 0;
 const SearchTypes_1 = require("./SearchTypes");
-const IndexManager_1 = require("../index/IndexManager");
 const debug_1 = __importDefault(require("debug"));
 const CursorImpl_1 = require("../cursor/CursorImpl");
 const Util_1 = require("../util/Util");
@@ -115,11 +114,11 @@ class SearchProcessor {
         results = SearchProcessor.searchItemsByBruteForce(results, search);
         return results;
     }
-    static searchCollection(collection, search) {
+    static searchCollection(indexManager, collection, search) {
         logger(`Looking for relevant indexes for collection ${collection.getName()} with criteria`);
         logger(search);
         // do we have an index for this collection/search?
-        const index = IndexManager_1.IndexManager.getInstance().getMatchingIndex(collection.getName(), search);
+        const index = indexManager.getMatchingIndex(collection.getName(), search);
         if (index) {
             logger(`Found index ${index.getName()} - using to search`);
             return index.search(search);

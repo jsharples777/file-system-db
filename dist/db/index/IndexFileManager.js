@@ -21,17 +21,8 @@ class IndexFileManager {
         }
         this.processFileQueue = this.processFileQueue.bind(this);
     }
-    static getInstance() {
-        if (!IndexFileManager._instance) {
-            IndexFileManager._instance = new IndexFileManager();
-        }
-        return IndexFileManager._instance;
-    }
     loadConfig(config) {
         this.config = config;
-        // const interval = setInterval(() => {
-        //     this.processFileQueue();
-        // },this.fileQueueInterval);
         logger(`Starting index file manager with queue interval of ${this.fileQueueInterval}`);
     }
     writeIndexFile(index) {
@@ -54,7 +45,8 @@ class IndexFileManager {
             logger(`Removing old index file for index ${version.name} at ${indexContentFileName}`);
             fs_1.default.rmSync(indexContentFileName);
         }
-        fs_1.default.writeFile(indexContentFileName, JSON.stringify(content), { flag: 'w' }, () => { });
+        fs_1.default.writeFile(indexContentFileName, JSON.stringify(content), { flag: 'w' }, () => {
+        });
     }
     readIndex(collection, name) {
         var _a, _b;

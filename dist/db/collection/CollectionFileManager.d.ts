@@ -4,13 +4,11 @@ import { Collection } from "./Collection";
 import { Life } from "../life/Life";
 import { CollectionListener } from "./CollectionListener";
 export declare class CollectionFileManager implements Configurable, Life, CollectionListener {
-    private static _instance;
-    static getInstance(): CollectionFileManager;
     private config;
     private fileQueueInterval;
     private fileWriteQueue;
     private isProcessingQueue;
-    private constructor();
+    constructor();
     loadConfig(config: DBConfig): void;
     isDuplicateKey(collection: string, key: string): boolean;
     writeDataObjectFile(config: CollectionConfig, collection: string, key: string, object: any, checkForDuplicateKey: boolean): void;

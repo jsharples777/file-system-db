@@ -5,24 +5,20 @@ import {Index} from "./Index";
 import {IndexImplementation} from "./IndexImplementation";
 import {SearchItem} from "../search/SearchTypes";
 import {CollectionManager} from "../collection/CollectionManager";
+import {DatabaseManagers} from "../DatabaseManagers";
 
 
 const logger = debug('index-manager');
 
 export class IndexManager implements Configurable {
-    private static _instance: IndexManager;
 
-    public static getInstance(): IndexManager {
-        if (!IndexManager._instance) {
-            IndexManager._instance = new IndexManager();
-        }
-        return IndexManager._instance;
-    }
 
     private config: DBConfig | undefined;
     private indexes:Index[] = [];
+    private managers: DatabaseManagers;
 
-    private constructor() {
+    public constructor(managers:DatabaseManagers) {
+        this.managers = managers;
     }
 
     public getMatchingIndex(collection:string,search:SearchItem[]):Index|null {
@@ -69,9 +65,9 @@ export class IndexManager implements Configurable {
             const dbLocation = this.config.dbLocation;
             // check on each index file
             this.config.indexes.forEach((indexConfig) => {
-                const index = new IndexImplementation(dbLocation,indexConfig);
+                const index = new IndexImplementation(dbLocation,indexConfig,this.managers);
                 if (rebuildIndexes) index.rebuild();
-                CollectionManager.getInstance().getCollection(indexConfig.collection).addListener(index);
+                this.managers.getCollectionManager().getCollection(indexConfig.collection).addListener(index);
                 this.indexes.push(index);
             });
         }

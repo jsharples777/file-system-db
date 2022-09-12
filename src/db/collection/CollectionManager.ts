@@ -5,21 +5,18 @@ import fs from "fs";
 import {Collection} from "./Collection";
 import {CollectionImpl} from "./CollectionImpl";
 import {CollectionFileManager} from "./CollectionFileManager";
+import {DatabaseManagers} from "../DatabaseManagers";
 
 const logger = debug('collection-manager');
 
 export class CollectionManager implements Configurable{
-    private static _instance: CollectionManager;
-    public static getInstance(): CollectionManager {
-        if (!CollectionManager._instance) {
-            CollectionManager._instance = new CollectionManager();
-        }
-        return CollectionManager._instance;
-    }
     private config: DBConfig | undefined;
     private collectionConfigs:CollectionConfig[] = [];
     private collectionImplementations:CollectionImpl[] = [];
-    private constructor(){}
+    private managers: DatabaseManagers;
+    public constructor(managers:DatabaseManagers){
+        this.managers = managers;
+    }
 
     private setupCollection(name:string):CollectionConfig {
         logger(`Setting up collection ${name}`);
@@ -98,9 +95,9 @@ export class CollectionManager implements Configurable{
                     version: 0
                 }
             }
-            const impl = new CollectionImpl(config);
+            const impl = new CollectionImpl(config,this.managers);
             this.collectionImplementations.push(impl);
-            impl.addListener(CollectionFileManager.getInstance());
+            impl.addListener(this.managers.getCollectionFileManager());
             result = impl;
         }
         return result;
