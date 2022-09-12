@@ -67,6 +67,25 @@ export class SearchProcessor {
         return result;
     }
 
+    public static doesItemMatchSearchItems(item:any,search:SearchItem[]):boolean {
+        let result = false;
+        search.every((searchItem, index) => {
+            // find the matching items for the current search item
+            if (SearchProcessor.doesItemMatchSearchItem(item,searchItem)) {
+                logger(`Item matches for search item - continuing if more criteria`);
+                logger(searchItem);
+                if (index === (search.length - 1)) result = true;
+                return true;
+            }
+            else {
+                logger(`No match for item for search item`);
+                logger(searchItem);
+                return false;
+            }
+        });
+        return result;
+    }
+
     private static searchItemsBruteForceForSearchItem(items:any[],searchItem:SearchItem):any[] {
         let results:any[] = [];
         items.forEach((item) => {
@@ -77,28 +96,29 @@ export class SearchProcessor {
         return results;
     }
 
+    public static searchItemsByBruteForce(items:any[], search:SearchItem[]):any[] {
+        // go through each search filter and match the collection items
+        search.every((searchItem) => {
+            // find the matching items for the current search item
+            items = SearchProcessor.searchItemsBruteForceForSearchItem(items,searchItem);
+            if (items.length > 0) {
+                logger(`Found ${items.length} matching items for search item - continuing if more criteria`);
+                logger(searchItem);
+                return true;
+            }
+            else {
+                logger(`No matching items for search item`);
+                logger(searchItem);
+                return false;
+            }
+        });
+        return items;
+    }
+
 
     private static searchCollectionBruteForce(collection:Collection, search:SearchItem[]):any[] {
         let results:any[] = collection.find().toArray();
-        // go through each search filter and match the collection items
-        search.every((searchItem) => {
-           // find the matching items for the current search item
-           results = SearchProcessor.searchItemsBruteForceForSearchItem(results,searchItem);
-           if (results.length > 0) {
-               logger(`Found ${results.length} matching items for search item - continuing if more criteria`);
-               logger(searchItem);
-               return true;
-           }
-           else {
-               logger(`No matching items for search item`);
-               logger(searchItem);
-               return false;
-           }
-        });
-
-
-
-
+        results = SearchProcessor.searchItemsByBruteForce(results,search);
         return results;
     }
 
