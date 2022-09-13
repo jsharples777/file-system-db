@@ -28,9 +28,6 @@ class FileSystemDB {
         if (!this.isInitialised) {
             this.managers = new DatabaseManagers_1.DatabaseManagers(this.configLocation);
             this.isInitialised = true;
-            process.on('SIGINT', () => {
-                this.shutdown();
-            });
         }
         return this;
     }
