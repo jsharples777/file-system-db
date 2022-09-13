@@ -49,7 +49,8 @@ export class CollectionManager implements Configurable{
         else {
             const buffer = fs.readFileSync(versionFileName);
             logger(`Setting up collection ${name} - loading existing collection version file`);
-            result = <CollectionConfig>JSON.parse(buffer.toString());
+            const currentVersion = <CollectionConfig>JSON.parse(buffer.toString());
+            result.version = currentVersion.version;
         }
 
         logger(result);

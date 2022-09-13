@@ -115,7 +115,11 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
 
         const foundIndex = this.bufferContent.findIndex((entry) => entry.key === key);
         if (foundIndex >= 0) {
-            result = this.bufferContent[foundIndex].content;
+            const entry = this.bufferContent[foundIndex];
+            result = entry.content;
+            if (this.config.bufferType === BufferType.LIFESPAN) {
+                entry.timeToDie = parseInt(moment().add(this.objectLifespan,'seconds').format('YYYYMMDDHHmmss'));
+            }
         }
 
         return result;
@@ -154,8 +158,12 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
 
     objects(): any[] {
         let results:any[] = [];
+        const timeToDie = parseInt(moment().add(this.objectLifespan,'seconds').format('YYYYMMDDHHmmss'));
         this.bufferContent.forEach((entry) => {
             results.push(entry.content);
+            if (this.config.bufferType === BufferType.LIFESPAN) {
+                entry.timeToDie = timeToDie;
+            }
         });
         return results;
     }
