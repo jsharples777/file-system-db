@@ -31,6 +31,8 @@ class IndexImplementation {
             this.defaultLifespan = 600;
         }
         this.checkIndexUse = this.checkIndexUse.bind(this);
+        this.getIndexContent = this.getIndexContent.bind(this);
+        this.getIndexVersion = this.getIndexVersion.bind(this);
         this.managers.getLifecycleManager().addLife(this);
         logger(`Constructing index ${this.config.name} for collection ${this.config.collection}`);
     }
@@ -184,7 +186,10 @@ class IndexImplementation {
                     indexContent.entries.push(indexEntry);
                 }
             });
+            this.version.version = versionNumber;
             this.content = indexContent;
+            this.indexLoaded = true;
+            this.indexInUse = true;
             this.managers.getIndexFileManager().writeIndexFile(this);
         }
     }
