@@ -42,7 +42,8 @@ class CollectionManager {
         else {
             const buffer = fs_1.default.readFileSync(versionFileName);
             logger(`Setting up collection ${name} - loading existing collection version file`);
-            result = JSON.parse(buffer.toString());
+            const currentVersion = JSON.parse(buffer.toString());
+            result.version = currentVersion.version;
         }
         logger(result);
         return result;

@@ -8,6 +8,7 @@ const Types_1 = require("../config/Types");
 const moment_1 = __importDefault(require("moment"));
 const debug_1 = __importDefault(require("debug"));
 const logger = (0, debug_1.default)('abstract-partial-buffer');
+const dLogger = (0, debug_1.default)('abstract-partial-buffer-detail');
 class AbstractPartialBuffer {
     constructor(config, lifeManager) {
         this.config = config;
@@ -97,7 +98,11 @@ class AbstractPartialBuffer {
         let result = null;
         const foundIndex = this.bufferContent.findIndex((entry) => entry.key === key);
         if (foundIndex >= 0) {
-            result = this.bufferContent[foundIndex].content;
+            const entry = this.bufferContent[foundIndex];
+            result = entry.content;
+            if (this.config.bufferType === Types_1.BufferType.LIFESPAN) {
+                entry.timeToDie = parseInt((0, moment_1.default)().add(this.objectLifespan, 'seconds').format('YYYYMMDDHHmmss'));
+            }
         }
         return result;
     }
@@ -130,8 +135,12 @@ class AbstractPartialBuffer {
     }
     objects() {
         let results = [];
+        const timeToDie = parseInt((0, moment_1.default)().add(this.objectLifespan, 'seconds').format('YYYYMMDDHHmmss'));
         this.bufferContent.forEach((entry) => {
             results.push(entry.content);
+            if (this.config.bufferType === Types_1.BufferType.LIFESPAN) {
+                entry.timeToDie = timeToDie;
+            }
         });
         return results;
     }
@@ -164,17 +173,20 @@ class AbstractPartialBuffer {
             logger(`Lifespan buffer for collection ${this.config.name} - checking lifespans for ${this.bufferContent.length} objects`);
             const now = parseInt((0, moment_1.default)().format('YYYYMMDDHHmmss'));
             let index = this.bufferContent.length - 1;
+            let removedCount = 0;
             while (index >= 0) {
                 const entry = this.bufferContent[index];
                 if (entry) {
-                    logger(`Object ${entry.key} for collection ${this.config.name} time to die is ${entry.timeToDie} vs ${now}`);
+                    dLogger(`Object ${entry.key} for collection ${this.config.name} time to die is ${entry.timeToDie} vs ${now}`);
                     if (entry.timeToDie <= now) {
-                        logger(`Object ${entry.key} for collection ${this.config.name} has expired - removing`);
+                        dLogger(`Object ${entry.key} for collection ${this.config.name} has expired - removing`);
                         this.bufferContent.splice(index, 1);
+                        removedCount++;
                     }
                 }
                 index--;
             }
+            logger(`Lifespan buffer for collection ${this.config.name} - removed ${removedCount} objects`);
         }
     }
     getName() {
