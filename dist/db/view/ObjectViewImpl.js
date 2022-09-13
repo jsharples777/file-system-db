@@ -7,18 +7,17 @@ exports.ObjectViewImpl = void 0;
 const CursorImpl_1 = require("../cursor/CursorImpl");
 const SortProcessor_1 = require("../sort/SortProcessor");
 const SearchProcessor_1 = require("../search/SearchProcessor");
-const CollectionManager_1 = require("../collection/CollectionManager");
 const Util_1 = require("../util/Util");
-const LifeCycleManager_1 = require("../life/LifeCycleManager");
 const debug_1 = __importDefault(require("debug"));
 const logger = (0, debug_1.default)('object-view');
 class ObjectViewImpl {
-    constructor(collectionName, name, fields, searchFilter, sortOrder) {
+    constructor(managers, collectionName, name, fields, searchFilter, sortOrder) {
         this.listeners = [];
         this.items = [];
         this.isInitialised = false;
         this.recentlyUsed = false;
-        const collection = CollectionManager_1.CollectionManager.getInstance().getCollection(collectionName);
+        this.managers = managers;
+        const collection = this.managers.getCollectionManager().getCollection(collectionName);
         this.collection = collectionName;
         this.name = name;
         this.fields = fields;
@@ -38,7 +37,7 @@ class ObjectViewImpl {
         if (sortOrder)
             logger(sortOrder);
         if (collection) {
-            LifeCycleManager_1.LifeCycleManager.getInstance().addLife(this);
+            this.managers.getLifecycleManager().addLife(this);
             collection.addListener(this);
         }
     }
@@ -49,7 +48,7 @@ class ObjectViewImpl {
         if (!this.isInitialised) {
             logger(`View ${this.name} not initialised, loading content from collection and filtering (if defined)`);
             this.items = [];
-            const collection = CollectionManager_1.CollectionManager.getInstance().getCollection(this.collection);
+            const collection = this.managers.getCollectionManager().getCollection(this.collection);
             if (collection) {
                 const collectionContent = collection.find().toArray();
                 collectionContent.forEach((item) => {

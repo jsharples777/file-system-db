@@ -5,6 +5,7 @@ import {EmptyBuffer} from "./EmptyBuffer";
 import {CompleteBuffer} from "./CompleteBuffer";
 import {LifespanBuffer} from "./LifespanBuffer";
 import {FIFOBuffer} from "./FIFOBuffer";
+import {LifeCycleManager} from "../life/LifeCycleManager";
 
 const logger = debug('buffer-factory');
 
@@ -21,7 +22,7 @@ export class BufferFactory {
     private constructor(){
     }
 
-    public createBuffer(config:CollectionConfig):ObjectBuffer {
+    public createBuffer(config:CollectionConfig, lifeManager:LifeCycleManager):ObjectBuffer {
         let result:ObjectBuffer;
         switch (config.bufferType) {
             case BufferType.NONE: {
@@ -37,7 +38,7 @@ export class BufferFactory {
                 break;
             }
             case BufferType.LIFESPAN: {
-                result = new LifespanBuffer(config);
+                result = new LifespanBuffer(config,lifeManager);
                 break;
             }
         }

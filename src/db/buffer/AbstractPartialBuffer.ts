@@ -6,6 +6,7 @@ import {Life} from "../life/Life";
 import {LifeCycleManager} from "../life/LifeCycleManager";
 
 const logger = debug('abstract-partial-buffer');
+const dLogger = debug('abstract-partial-buffer-detail');
 
 export class AbstractPartialBuffer implements ObjectBuffer,Life{
     protected bufferContent:BufferEntry[];
@@ -14,9 +15,11 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
     protected objectLifespan:number;
     private maxFifoBufferSize:number;
     private defaultBufferItemLifespan:number;
+    private lifeManager: LifeCycleManager|undefined;
 
-    constructor(config:CollectionConfig) {
+    constructor(config:CollectionConfig,lifeManager?:LifeCycleManager) {
         this.config = config;
+        this.lifeManager = lifeManager;
         this.bufferContent = [];
         this.checkObjectLifespans = this.checkObjectLifespans.bind(this);
 
@@ -55,10 +58,7 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
                 else {
                     this.objectLifespan = this.defaultBufferItemLifespan;
                 }
-                // const interval = setInterval(() => {
-                //     this.checkObjectLifespans();
-                // },(this.objectLifespan*1000)/2);
-                LifeCycleManager.getInstance().addLife(this);
+                if (this.lifeManager) this.lifeManager.addLife(this);
                 logger(`Created Lifespan buffer for collection ${config.name} with object lifespan of ${this.objectLifespan} `);
                 break;
             }
@@ -116,7 +116,11 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
 
         const foundIndex = this.bufferContent.findIndex((entry) => entry.key === key);
         if (foundIndex >= 0) {
-            result = this.bufferContent[foundIndex].content;
+            const entry = this.bufferContent[foundIndex];
+            result = entry.content;
+            if (this.config.bufferType === BufferType.LIFESPAN) {
+                entry.timeToDie = parseInt(moment().add(this.objectLifespan,'seconds').format('YYYYMMDDHHmmss'));
+            }
         }
 
         return result;
@@ -155,8 +159,12 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
 
     objects(): any[] {
         let results:any[] = [];
+        const timeToDie = parseInt(moment().add(this.objectLifespan,'seconds').format('YYYYMMDDHHmmss'));
         this.bufferContent.forEach((entry) => {
             results.push(entry.content);
+            if (this.config.bufferType === BufferType.LIFESPAN) {
+                entry.timeToDie = timeToDie;
+            }
         });
         return results;
     }
@@ -192,17 +200,20 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
             logger(`Lifespan buffer for collection ${this.config.name} - checking lifespans for ${this.bufferContent.length} objects`);
             const now = parseInt(moment().format('YYYYMMDDHHmmss'));
             let index = this.bufferContent.length - 1;
+            let removedCount = 0;
             while (index >= 0) {
                 const entry = this.bufferContent[index];
                 if (entry) {
-                    logger(`Object ${entry.key} for collection ${this.config.name} time to die is ${entry.timeToDie} vs ${now}`);
+                    dLogger(`Object ${entry.key} for collection ${this.config.name} time to die is ${entry.timeToDie} vs ${now}`);
                     if (entry.timeToDie <= now) {
-                        logger(`Object ${entry.key} for collection ${this.config.name} has expired - removing`);
+                        dLogger(`Object ${entry.key} for collection ${this.config.name} has expired - removing`);
                         this.bufferContent.splice(index,1);
+                        removedCount++;
                     }
                 }
                 index--;
             }
+            logger(`Lifespan buffer for collection ${this.config.name} - removed ${removedCount} objects`);
         }
     }
 

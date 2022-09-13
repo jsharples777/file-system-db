@@ -6,6 +6,7 @@ import { Collection } from "../collection/Collection";
 import { SearchItem } from "../search/SearchTypes";
 import { SortOrderItem } from "../sort/SortTypes";
 import { Life } from "../life/Life";
+import { DatabaseManagers } from "../DatabaseManagers";
 export declare class ObjectViewImpl implements ObjectView, CollectionListener, Life {
     private listeners;
     private collection;
@@ -17,7 +18,8 @@ export declare class ObjectViewImpl implements ObjectView, CollectionListener, L
     private fields;
     private name;
     private defaultLifespan;
-    constructor(collectionName: string, name: string, fields: string[], searchFilter?: SearchItem[], sortOrder?: SortOrderItem[]);
+    private managers;
+    constructor(managers: DatabaseManagers, collectionName: string, name: string, fields: string[], searchFilter?: SearchItem[], sortOrder?: SortOrderItem[]);
     addListener(listener: ObjectViewListener): void;
     protected checkViewLoaded(): void;
     content(): Cursor;

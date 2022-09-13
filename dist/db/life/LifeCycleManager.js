@@ -17,12 +17,6 @@ class LifeCycleManager {
         this.beatSpacing = 500;
         this.aging = this.aging.bind(this);
     }
-    static getInstance() {
-        if (!LifeCycleManager._instance) {
-            LifeCycleManager._instance = new LifeCycleManager();
-        }
-        return LifeCycleManager._instance;
-    }
     configNewLife(life) {
         const numberOfTicksPerMinute = 60000 / this.beatSpacing;
         let nextBeatDueEveryLifeCycleManagerTick = Math.round(numberOfTicksPerMinute / life.getBPM());

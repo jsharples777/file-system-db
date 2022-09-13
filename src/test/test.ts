@@ -1,7 +1,8 @@
-import {DB} from "../db/DB";
+import {FileSystemDB} from "../db/FileSystemDB";
 import debug from "debug";
 import {SearchItem, SearchItemComparison} from "../db/search/SearchTypes";
 import {SortOrderItem, SortOrderType} from "../db/sort/SortTypes";
+import * as timers from "timers";
 
 export class test {
     public constructor() {
@@ -9,70 +10,82 @@ export class test {
 
 
         try {
-            const db = DB.getInstance().initialise();
+            const db = FileSystemDB.getInstance('./cfg/migration.json').initialise();
             console.log(db.collections());
-            let collection = db.collection('test');
+            console.time('collections');
+            db.collection('pms-patients').find();
 
-            let key1 = '1';
-            let key2 = '2';
-            let key3 = '3';
-            let key4 = '4';
-            let key5 = '5';
-            let key6 = '6';
+            setTimeout(() => {
+                db.collection('pms-patients').findByKey('Aaron--Coghlan-19891014');
+            },3000)
 
-            collection.upsertObject(key1,{_id:key1,dates: { createdDate:5},test:1})
-            collection.upsertObject(key2,{_id:key2,dates: { createdDate:6},test:2})
-            collection.upsertObject(key3,{_id:key3,dates: { createdDate:7},test:3})
-            collection.upsertObject(key4,{_id:key4,dates: { createdDate:8},test:4})
-            collection.upsertObject(key5,{_id:key5,dates: { createdDate:9},test:5})
-            collection.upsertObject(key6,{_id:key6,dates: { createdDate:10},test:6})
 
-            const findAll = collection.find();
-            while (findAll.hasNext()) {
-                console.log(findAll.next());
-            }
+            console.timeEnd('collections');
 
 
 
-            const cursor = collection.findBy([{
-                    comparison: SearchItemComparison.greaterThan,
-                    field: "dates.createdDate",
-                    value: 7
-                },{
-                    comparison: SearchItemComparison.greaterThan,
-                    field: "fake",
-                    value: 7
-                }]).sort([{
-                field: "dates.createdDate",
-                order: SortOrderType.ascending
-            }]);
-
-            while (cursor.hasNext()) {
-                console.log(cursor.next())
-            }
-
-            const view = DB.getInstance().addView('test','test',['_id','dates.createdDate'],[{
-                comparison: SearchItemComparison.greaterThan,
-                field: "dates.createdDate",
-                value: 7
-            }],[{
-                field: "dates.createdDate",
-                order: SortOrderType.ascending
-            }]);;
-
-            let viewCursor = view.content();
-            while (viewCursor.hasNext()) {
-                console.log(viewCursor.next());
-            }
-
-            collection.upsertObject(key6,{_id:key6,dates: { createdDate:11},test:6})
-            collection.upsertObject(key6,{_id:key6,dates: { createdDate:6},test:6})
-            collection.upsertObject(key6,{_id:key6,dates: { createdDate:10},test:6})
-
-            viewCursor = view.content();
-            while (viewCursor.hasNext()) {
-                console.log(viewCursor.next());
-            }
+            // let collection = db.collection('test');
+            //
+            // let key1 = '1';
+            // let key2 = '2';
+            // let key3 = '3';
+            // let key4 = '4';
+            // let key5 = '5';
+            // let key6 = '6';
+            //
+            // collection.upsertObject(key1,{_id:key1,dates: { createdDate:5},test:1})
+            // collection.upsertObject(key2,{_id:key2,dates: { createdDate:6},test:2})
+            // collection.upsertObject(key3,{_id:key3,dates: { createdDate:7},test:3})
+            // collection.upsertObject(key4,{_id:key4,dates: { createdDate:8},test:4})
+            // collection.upsertObject(key5,{_id:key5,dates: { createdDate:9},test:5})
+            // collection.upsertObject(key6,{_id:key6,dates: { createdDate:10},test:6})
+            //
+            // const findAll = collection.find();
+            // while (findAll.hasNext()) {
+            //     console.log(findAll.next());
+            // }
+            //
+            //
+            //
+            // const cursor = collection.findBy([{
+            //         comparison: SearchItemComparison.greaterThan,
+            //         field: "dates.createdDate",
+            //         value: 7
+            //     },{
+            //         comparison: SearchItemComparison.greaterThan,
+            //         field: "fake",
+            //         value: 7
+            //     }]).sort([{
+            //     field: "dates.createdDate",
+            //     order: SortOrderType.ascending
+            // }]);
+            //
+            // while (cursor.hasNext()) {
+            //     console.log(cursor.next())
+            // }
+            //
+            // const view = FileSystemDB.getInstance().addView('test','test',['_id','dates.createdDate'],[{
+            //     comparison: SearchItemComparison.greaterThan,
+            //     field: "dates.createdDate",
+            //     value: 7
+            // }],[{
+            //     field: "dates.createdDate",
+            //     order: SortOrderType.ascending
+            // }]);;
+            //
+            // let viewCursor = view.content();
+            // while (viewCursor.hasNext()) {
+            //     console.log(viewCursor.next());
+            // }
+            //
+            // collection.upsertObject(key6,{_id:key6,dates: { createdDate:11},test:6})
+            // collection.upsertObject(key6,{_id:key6,dates: { createdDate:6},test:6})
+            // collection.upsertObject(key6,{_id:key6,dates: { createdDate:10},test:6})
+            //
+            // viewCursor = view.content();
+            // while (viewCursor.hasNext()) {
+            //     console.log(viewCursor.next());
+            // }
 
             // collection = db.getCollection('xxx');
             // collection.upsertObject(key1,{_id:key1, value:'test1'});

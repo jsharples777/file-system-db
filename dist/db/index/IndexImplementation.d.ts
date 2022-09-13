@@ -4,6 +4,7 @@ import { SearchItem } from "../search/SearchTypes";
 import { Cursor } from "../cursor/Cursor";
 import { Collection } from "../collection/Collection";
 import { Life } from "../life/Life";
+import { DatabaseManagers } from "../DatabaseManagers";
 export declare class IndexImplementation implements Index, Life {
     private config;
     private dbLocation;
@@ -12,7 +13,8 @@ export declare class IndexImplementation implements Index, Life {
     private indexLoaded;
     private indexInUse;
     private defaultLifespan;
-    constructor(dbLocation: string, config: IndexConfig);
+    private managers;
+    constructor(dbLocation: string, config: IndexConfig, managers: DatabaseManagers);
     protected checkIndexUse(): void;
     protected removeIndexBuffer(): void;
     findMatchingKeys(searchFilter: SearchItem[]): string[];

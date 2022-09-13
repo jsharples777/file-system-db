@@ -12,14 +12,7 @@ type HeartbeatConfig = {
 }
 
 export class LifeCycleManager {
-    private static _instance: LifeCycleManager;
 
-    public static getInstance(): LifeCycleManager {
-        if (!LifeCycleManager._instance) {
-            LifeCycleManager._instance = new LifeCycleManager();
-        }
-        return LifeCycleManager._instance;
-    }
 
     private heartbeats:Life[] = [];
     private configs:HeartbeatConfig[] = [];
@@ -28,7 +21,7 @@ export class LifeCycleManager {
     // @ts-ignore
     private interval: NodeJS.Timer;
 
-    private constructor(){
+    public constructor(){
         this.aging = this.aging.bind(this);
     }
 

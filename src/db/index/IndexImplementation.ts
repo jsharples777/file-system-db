@@ -2,7 +2,7 @@ import {Index} from "./Index";
 import {IndexConfig, IndexContent, IndexEntry, IndexVersion} from "../config/Types";
 import {CollectionManager} from "../collection/CollectionManager";
 import debug from 'debug';
-import {DB} from "../DB";
+import {FileSystemDB} from "../FileSystemDB";
 import {IndexFileManager} from "./IndexFileManager";
 import {SearchItem} from "../search/SearchTypes";
 import {SearchProcessor} from "../search/SearchProcessor";
@@ -12,6 +12,7 @@ import {Collection} from "../collection/Collection";
 import {Life} from "../life/Life";
 import {LifeCycleManager} from "../life/LifeCycleManager";
 import {Util} from "../util/Util";
+import {DatabaseManagers} from "../DatabaseManagers";
 
 
 const logger = debug('index-implementation');
@@ -25,11 +26,13 @@ export class IndexImplementation implements Index,Life {
     private indexLoaded: boolean = false;
     private indexInUse: boolean = false;
     private defaultLifespan: number;
+    private managers: DatabaseManagers;
 
 
-    constructor(dbLocation: string, config: IndexConfig) {
+    constructor(dbLocation: string, config: IndexConfig, managers:DatabaseManagers) {
         this.dbLocation = dbLocation;
         this.config = config;
+        this.managers = managers;
         this.version = {
             version: 1,
             name: this.config.name,
@@ -46,7 +49,7 @@ export class IndexImplementation implements Index,Life {
         }
 
         this.checkIndexUse = this.checkIndexUse.bind(this);
-        LifeCycleManager.getInstance().addLife(this);
+        this.managers.getLifecycleManager().addLife(this);
         logger(`Constructing index ${this.config.name} for collection ${this.config.collection}`);
 
     }
@@ -78,7 +81,7 @@ export class IndexImplementation implements Index,Life {
 
     protected checkIndexLoaded(): void {
         if (!this.indexLoaded) {
-            const result = IndexFileManager.getInstance().readIndex(this.config.collection, this.config.name);
+            const result = this.managers.getIndexFileManager().readIndex(this.config.collection, this.config.name);
             this.version = result.version;
             this.content = result.content;
             this.indexLoaded = true;
@@ -140,7 +143,7 @@ export class IndexImplementation implements Index,Life {
         this.content.entries.push(newEntry);
         this.version.version = config.version;
         this.content.version = config.version;
-        IndexFileManager.getInstance().writeIndexFile(this);
+        this.managers.getIndexFileManager().writeIndexFile(this);
     }
 
     objectRemoved(collection:Collection, key: string): void {
@@ -153,7 +156,7 @@ export class IndexImplementation implements Index,Life {
         }
         this.version.version = config.version;
         this.content.version = config.version;
-        IndexFileManager.getInstance().writeIndexFile(this);
+        this.managers.getIndexFileManager().writeIndexFile(this);
     }
 
     private constructIndexEntry(key: string, object: any): IndexEntry {
@@ -191,7 +194,7 @@ export class IndexImplementation implements Index,Life {
         }
         this.version.version = config.version;
         this.content.version = config.version;
-        IndexFileManager.getInstance().writeIndexFile(this);
+        this.managers.getIndexFileManager().writeIndexFile(this);
 
     }
 
@@ -203,7 +206,7 @@ export class IndexImplementation implements Index,Life {
 
     protected rebuildIndex(): void {
         if (this.config) {
-            const collection = CollectionManager.getInstance().getCollection(this.config.collection);
+            const collection = this.managers.getCollectionManager().getCollection(this.config.collection);
             const versionNumber = collection.getVersion();
             const indexContent: IndexContent = {
                 version: versionNumber,
@@ -219,7 +222,7 @@ export class IndexImplementation implements Index,Life {
                 }
             });
             this.content = indexContent;
-            IndexFileManager.getInstance().writeIndexFile(this);
+            this.managers.getIndexFileManager().writeIndexFile(this);
         }
     }
 
@@ -252,7 +255,7 @@ export class IndexImplementation implements Index,Life {
     }
 
     protected checkVersionSync():void {
-        const collectionVersion = CollectionManager.getInstance().getCollection(this.config.collection).getVersion();
+        const collectionVersion = this.managers.getCollectionManager().getCollection(this.config.collection).getVersion();
         // check versions
         if ((this.version.version !== collectionVersion) || (this.content.version !== collectionVersion)) {
             logger(`Index ${this.config.name} has version ${this.version.version} which does not match collection ${this.config.collection} version ${collectionVersion} - rebuilding`);
@@ -293,7 +296,7 @@ export class IndexImplementation implements Index,Life {
         logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - found ${matchingEntries.length} matching index entries`);
         // for all found matches, load the items from the collection
         if (matchingEntries.length > 0) {
-            const collection = CollectionManager.getInstance().getCollection(this.config.collection);
+            const collection = this.managers.getCollectionManager().getCollection(this.config.collection);
             matchingEntries.forEach((matchingEntry) => {
                 const item = collection.findByKey(matchingEntry.keyValue);
                 if (item) {

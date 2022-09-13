@@ -4,21 +4,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IndexImplementation = void 0;
-const CollectionManager_1 = require("../collection/CollectionManager");
 const debug_1 = __importDefault(require("debug"));
-const IndexFileManager_1 = require("./IndexFileManager");
 const SearchProcessor_1 = require("../search/SearchProcessor");
 const CursorImpl_1 = require("../cursor/CursorImpl");
-const LifeCycleManager_1 = require("../life/LifeCycleManager");
 const Util_1 = require("../util/Util");
 const logger = (0, debug_1.default)('index-implementation');
 const dLogger = (0, debug_1.default)('index-implementation-detail');
 class IndexImplementation {
-    constructor(dbLocation, config) {
+    constructor(dbLocation, config, managers) {
         this.indexLoaded = false;
         this.indexInUse = false;
         this.dbLocation = dbLocation;
         this.config = config;
+        this.managers = managers;
         this.version = {
             version: 1,
             name: this.config.name,
@@ -33,7 +31,7 @@ class IndexImplementation {
             this.defaultLifespan = 600;
         }
         this.checkIndexUse = this.checkIndexUse.bind(this);
-        LifeCycleManager_1.LifeCycleManager.getInstance().addLife(this);
+        this.managers.getLifecycleManager().addLife(this);
         logger(`Constructing index ${this.config.name} for collection ${this.config.collection}`);
     }
     checkIndexUse() {
@@ -60,7 +58,7 @@ class IndexImplementation {
     }
     checkIndexLoaded() {
         if (!this.indexLoaded) {
-            const result = IndexFileManager_1.IndexFileManager.getInstance().readIndex(this.config.collection, this.config.name);
+            const result = this.managers.getIndexFileManager().readIndex(this.config.collection, this.config.name);
             this.version = result.version;
             this.content = result.content;
             this.indexLoaded = true;
@@ -115,7 +113,7 @@ class IndexImplementation {
         this.content.entries.push(newEntry);
         this.version.version = config.version;
         this.content.version = config.version;
-        IndexFileManager_1.IndexFileManager.getInstance().writeIndexFile(this);
+        this.managers.getIndexFileManager().writeIndexFile(this);
     }
     objectRemoved(collection, key) {
         this.checkIndexLoaded();
@@ -127,7 +125,7 @@ class IndexImplementation {
         }
         this.version.version = config.version;
         this.content.version = config.version;
-        IndexFileManager_1.IndexFileManager.getInstance().writeIndexFile(this);
+        this.managers.getIndexFileManager().writeIndexFile(this);
     }
     constructIndexEntry(key, object) {
         const indexEntry = {
@@ -162,7 +160,7 @@ class IndexImplementation {
         }
         this.version.version = config.version;
         this.content.version = config.version;
-        IndexFileManager_1.IndexFileManager.getInstance().writeIndexFile(this);
+        this.managers.getIndexFileManager().writeIndexFile(this);
     }
     setVersion(version) {
         this.checkIndexLoaded();
@@ -171,7 +169,7 @@ class IndexImplementation {
     }
     rebuildIndex() {
         if (this.config) {
-            const collection = CollectionManager_1.CollectionManager.getInstance().getCollection(this.config.collection);
+            const collection = this.managers.getCollectionManager().getCollection(this.config.collection);
             const versionNumber = collection.getVersion();
             const indexContent = {
                 version: versionNumber,
@@ -187,7 +185,7 @@ class IndexImplementation {
                 }
             });
             this.content = indexContent;
-            IndexFileManager_1.IndexFileManager.getInstance().writeIndexFile(this);
+            this.managers.getIndexFileManager().writeIndexFile(this);
         }
     }
     indexEntryFieldMatchesSearchItem(entry, searchItem) {
@@ -215,7 +213,7 @@ class IndexImplementation {
         return result;
     }
     checkVersionSync() {
-        const collectionVersion = CollectionManager_1.CollectionManager.getInstance().getCollection(this.config.collection).getVersion();
+        const collectionVersion = this.managers.getCollectionManager().getCollection(this.config.collection).getVersion();
         // check versions
         if ((this.version.version !== collectionVersion) || (this.content.version !== collectionVersion)) {
             logger(`Index ${this.config.name} has version ${this.version.version} which does not match collection ${this.config.collection} version ${collectionVersion} - rebuilding`);
@@ -251,7 +249,7 @@ class IndexImplementation {
         logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - found ${matchingEntries.length} matching index entries`);
         // for all found matches, load the items from the collection
         if (matchingEntries.length > 0) {
-            const collection = CollectionManager_1.CollectionManager.getInstance().getCollection(this.config.collection);
+            const collection = this.managers.getCollectionManager().getCollection(this.config.collection);
             matchingEntries.forEach((matchingEntry) => {
                 const item = collection.findByKey(matchingEntry.keyValue);
                 if (item) {

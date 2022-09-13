@@ -3,11 +3,13 @@ import { CollectionConfig, OperationResult } from "../config/Types";
 import { SearchItem } from "../search/SearchTypes";
 import { Cursor } from "../cursor/Cursor";
 import { CollectionListener } from "./CollectionListener";
+import { DatabaseManagers } from "../DatabaseManagers";
 export declare class CollectionImpl implements Collection {
     private config;
     private buffer;
     private listeners;
-    constructor(config: CollectionConfig);
+    private managers;
+    constructor(config: CollectionConfig, managers: DatabaseManagers);
     getConfig(): CollectionConfig;
     findByKey(key: string): any;
     getVersion(): number;

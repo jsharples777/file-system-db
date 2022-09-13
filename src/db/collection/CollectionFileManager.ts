@@ -2,7 +2,7 @@ import debug from 'debug';
 import {BufferType, CollectionConfig, DBConfig, DuplicateKey} from "../config/Types";
 import {Configurable} from "../config/Configurable";
 import fs from "fs";
-import {DB} from "../DB";
+import {FileSystemDB} from "../FileSystemDB";
 import {Collection} from "./Collection";
 import {Life} from "../life/Life";
 import {CollectionListener} from "./CollectionListener";
@@ -28,20 +28,13 @@ type FileQueueEntry = {
 }
 
 export class CollectionFileManager implements Configurable, Life, CollectionListener{
-    private static _instance: CollectionFileManager;
-    public static getInstance(): CollectionFileManager {
-        if (!CollectionFileManager._instance) {
-            CollectionFileManager._instance = new CollectionFileManager();
-        }
-        return CollectionFileManager._instance;
-    }
 
     private config:DBConfig|null = null;
     private fileQueueInterval:number;
     private fileWriteQueue:FileQueueEntry[] = [];
     private isProcessingQueue:boolean = false;
 
-    private constructor(){
+    public constructor(){
         const queueInterval = parseInt(process.env.FILE_QUEUE_INTERVAL || '500');
         if (isNaN(queueInterval)) {
             this.fileQueueInterval = 500;

@@ -2,7 +2,7 @@ import {DatabaseAvailableListener, MongoDataSource} from "mongo-access-jps";
 import {Db} from "mongodb";
 import * as fs from "fs";
 import {BufferType, DBConfig} from "../config/Types";
-import {DB} from "../DB";
+import {FileSystemDB} from "../FileSystemDB";
 
 export class MigrateMongoDB implements DatabaseAvailableListener{
     private mongoDB: MongoDataSource;
@@ -42,7 +42,7 @@ export class MigrateMongoDB implements DatabaseAvailableListener{
             fs.writeFileSync(this.configFileLocation,JSON.stringify(dbConfig));
 
             // now load the configuration into the file system database
-            const fileSystemDB = DB.getInstance(this.configFileLocation).initialise();
+            const fileSystemDB = FileSystemDB.getInstance(this.configFileLocation).initialise();
 
             collections.forEach((collection) => {
                 this.mongoDB.getDatabase().collection(collection.collectionName).find({}).toArray().then((fullCollection) => {

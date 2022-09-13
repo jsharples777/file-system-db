@@ -9,8 +9,8 @@ import {SearchProcessor} from "../search/SearchProcessor";
 import {CursorImpl} from "../cursor/CursorImpl";
 import {Cursor} from "../cursor/Cursor";
 import {CollectionListener} from "./CollectionListener";
-import {DB} from "../DB";
 import {Util} from "../util/Util";
+import {DatabaseManagers} from "../DatabaseManagers";
 
 const logger = debug('collection-implementation');
 
@@ -19,20 +19,22 @@ export class CollectionImpl implements Collection {
     private config: CollectionConfig;
     private buffer: ObjectBuffer;
     private listeners:CollectionListener[] = [];
+    private managers: DatabaseManagers;
 
-    constructor(config: CollectionConfig) {
+    constructor(config: CollectionConfig, managers:DatabaseManagers) {
         this.config = config;
-        this.buffer = BufferFactory.getInstance().createBuffer(config);
+        this.managers = managers;
+        this.buffer = BufferFactory.getInstance().createBuffer(config,this.managers.getLifecycleManager());
         if (this.buffer.isComplete()) {
             logger(`Collection ${this.config.name} - buffer is complete - loading all`);
             // load all content
-            const contentAndConfig = CollectionFileManager.getInstance().readEntireCollection(this.config);
+            const contentAndConfig = this.managers.getCollectionFileManager().readEntireCollection(this.config);
             this.buffer.initialise(contentAndConfig.content);
             this.config = contentAndConfig.config;
         }
         else {
             logger(`Collection ${this.config.name} - buffer is not complete - loading config`);
-            this.config = CollectionFileManager.getInstance().readCollectionConfig(this.config);
+            this.config = this.managers.getCollectionFileManager().readCollectionConfig(this.config);
         }
     }
 
@@ -48,12 +50,12 @@ export class CollectionImpl implements Collection {
             result = this.buffer.getObject(key);
         } else {
             // object could still be in write queue
-            result = CollectionFileManager.getInstance().checkWriteQueueForDataObject(this.config.name, key);
+            result = this.managers.getCollectionFileManager().checkWriteQueueForDataObject(this.config.name, key);
             if (result) {
                 logger(`Collection ${this.config.name} - find by key ${key} - found in file manager write queue`);
             } else {
                 logger(`Collection ${this.config.name} - find by key ${key} - trying to load from file`);
-                result = CollectionFileManager.getInstance().readDataObjectFile(this.config.name, key);
+                result = this.managers.getCollectionFileManager().readDataObjectFile(this.config.name, key);
                 if (result) {
                     logger(`Collection ${this.config.name} - find by key ${key} - found in file`);
                     this.buffer.addObject(key, result);
@@ -81,7 +83,7 @@ export class CollectionImpl implements Collection {
             result = this.buffer.objects();
         } else {
             logger(`Collection ${this.config.name} - find all - loading all files`);
-            const contentAndConfig = CollectionFileManager.getInstance().readEntireCollection(this.config);
+            const contentAndConfig = this.managers.getCollectionFileManager().readEntireCollection(this.config);
             this.buffer.initialise(contentAndConfig.content);
             this.config = contentAndConfig.config;
             result = contentAndConfig.content;
@@ -98,9 +100,7 @@ export class CollectionImpl implements Collection {
 
         logger(`Collection ${this.config.name} - insert ${key}`);
         this.config.version++;
-        //CollectionFileManager.getInstance().writeDataObjectFile(this.config,this.config.name, key, object,true);
         this.buffer.addObject(key, object);
-        //IndexManager.getInstance().entryInserted(this.config.name,key,this.config.version,object);
         this.listeners.forEach((listener) => listener.objectAdded(this,key, object));
         return result;
     }
@@ -128,15 +128,13 @@ export class CollectionImpl implements Collection {
         }
         logger(`Collection ${this.config.name} - update ${key}`);
         this.config.version++;
-        //CollectionFileManager.getInstance().writeDataObjectFile(this.config,this.config.name, key, object,false);
         this.buffer.replaceObject(key, object);
-        //IndexManager.getInstance().entryUpdated(this.config.name,key,this.config.version,object);
         this.listeners.forEach((listener) => listener.objectUpdated(this,key, object));
         return result;
     }
 
     findBy(search:SearchItem[]):Cursor {
-        return SearchProcessor.searchCollection(this,search);
+        return SearchProcessor.searchCollection(this.managers.getIndexManager(),this,search);
     }
 
     upsertObject(key: string, object: any): OperationResult {

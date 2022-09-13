@@ -2,7 +2,7 @@ import {SearchItem, SearchItemComparison} from "./SearchTypes";
 import {Collection} from "../collection/Collection";
 import {IndexManager} from "../index/IndexManager";
 import debug from 'debug';
-import {DB} from "../DB";
+import {FileSystemDB} from "../FileSystemDB";
 import {Cursor} from "../cursor/Cursor";
 import {CursorImpl} from "../cursor/CursorImpl";
 import {Util} from "../util/Util";
@@ -123,12 +123,12 @@ export class SearchProcessor {
         return results;
     }
 
-    public static searchCollection(collection:Collection, search:SearchItem[]):Cursor {
+    public static searchCollection(indexManager:IndexManager,collection:Collection, search:SearchItem[]):Cursor {
 
         logger(`Looking for relevant indexes for collection ${collection.getName()} with criteria`);
         logger(search);
         // do we have an index for this collection/search?
-        const index = IndexManager.getInstance().getMatchingIndex(collection.getName(),search);
+        const index = indexManager.getMatchingIndex(collection.getName(),search);
         if (index) {
             logger(`Found index ${index.getName()} - using to search`);
             return index.search(search);
