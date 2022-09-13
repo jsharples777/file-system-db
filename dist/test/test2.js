@@ -1,27 +1,26 @@
-
-import debug from "debug";
-import {SearchItemComparison} from "../db/search/SearchTypes";
-import {FileSystemDB} from "../db/FileSystemDB";
-
-export class test {
-    public constructor() {
-        debug.enable('life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-manager');
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.test = void 0;
+const debug_1 = __importDefault(require("debug"));
+const SearchTypes_1 = require("../db/search/SearchTypes");
+const FileSystemDB_1 = require("../db/FileSystemDB");
+class test {
+    constructor() {
+        debug_1.default.enable('life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-manager');
         // debug.enable('life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
-
-
         try {
-            const db = FileSystemDB.getInstance('./cfg/migration.json').initialise();
+            const db = FileSystemDB_1.FileSystemDB.getInstance('./cfg/migration.json').initialise();
             const cursor = db.collection('pms-appts').findBy([{
-                field:'start',
-                comparison: SearchItemComparison.greaterThanEqual,
-                value: 20220801
-            }]);
+                    field: 'start',
+                    comparison: SearchTypes_1.SearchItemComparison.greaterThanEqual,
+                    value: 20220801
+                }]);
             while (cursor.hasNext()) {
                 console.log(cursor.next());
             }
-
-
-
             // console.log(db.collections());
             // let collection = db.collection('test');
             //
@@ -85,7 +84,6 @@ export class test {
             // while (viewCursor.hasNext()) {
             //     console.log(viewCursor.next());
             // }
-
             // collection = db.getCollection('xxx');
             // collection.upsertObject(key1,{_id:key1, value:'test1'});
             // collection.upsertObject(key2,{_id:key2, value:'test2'});
@@ -131,10 +129,11 @@ export class test {
             //     },11000);
             // },11000);
         }
-        catch (err:any) {
+        catch (err) {
             console.log(err.message);
         }
     }
 }
-
+exports.test = test;
 new test();
+//# sourceMappingURL=test2.js.map
