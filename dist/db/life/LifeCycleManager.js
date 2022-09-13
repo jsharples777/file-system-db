@@ -73,7 +73,9 @@ class LifeCycleManager {
             (0, timers_1.clearInterval)(this.interval);
         this.numberOfBeats = 0;
         this.heartbeats.forEach((heartbeat) => {
+            logger(`Waiting for ${heartbeat.getName()} to die`);
             heartbeat.die();
+            logger(`${heartbeat.getName()} dead`);
         });
     }
 }
