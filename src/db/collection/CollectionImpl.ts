@@ -30,6 +30,7 @@ export class CollectionImpl implements Collection {
             // load all content
             const contentAndConfig = this.managers.getCollectionFileManager().readEntireCollection(this.config);
             this.buffer.initialise(contentAndConfig.content);
+            logger(`Collection ${this.config.name} - loaded ${contentAndConfig.content.length} entries`);
             this.config = contentAndConfig.config;
         }
         else {

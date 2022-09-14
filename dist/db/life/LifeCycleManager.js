@@ -16,6 +16,7 @@ class LifeCycleManager {
         this.numberOfBeats = 0;
         this.beatSpacing = 500;
         this.aging = this.aging.bind(this);
+        this.isDying = false;
     }
     configNewLife(life) {
         const numberOfTicksPerMinute = 60000 / this.beatSpacing;
@@ -68,13 +69,18 @@ class LifeCycleManager {
         });
     }
     death() {
-        logger('Death');
-        if (this.interval)
-            (0, timers_1.clearInterval)(this.interval);
-        this.numberOfBeats = 0;
-        this.heartbeats.forEach((heartbeat) => {
-            heartbeat.die();
-        });
+        if (!this.isDying) {
+            this.isDying = true;
+            logger('Death');
+            if (this.interval)
+                (0, timers_1.clearInterval)(this.interval);
+            this.numberOfBeats = 0;
+            this.heartbeats.forEach((heartbeat) => {
+                logger(`Waiting for ${heartbeat.getName()} to die`);
+                heartbeat.die();
+                logger(`${heartbeat.getName()} dead`);
+            });
+        }
     }
 }
 exports.LifeCycleManager = LifeCycleManager;

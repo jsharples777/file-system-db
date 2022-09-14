@@ -13,7 +13,7 @@ export declare class FileSystemDB {
     initialise(): FileSystemDB;
     collections(): string[];
     collection(name: string): Collection;
-    protected shutdown(): void;
+    shutdown(): void;
     addView(collection: string, name: string, fields: string[], search?: SearchItem[], sort?: SortOrderItem[]): ObjectView;
     getView(name: string): ObjectView | null;
 }

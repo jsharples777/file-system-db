@@ -5,6 +5,7 @@ export declare class LifeCycleManager {
     private numberOfBeats;
     private beatSpacing;
     private interval;
+    private isDying;
     constructor();
     protected configNewLife(life: Life): void;
     addLife(life: Life): void;

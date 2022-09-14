@@ -20,9 +20,11 @@ export class LifeCycleManager {
     private beatSpacing:number = 500;
     // @ts-ignore
     private interval: NodeJS.Timer;
+    private isDying: boolean;
 
     public constructor(){
         this.aging = this.aging.bind(this);
+        this.isDying = false;
     }
 
     protected configNewLife(life:Life):void {
@@ -82,12 +84,17 @@ export class LifeCycleManager {
     }
 
     public death():void {
-        logger('Death');
-        if (this.interval) clearInterval(this.interval);
-        this.numberOfBeats = 0;
-        this.heartbeats.forEach((heartbeat) => {
-            heartbeat.die();
-        })
+        if (!this.isDying) {
+            this.isDying = true;
+            logger('Death');
+            if (this.interval) clearInterval(this.interval);
+            this.numberOfBeats = 0;
+            this.heartbeats.forEach((heartbeat) => {
+                logger(`Waiting for ${heartbeat.getName()} to die`);
+                heartbeat.die();
+                logger(`${heartbeat.getName()} dead`);
+            })
+        }
     }
 
 

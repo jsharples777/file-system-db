@@ -38,10 +38,6 @@ export class FileSystemDB {
         if (!this.isInitialised) {
             this.managers = new DatabaseManagers(this.configLocation);
             this.isInitialised = true;
-
-            process.on('SIGINT', () => {
-                this.shutdown();
-            });
         }
         return this;
 
@@ -55,7 +51,7 @@ export class FileSystemDB {
         return this.managers.getCollectionManager().getCollection(name);
     }
 
-    protected shutdown(): void {
+    public shutdown(): void {
         this.managers.getLifecycleManager().death();
     }
 
