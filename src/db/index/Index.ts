@@ -3,18 +3,30 @@ import {SearchItem} from "../search/SearchTypes";
 import {Cursor} from "../cursor/Cursor";
 import {CollectionListener} from "../collection/CollectionListener";
 
-export interface Index extends CollectionListener{
-    setVersion(version:number):void;
-    getVersion():number;
-    getName():string;
-    getCollection():string;
-    getFields():string[];
-    getEntries():IndexEntry[];
-    matchesFilter(searchFilter:SearchItem[]):boolean;
-    partiallyMatchesFilter(searchFilter:SearchItem[]):boolean;
-    findMatchingKeys(searchFilter:SearchItem[]):string[];
-    getIndexVersion():IndexVersion;
-    getIndexContent():IndexContent;
-    search(search:SearchItem[]):Cursor;
-    rebuild():void;
+export interface Index extends CollectionListener {
+    setVersion(version: number): void;
+
+    getVersion(): number;
+
+    getName(): string;
+
+    getCollection(): string;
+
+    getFields(): string[];
+
+    getEntries(): IndexEntry[];
+
+    matchesFilter(searchFilter: SearchItem[]): boolean;
+
+    partiallyMatchesFilter(searchFilter: SearchItem[]): boolean;
+
+    findMatchingKeys(searchFilter: SearchItem[]): string[];
+
+    getIndexVersion(): IndexVersion;
+
+    getIndexContent(): IndexContent;
+
+    search(search: SearchItem[]): Cursor;
+
+    rebuild(): void;
 }

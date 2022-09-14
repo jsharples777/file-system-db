@@ -4,10 +4,10 @@ import * as fs from "fs";
 import {BufferType, DBConfig} from "../config/Types";
 import {FileSystemDB} from "../FileSystemDB";
 
-export class MigrateMongoDB implements DatabaseAvailableListener{
+export class MigrateMongoDB implements DatabaseAvailableListener {
     private mongoDB: MongoDataSource;
-    private configFileLocation:string;
-    private dbLocation:string;
+    private configFileLocation: string;
+    private dbLocation: string;
 
 
     constructor() {
@@ -26,7 +26,7 @@ export class MigrateMongoDB implements DatabaseAvailableListener{
     }
 
     databaseConnected(db: Db): void {
-        const dbConfig:DBConfig = {
+        const dbConfig: DBConfig = {
             dbLocation: this.dbLocation,
             collections: [],
             indexes: []
@@ -39,7 +39,7 @@ export class MigrateMongoDB implements DatabaseAvailableListener{
             });
 
             // write the config file
-            fs.writeFileSync(this.configFileLocation,JSON.stringify(dbConfig));
+            fs.writeFileSync(this.configFileLocation, JSON.stringify(dbConfig));
 
             // now load the configuration into the file system database
             const fileSystemDB = FileSystemDB.getInstance(this.configFileLocation).initialise();
@@ -50,7 +50,7 @@ export class MigrateMongoDB implements DatabaseAvailableListener{
                     if (fullCollection.length > 0) {
                         const fsCollection = fileSystemDB.collection(collection.collectionName);
                         fullCollection.forEach((document) => {
-                            fsCollection.upsertObject(document._id+'', document);
+                            fsCollection.upsertObject(document._id + '', document);
                         });
                     }
                 })

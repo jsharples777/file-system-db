@@ -12,7 +12,7 @@ export class DatabaseManagers {
     private indexManager: IndexManager;
     private lifecycleManger: LifeCycleManager;
 
-    constructor(configLocation?:string) {
+    constructor(configLocation?: string) {
         let cfgLocation = process.env.FILE_SYSTEM_DB_CONFIG || 'cfg/config.json';
         if (configLocation) {
             cfgLocation = configLocation;
@@ -33,26 +33,25 @@ export class DatabaseManagers {
         this.lifecycleManger.birth();
     }
 
-    getCollectionManager():CollectionManager {
+    getCollectionManager(): CollectionManager {
         return this.collectionManager;
     }
 
-    getCollectionFileManager():CollectionFileManager {
+    getCollectionFileManager(): CollectionFileManager {
         return this.collectionFileManager;
     }
 
-    getIndexManager():IndexManager {
+    getIndexManager(): IndexManager {
         return this.indexManager;
     }
 
-    getIndexFileManager():IndexFileManager {
+    getIndexFileManager(): IndexFileManager {
         return this.indexFileManager;
     }
 
-    getLifecycleManager():LifeCycleManager {
+    getLifecycleManager(): LifeCycleManager {
         return this.lifecycleManger;
     }
-
 
 
 }

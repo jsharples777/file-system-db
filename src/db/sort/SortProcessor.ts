@@ -1,5 +1,4 @@
 import {SortOrderItem, SortOrderType} from "./SortTypes";
-import {FileSystemDB} from "../FileSystemDB";
 import {CursorImpl} from "../cursor/CursorImpl";
 import {Cursor} from "../cursor/Cursor";
 import {Util} from "../util/Util";
@@ -70,6 +69,6 @@ export class SortProcessor {
     public static sortItems(items: any[], sortOrder: SortOrderItem[]): Cursor {
         const sorter = new Sorter(sortOrder);
         const sortedItems = items.sort(sorter.sort);
-        return new CursorImpl(sortedItems,false);
+        return new CursorImpl(sortedItems, false);
     }
 }

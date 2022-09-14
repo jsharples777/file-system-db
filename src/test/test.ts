@@ -1,8 +1,5 @@
 import {FileSystemDB} from "../db/FileSystemDB";
 import debug from "debug";
-import {SearchItem, SearchItemComparison} from "../db/search/SearchTypes";
-import {SortOrderItem, SortOrderType} from "../db/sort/SortTypes";
-import * as timers from "timers";
 
 export class test {
     public constructor() {
@@ -17,11 +14,10 @@ export class test {
 
             setTimeout(() => {
                 db.collection('pms-patients').findByKey('Aaron--Coghlan-19891014');
-            },3000)
+            }, 3000)
 
 
             console.timeEnd('collections');
-
 
 
             // let collection = db.collection('test');
@@ -131,8 +127,7 @@ export class test {
             //         process.exit(0)
             //     },11000);
             // },11000);
-        }
-        catch (err:any) {
+        } catch (err: any) {
             console.log(err.message);
         }
     }

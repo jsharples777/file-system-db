@@ -1,5 +1,4 @@
 import {Cursor} from "./Cursor";
-import {FileSystemDB} from "../FileSystemDB";
 import {SortOrderItem} from "../sort/SortTypes";
 import {SortProcessor} from "../sort/SortProcessor";
 import {Util} from "../util/Util";
@@ -8,11 +7,10 @@ export class CursorImpl implements Cursor {
     protected items: any[];
     protected position: number;
 
-    constructor(items:any[],copyObjects:boolean = true) {
+    constructor(items: any[], copyObjects: boolean = true) {
         if (copyObjects) {
             this.items = Util.copyObject(items);
-        }
-        else {
+        } else {
             this.items = items;
         }
         this.position = 0;
@@ -23,11 +21,11 @@ export class CursorImpl implements Cursor {
     }
 
     next(): any {
-        let result:any = null;
+        let result: any = null;
         if (this.position < this.items.length) {
             result = this.items[this.position];
         }
-        this.position ++;
+        this.position++;
         return result;
     }
 
@@ -36,7 +34,7 @@ export class CursorImpl implements Cursor {
     }
 
     sort(sortOrder: SortOrderItem[]): Cursor {
-        return SortProcessor.sortItems(this.items,sortOrder);
+        return SortProcessor.sortItems(this.items, sortOrder);
     }
 
 

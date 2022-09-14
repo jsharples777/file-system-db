@@ -2,7 +2,6 @@ import {Collection, KeyObjectPair} from "./Collection";
 import {CollectionConfig, OperationResult} from "../config/Types";
 import {ObjectBuffer} from "../buffer/ObjectBuffer";
 import {BufferFactory} from "../buffer/BufferFactory";
-import {CollectionFileManager} from "./CollectionFileManager";
 import debug from 'debug';
 import {SearchItem} from "../search/SearchTypes";
 import {SearchProcessor} from "../search/SearchProcessor";
@@ -18,13 +17,13 @@ const logger = debug('collection-implementation');
 export class CollectionImpl implements Collection {
     private config: CollectionConfig;
     private buffer: ObjectBuffer;
-    private listeners:CollectionListener[] = [];
+    private listeners: CollectionListener[] = [];
     private managers: DatabaseManagers;
 
-    constructor(config: CollectionConfig, managers:DatabaseManagers) {
+    constructor(config: CollectionConfig, managers: DatabaseManagers) {
         this.config = config;
         this.managers = managers;
-        this.buffer = BufferFactory.getInstance().createBuffer(config,this.managers.getLifecycleManager());
+        this.buffer = BufferFactory.getInstance().createBuffer(config, this.managers.getLifecycleManager());
         if (this.buffer.isComplete()) {
             logger(`Collection ${this.config.name} - buffer is complete - loading all`);
             // load all content
@@ -32,8 +31,7 @@ export class CollectionImpl implements Collection {
             this.buffer.initialise(contentAndConfig.content);
             logger(`Collection ${this.config.name} - loaded ${contentAndConfig.content.length} entries`);
             this.config = contentAndConfig.config;
-        }
-        else {
+        } else {
             logger(`Collection ${this.config.name} - buffer is not complete - loading config`);
             this.config = this.managers.getCollectionFileManager().readCollectionConfig(this.config);
         }
@@ -102,7 +100,7 @@ export class CollectionImpl implements Collection {
         logger(`Collection ${this.config.name} - insert ${key}`);
         this.config.version++;
         this.buffer.addObject(key, object);
-        this.listeners.forEach((listener) => listener.objectAdded(this,key, object));
+        this.listeners.forEach((listener) => listener.objectAdded(this, key, object));
         return result;
     }
 
@@ -117,7 +115,7 @@ export class CollectionImpl implements Collection {
         //CollectionFileManager.getInstance().removeDataObjectFile(this.config,this.config.name, key);
         this.buffer.removeObject(key);
         // IndexManager.getInstance().entryDeleted(this.config.name,key,this.config.version);
-        this.listeners.forEach((listener) => listener.objectRemoved(this,key));
+        this.listeners.forEach((listener) => listener.objectRemoved(this, key));
         return result;
     }
 
@@ -130,20 +128,20 @@ export class CollectionImpl implements Collection {
         logger(`Collection ${this.config.name} - update ${key}`);
         this.config.version++;
         this.buffer.replaceObject(key, object);
-        this.listeners.forEach((listener) => listener.objectUpdated(this,key, object));
+        this.listeners.forEach((listener) => listener.objectUpdated(this, key, object));
         return result;
     }
 
-    findBy(search:SearchItem[]):Cursor {
-        return SearchProcessor.searchCollection(this.managers.getIndexManager(),this,search);
+    findBy(search: SearchItem[]): Cursor {
+        return SearchProcessor.searchCollection(this.managers.getIndexManager(), this, search);
     }
 
     upsertObject(key: string, object: any): OperationResult {
-        return this.updateObject(key,object);
+        return this.updateObject(key, object);
     }
 
     findOne(search: SearchItem[]): any {
-        let result:any = undefined;
+        let result: any = undefined;
 
         const cursor = this.findBy(search);
         const results = cursor.toArray();
@@ -169,7 +167,7 @@ export class CollectionImpl implements Collection {
 
     insertMany(keyObjPairs: KeyObjectPair[]): void {
         keyObjPairs.forEach((keyObjPair) => {
-            this.upsertObject(keyObjPair.key,keyObjPair.object);
+            this.upsertObject(keyObjPair.key, keyObjPair.object);
         })
 
     }

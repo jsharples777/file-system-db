@@ -96,18 +96,6 @@ export class IndexFileManager implements Configurable, Life {
         return result;
     }
 
-
-    protected processFileQueue(): void {
-        if (!this.isProcessingQueue) {
-            this.isProcessingQueue = true;
-            this.fileWriteQueue.forEach((index) => {
-                this.writeIndex(index.getIndexVersion(), index.getIndexContent());
-            });
-            this.fileWriteQueue = [];
-            this.isProcessingQueue = false;
-        }
-    }
-
     die(): void {
         this.processFileQueue();
     }
@@ -129,6 +117,17 @@ export class IndexFileManager implements Configurable, Life {
     }
 
     birth() {
+    }
+
+    protected processFileQueue(): void {
+        if (!this.isProcessingQueue) {
+            this.isProcessingQueue = true;
+            this.fileWriteQueue.forEach((index) => {
+                this.writeIndex(index.getIndexVersion(), index.getIndexContent());
+            });
+            this.fileWriteQueue = [];
+            this.isProcessingQueue = false;
+        }
     }
 
 

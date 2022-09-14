@@ -16,10 +16,10 @@ export enum BufferType {
 export type CollectionConfig = {
     name: string,
     key: string,
-    bufferType:BufferType,
-    bufferSize?:number,
-    bufferItemLifecycleSeconds?:number,
-    version:number
+    bufferType: BufferType,
+    bufferSize?: number,
+    bufferItemLifecycleSeconds?: number,
+    version: number
 }
 
 export type IndexConfig = {
@@ -35,28 +35,26 @@ export type DBConfig = {
 }
 
 export type IndexEntryFieldNameValue = {
-    field:string,
-    value:any
+    field: string,
+    value: any
 }
 
 export type IndexEntry = {
-    keyValue:string,
-    fieldValues:IndexEntryFieldNameValue[]
+    keyValue: string,
+    fieldValues: IndexEntryFieldNameValue[]
 }
 
 export type IndexContent = {
-    version:number,
-    entries:IndexEntry[]
+    version: number,
+    entries: IndexEntry[]
 }
 
 
 export type IndexVersion = {
     name: string,
     collection: string,
-    version:number,
+    version: number,
 }
-
-
 
 
 export class MissingConfiguration extends Error {
@@ -70,6 +68,7 @@ export class InvalidConfiguration extends Error {
         super(message);
     }
 }
+
 export class DuplicateKey extends Error {
     constructor(message: string) {
         super(message);

@@ -8,16 +8,16 @@ import {LifeCycleManager} from "../life/LifeCycleManager";
 const logger = debug('abstract-partial-buffer');
 const dLogger = debug('abstract-partial-buffer-detail');
 
-export class AbstractPartialBuffer implements ObjectBuffer,Life{
-    protected bufferContent:BufferEntry[];
-    protected config:CollectionConfig;
-    protected bufferSize:number;
-    protected objectLifespan:number;
-    private maxFifoBufferSize:number;
-    private defaultBufferItemLifespan:number;
-    private lifeManager: LifeCycleManager|undefined;
+export class AbstractPartialBuffer implements ObjectBuffer, Life {
+    protected bufferContent: BufferEntry[];
+    protected config: CollectionConfig;
+    protected bufferSize: number;
+    protected objectLifespan: number;
+    private maxFifoBufferSize: number;
+    private defaultBufferItemLifespan: number;
+    private lifeManager: LifeCycleManager | undefined;
 
-    constructor(config:CollectionConfig,lifeManager?:LifeCycleManager) {
+    constructor(config: CollectionConfig, lifeManager?: LifeCycleManager) {
         this.config = config;
         this.lifeManager = lifeManager;
         this.bufferContent = [];
@@ -26,22 +26,20 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
         const maxFifoBufferSize = parseInt(process.env.MAX_FIFO_BUFFER_SIZE || '1000');
         if (isNaN(maxFifoBufferSize)) {
             this.maxFifoBufferSize = 1000;
-        }
-        else {
+        } else {
             this.maxFifoBufferSize = maxFifoBufferSize;
         }
         const defaultBufferItemLifespan = parseInt(process.env.DEFAULT_BUFFER_ITEM_LIFESPAN_SEC || '600');
         if (isNaN(defaultBufferItemLifespan)) {
             this.defaultBufferItemLifespan = 600;
-        }
-        else {
+        } else {
             this.defaultBufferItemLifespan = defaultBufferItemLifespan;
         }
 
         this.bufferSize = 0;
         this.objectLifespan = -1;
 
-        switch(config.bufferType) {
+        switch (config.bufferType) {
             case(BufferType.FIFO): {
                 if (config.bufferSize && config.bufferSize > 0) {
                     this.bufferSize = config.bufferSize;
@@ -54,8 +52,7 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
             case(BufferType.LIFESPAN): {
                 if (config.bufferItemLifecycleSeconds) {
                     this.objectLifespan = config.bufferItemLifecycleSeconds;
-                }
-                else {
+                } else {
                     this.objectLifespan = this.defaultBufferItemLifespan;
                 }
                 if (this.lifeManager) this.lifeManager.addLife(this);
@@ -71,42 +68,14 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
     }
 
 
-
     isComplete(): boolean {
         return false;
     }
 
-    private _addObject(key:string, object:any):void {
-        let timeToDie = -1;
-        const lastUsed = parseInt(moment().format('YYYYMMDDHHmmss'));
-        if (this.config.bufferType === BufferType.LIFESPAN) {
-            timeToDie = parseInt(moment().add(this.objectLifespan,'seconds').format('YYYYMMDDHHmmss'));
-            logger(`Adding object ${key} to lifespan buffer for collection ${this.config.name} with lifespan of ${this.objectLifespan} seconds`);
-        }
-        else {
-            logger(`Adding object ${key} to buffer for collection ${this.config.name}`);
-        }
-        const entry:BufferEntry = {
-            key: key,
-            lastUsed: lastUsed,
-            timeToDie: timeToDie,
-            content: object
-        };
-        this.bufferContent.unshift(entry);
-
-        if (this.config.bufferType === BufferType.FIFO) {
-            if (this.bufferContent.length > this.bufferSize) {
-                logger(`FIFO buffer for collection ${this.config.name} too large, removing oldest entry`);
-                this.bufferContent.pop();
-            }
-        }
-    }
-
     addObject(key: string, object: any): void {
         if (!this.hasKey(key)) {
-            this._addObject(key,object);
-        }
-        else {
+            this._addObject(key, object);
+        } else {
             this.replaceObject(key, object);
         }
     }
@@ -119,7 +88,7 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
             const entry = this.bufferContent[foundIndex];
             result = entry.content;
             if (this.config.bufferType === BufferType.LIFESPAN) {
-                entry.timeToDie = parseInt(moment().add(this.objectLifespan,'seconds').format('YYYYMMDDHHmmss'));
+                entry.timeToDie = parseInt(moment().add(this.objectLifespan, 'seconds').format('YYYYMMDDHHmmss'));
             }
         }
 
@@ -135,11 +104,11 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
         let timeToDie = -1;
         const lastUsed = parseInt(moment().format('YYYYMMDDHHmmss'));
         if (this.config.bufferType === BufferType.LIFESPAN) {
-            timeToDie = parseInt(moment().add(this.objectLifespan,'seconds').format('YYYYMMDDHHmmss'));
+            timeToDie = parseInt(moment().add(this.objectLifespan, 'seconds').format('YYYYMMDDHHmmss'));
         }
 
-        objects.forEach((object,index) => {
-            const entry:BufferEntry = {
+        objects.forEach((object, index) => {
+            const entry: BufferEntry = {
                 key: object[this.config.key],
                 lastUsed: lastUsed,
                 timeToDie: timeToDie,
@@ -149,8 +118,7 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
                 if (index < this.bufferSize) {
                     this.bufferContent.push(entry);
                 }
-            }
-            else {
+            } else {
                 this.bufferContent.push(entry);
             }
 
@@ -158,8 +126,8 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
     }
 
     objects(): any[] {
-        let results:any[] = [];
-        const timeToDie = parseInt(moment().add(this.objectLifespan,'seconds').format('YYYYMMDDHHmmss'));
+        let results: any[] = [];
+        const timeToDie = parseInt(moment().add(this.objectLifespan, 'seconds').format('YYYYMMDDHHmmss'));
         this.bufferContent.forEach((entry) => {
             results.push(entry.content);
             if (this.config.bufferType === BufferType.LIFESPAN) {
@@ -173,7 +141,7 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
         const foundIndex = this.bufferContent.findIndex((entry) => entry.key === key);
         if (foundIndex >= 0) {
             logger(`Removing object ${key} from buffer for collection ${this.config.name}`);
-            this.bufferContent.splice(foundIndex,1);
+            this.bufferContent.splice(foundIndex, 1);
         }
     }
 
@@ -182,20 +150,41 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
         if (foundIndex >= 0) {
             this.bufferContent[foundIndex].content = object;
             if (this.config.bufferType === BufferType.LIFESPAN) {
-                const timeToDie = parseInt(moment().add(this.objectLifespan,'seconds').format('YYYYMMDDHHmmss'));
+                const timeToDie = parseInt(moment().add(this.objectLifespan, 'seconds').format('YYYYMMDDHHmmss'));
                 this.bufferContent[foundIndex].timeToDie = timeToDie;
                 logger(`Replacing object ${key} to lifespan buffer for collection ${this.config.name}, restarting lifespan of ${this.objectLifespan} seconds`);
-            }
-            else {
+            } else {
                 logger(`Replacing object ${key} from buffer for collection ${this.config.name}`);
             }
-        }
-        else {
+        } else {
             this._addObject(key, object);
         }
     }
 
-    protected checkObjectLifespans():void {
+    getName(): string {
+        return 'Lifespan Buffer'
+    }
+
+    isAlive(): boolean {
+        return true;
+    }
+
+    heartbeat(): void {
+        this.checkObjectLifespans();
+    }
+
+    birth(): void {
+
+    }
+
+    die(): void {
+    }
+
+    getBPM(): number {
+        return 60 / (this.objectLifespan / 2);
+    }
+
+    protected checkObjectLifespans(): void {
         if (this.bufferContent.length > 0) {
             logger(`Lifespan buffer for collection ${this.config.name} - checking lifespans for ${this.bufferContent.length} objects`);
             const now = parseInt(moment().format('YYYYMMDDHHmmss'));
@@ -207,7 +196,7 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
                     dLogger(`Object ${entry.key} for collection ${this.config.name} time to die is ${entry.timeToDie} vs ${now}`);
                     if (entry.timeToDie <= now) {
                         dLogger(`Object ${entry.key} for collection ${this.config.name} has expired - removing`);
-                        this.bufferContent.splice(index,1);
+                        this.bufferContent.splice(index, 1);
                         removedCount++;
                     }
                 }
@@ -217,28 +206,30 @@ export class AbstractPartialBuffer implements ObjectBuffer,Life{
         }
     }
 
-    getName():string {
-        return 'Lifespan Buffer'
+    private _addObject(key: string, object: any): void {
+        let timeToDie = -1;
+        const lastUsed = parseInt(moment().format('YYYYMMDDHHmmss'));
+        if (this.config.bufferType === BufferType.LIFESPAN) {
+            timeToDie = parseInt(moment().add(this.objectLifespan, 'seconds').format('YYYYMMDDHHmmss'));
+            logger(`Adding object ${key} to lifespan buffer for collection ${this.config.name} with lifespan of ${this.objectLifespan} seconds`);
+        } else {
+            logger(`Adding object ${key} to buffer for collection ${this.config.name}`);
+        }
+        const entry: BufferEntry = {
+            key: key,
+            lastUsed: lastUsed,
+            timeToDie: timeToDie,
+            content: object
+        };
+        this.bufferContent.unshift(entry);
+
+        if (this.config.bufferType === BufferType.FIFO) {
+            if (this.bufferContent.length > this.bufferSize) {
+                logger(`FIFO buffer for collection ${this.config.name} too large, removing oldest entry`);
+                this.bufferContent.pop();
+            }
+        }
     }
-
-    isAlive():boolean {
-        return true;
-    }
-
-    heartbeat():void {
-        this.checkObjectLifespans();
-    }
-
-    birth(): void {
-
-    }
-
-    die():void {}
-
-    getBPM():number {
-        return 60/(this.objectLifespan/2);
-    }
-
 
 
 }

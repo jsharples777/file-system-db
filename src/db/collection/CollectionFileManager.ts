@@ -1,12 +1,10 @@
 import debug from 'debug';
-import {BufferType, CollectionConfig, DBConfig, DuplicateKey} from "../config/Types";
+import {CollectionConfig, DBConfig, DuplicateKey} from "../config/Types";
 import {Configurable} from "../config/Configurable";
 import fs from "fs";
-import {FileSystemDB} from "../FileSystemDB";
 import {Collection} from "./Collection";
 import {Life} from "../life/Life";
 import {CollectionListener} from "./CollectionListener";
-import {CollectionManager} from "./CollectionManager";
 import {Util} from "../util/Util";
 
 
@@ -20,26 +18,25 @@ enum CollectionFileQueueEntryOperation {
 
 
 type FileQueueEntry = {
-    config:CollectionConfig,
-    collection:string,
-    key:string,
-    object:any,
-    operation:CollectionFileQueueEntryOperation
+    config: CollectionConfig,
+    collection: string,
+    key: string,
+    object: any,
+    operation: CollectionFileQueueEntryOperation
 }
 
-export class CollectionFileManager implements Configurable, Life, CollectionListener{
+export class CollectionFileManager implements Configurable, Life, CollectionListener {
 
-    private config:DBConfig|null = null;
-    private fileQueueInterval:number;
-    private fileWriteQueue:FileQueueEntry[] = [];
-    private isProcessingQueue:boolean = false;
+    private config: DBConfig | null = null;
+    private fileQueueInterval: number;
+    private fileWriteQueue: FileQueueEntry[] = [];
+    private isProcessingQueue: boolean = false;
 
-    public constructor(){
+    public constructor() {
         const queueInterval = parseInt(process.env.FILE_QUEUE_INTERVAL || '500');
         if (isNaN(queueInterval)) {
             this.fileQueueInterval = 500;
-        }
-        else {
+        } else {
             this.fileQueueInterval = queueInterval;
         }
 
@@ -56,7 +53,7 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
         logger(`Starting file manager with queue interval of ${this.fileQueueInterval}`);
     }
 
-    public isDuplicateKey(collection:string, key:string):boolean {
+    public isDuplicateKey(collection: string, key: string): boolean {
         let result = false;
         const collectionDir = `${this.config?.dbLocation}/${collection}`;
         const files: string[] = fs.readdirSync(collectionDir);
@@ -64,8 +61,7 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
             if (file.startsWith(key)) {
                 result = true;
                 return false;
-            }
-            else {
+            } else {
                 return true;
             }
         })
@@ -74,14 +70,14 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
         return result;
     }
 
-    public writeDataObjectFile(config: CollectionConfig, collection:string, key:string, object:any, checkForDuplicateKey:boolean):void {
+    public writeDataObjectFile(config: CollectionConfig, collection: string, key: string, object: any, checkForDuplicateKey: boolean): void {
         if (checkForDuplicateKey) {
             if (this.isDuplicateKey(collection, key)) {
                 throw new DuplicateKey(`Key ${key} is already present in collection ${collection}`);
             }
         }
         this.fileWriteQueue.push({
-            config:Util.copyObject(config),
+            config: Util.copyObject(config),
             collection,
             key,
             object,
@@ -89,18 +85,18 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
         });
     }
 
-    public removeDataObjectFile(config:CollectionConfig, collection:string, key:string):void {
+    public removeDataObjectFile(config: CollectionConfig, collection: string, key: string): void {
         this.fileWriteQueue.push({
-            config:Util.copyObject(config),
+            config: Util.copyObject(config),
             collection,
             key,
-            object:null,
+            object: null,
             operation: CollectionFileQueueEntryOperation.delete
         });
     }
 
-    public readDataObjectFile(collection:string, key:string):any|null {
-        let result:any|null = null;
+    public readDataObjectFile(collection: string, key: string): any | null {
+        let result: any | null = null;
 
         const objectFileName = `${this.config?.dbLocation}/${collection}/${key}.entry`;
 
@@ -109,73 +105,19 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
             try {
                 result = JSON.parse(content.toString());
                 logger(`Loading entry for collection ${collection}, entry ${key}`);
-            }
-            catch (err) {
+            } catch (err) {
                 //invalid JSON - delete the file
                 fs.rmSync(objectFileName);
             }
-        }
-        else {
+        } else {
             logger(`File Not Found for collection ${collection}, entry ${key}`);
         }
 
         return result;
     }
 
-    protected writeCollectionConfig(config:CollectionConfig):void {
-        const objectFileName = `${this.config?.dbLocation}/${config.name}/${config.name}.vrs`;
-        if (fs.existsSync(objectFileName)) {
-            logger(`Config File Found for collection ${config.name} - overwriting`);
-            fs.rmSync(objectFileName);
-        }
-        fs.writeFileSync(objectFileName,JSON.stringify(config));
-
-    }
-
-    protected writeDataObjectFileContent(config: CollectionConfig,collection:string, key:string,object:any):void {
-        const objectFileName = `${this.config?.dbLocation}/${collection}/${key}.entry`;
-        if (fs.existsSync(objectFileName)) {
-            logger(`File Found for collection ${collection}, entry ${key} - overwriting`);
-            fs.rmSync(objectFileName);
-        }
-        fs.writeFileSync(objectFileName,JSON.stringify(object));
-        this.writeCollectionConfig(config);
-    }
-
-    protected removeDataObjectFileContent(config: CollectionConfig,collection:string, key:string):boolean {
-        let result = false;
-        const objectFileName = `${this.config?.dbLocation}/${collection}/${key}.entry`;
-        if (fs.existsSync(objectFileName)) {
-            result = true;
-            fs.rmSync(objectFileName);
-            logger(`Deleting entry for collection ${collection}, entry ${key}`);
-            this.writeCollectionConfig(config);
-        }
-        else {
-            logger(`Deleting entry for collection ${collection}, entry ${key} - File not found ${objectFileName}`);
-        }
-        return result;
-    }
-
-
-    protected processFileQueue():void {
-        if (!this.isProcessingQueue) {
-            this.isProcessingQueue = true;
-            this.fileWriteQueue.forEach((entry) => {
-                if (entry.operation === CollectionFileQueueEntryOperation.write) {
-                    this.writeDataObjectFileContent(entry.config, entry.collection,entry.key, entry.object);
-                }
-                else {
-                    this.removeDataObjectFileContent(entry.config, entry.collection, entry.key);
-                }
-            });
-            this.fileWriteQueue = [];
-            this.isProcessingQueue = false;
-        }
-    }
-
-    public checkWriteQueueForDataObject(collection:string,key:string):any|null {
-        let result:any|null = null;
+    public checkWriteQueueForDataObject(collection: string, key: string): any | null {
+        let result: any | null = null;
         this.fileWriteQueue.forEach((entry) => {
             if (entry.operation === CollectionFileQueueEntryOperation.write) {
                 if (entry.key === key) {
@@ -186,39 +128,37 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
         return result;
     }
 
-    public readCollectionConfig(collectionConfig:CollectionConfig):CollectionConfig {
-        let result:CollectionConfig = Util.copyObject(collectionConfig);
+    public readCollectionConfig(collectionConfig: CollectionConfig): CollectionConfig {
+        let result: CollectionConfig = Util.copyObject(collectionConfig);
         const configFileName = `${this.config?.dbLocation}/${collectionConfig.name}/${collectionConfig.name}.vrs`;
         if (!fs.existsSync(configFileName)) {
             result.version = 1;
-            fs.writeFileSync(configFileName,JSON.stringify(result));
-        }
-        else {
+            fs.writeFileSync(configFileName, JSON.stringify(result));
+        } else {
             result = <CollectionConfig>JSON.parse(fs.readFileSync(configFileName).toString());
         }
         return result;
     }
 
-    public readEntireCollection(collectionConfig:CollectionConfig):{
-        config:CollectionConfig,
-        content:any[]
+    public readEntireCollection(collectionConfig: CollectionConfig): {
+        config: CollectionConfig,
+        content: any[]
     } {
         logger(`Loading collection ${collectionConfig.name}`);
 
-        let results:any = {
+        let results: any = {
             config: {},
-            content:[]
+            content: []
         };
         const collectionDir = `${this.config?.dbLocation}/${collectionConfig.name}`;
         const files: string[] = fs.readdirSync(collectionDir);
         files.forEach((file) => {
             if (file.endsWith('.entry')) {
                 const key = file.split('.')[0];
-                results.content.push(this.readDataObjectFile(collectionConfig.name,key));
+                results.content.push(this.readDataObjectFile(collectionConfig.name, key));
             }
         });
         results.config = this.readCollectionConfig(collectionConfig);
-
 
 
         return results;
@@ -229,7 +169,7 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
     }
 
     getBPM(): number {
-        return Math.round(60000/this.fileQueueInterval);
+        return Math.round(60000 / this.fileQueueInterval);
     }
 
     heartbeat(): void {
@@ -248,15 +188,64 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
     }
 
     objectAdded(collection: Collection, key: string, object: any): void {
-        this.writeDataObjectFile(collection.getConfig(),collection.getName(),key,object,true);
+        this.writeDataObjectFile(collection.getConfig(), collection.getName(), key, object, true);
     }
 
     objectRemoved(collection: Collection, key: string): void {
-        this.removeDataObjectFile(collection.getConfig(),collection.getName(),key);
+        this.removeDataObjectFile(collection.getConfig(), collection.getName(), key);
     }
 
     objectUpdated(collection: Collection, key: string, object: any): void {
-        this.writeDataObjectFile(collection.getConfig(),collection.getName(),key,object,false);
+        this.writeDataObjectFile(collection.getConfig(), collection.getName(), key, object, false);
+    }
+
+    protected writeCollectionConfig(config: CollectionConfig): void {
+        const objectFileName = `${this.config?.dbLocation}/${config.name}/${config.name}.vrs`;
+        if (fs.existsSync(objectFileName)) {
+            logger(`Config File Found for collection ${config.name} - overwriting`);
+            fs.rmSync(objectFileName);
+        }
+        fs.writeFileSync(objectFileName, JSON.stringify(config));
+
+    }
+
+    protected writeDataObjectFileContent(config: CollectionConfig, collection: string, key: string, object: any): void {
+        const objectFileName = `${this.config?.dbLocation}/${collection}/${key}.entry`;
+        if (fs.existsSync(objectFileName)) {
+            logger(`File Found for collection ${collection}, entry ${key} - overwriting`);
+            fs.rmSync(objectFileName);
+        }
+        fs.writeFileSync(objectFileName, JSON.stringify(object));
+        this.writeCollectionConfig(config);
+    }
+
+    protected removeDataObjectFileContent(config: CollectionConfig, collection: string, key: string): boolean {
+        let result = false;
+        const objectFileName = `${this.config?.dbLocation}/${collection}/${key}.entry`;
+        if (fs.existsSync(objectFileName)) {
+            result = true;
+            fs.rmSync(objectFileName);
+            logger(`Deleting entry for collection ${collection}, entry ${key}`);
+            this.writeCollectionConfig(config);
+        } else {
+            logger(`Deleting entry for collection ${collection}, entry ${key} - File not found ${objectFileName}`);
+        }
+        return result;
+    }
+
+    protected processFileQueue(): void {
+        if (!this.isProcessingQueue) {
+            this.isProcessingQueue = true;
+            this.fileWriteQueue.forEach((entry) => {
+                if (entry.operation === CollectionFileQueueEntryOperation.write) {
+                    this.writeDataObjectFileContent(entry.config, entry.collection, entry.key, entry.object);
+                } else {
+                    this.removeDataObjectFileContent(entry.config, entry.collection, entry.key);
+                }
+            });
+            this.fileWriteQueue = [];
+            this.isProcessingQueue = false;
+        }
     }
 
 

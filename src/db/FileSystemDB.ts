@@ -1,10 +1,8 @@
 import debug from 'debug';
-import {CollectionManager} from "./collection/CollectionManager";
 import {Collection} from "./collection/Collection";
-import {LifeCycleManager} from "./life/LifeCycleManager";
 import {SearchItem} from "./search/SearchTypes";
 import {SortOrderItem} from "./sort/SortTypes";
-import {ObjectView} from "./view/ObjectView";
+import {View} from "./view/View";
 import {ObjectViewImpl} from "./view/ObjectViewImpl";
 import {DatabaseManagers} from "./DatabaseManagers";
 
@@ -15,23 +13,21 @@ export class FileSystemDB {
     private static _instance: FileSystemDB;
     // @ts-ignore
     private managers: DatabaseManagers;
+    private isInitialised: boolean = false;
+    private configLocation?: string = undefined;
+    private views: View[] = [];
+
+    public constructor(configLocation?: string) {
+        this.initialise = this.initialise.bind(this);
+        this.shutdown = this.shutdown.bind(this);
+        this.configLocation = configLocation;
+    }
 
     public static getInstance(configLocation?: string): FileSystemDB {
         if (!FileSystemDB._instance) {
             FileSystemDB._instance = new FileSystemDB(configLocation);
         }
         return FileSystemDB._instance;
-    }
-
-
-    private isInitialised: boolean = false;
-    private configLocation?: string = undefined;
-    private views: ObjectView[] = [];
-
-    public constructor(configLocation?: string) {
-        this.initialise = this.initialise.bind(this);
-        this.shutdown = this.shutdown.bind(this);
-        this.configLocation = configLocation;
     }
 
     public initialise(): FileSystemDB {
@@ -55,14 +51,14 @@ export class FileSystemDB {
         this.managers.getLifecycleManager().death();
     }
 
-    public addView(collection: string, name: string, fields: string[], search?: SearchItem[], sort?: SortOrderItem[]): ObjectView {
-        const view = new ObjectViewImpl(this.managers,collection, name, fields, search, sort);
+    public addView(collection: string, name: string, fields: string[], search?: SearchItem[], sort?: SortOrderItem[]): View {
+        const view = new ObjectViewImpl(this.managers, collection, name, fields, search, sort);
         this.views.push(view);
         return view;
     }
 
-    public getView(name: string): ObjectView | null {
-        let result: ObjectView | null = null;
+    public getView(name: string): View | null {
+        let result: View | null = null;
         const foundIndex = this.views.findIndex((view) => view.getName() === name);
         if (foundIndex >= 0) {
             result = this.views[foundIndex];
@@ -70,4 +66,27 @@ export class FileSystemDB {
 
         return result;
     }
+
+    public logChanges(logFileLocation?: string): void {
+
+    }
+
+    public isLoggingChanges(): boolean {
+        return false;
+    }
+
+    public applyChangeLog(logFileLocation?: string): void {
+
+    }
+
+    public addReplicationLocation(replicateToDir: string): void {
+
+    }
+
+    public startReplication(): void {
+    }
+
+    public stopReplication(): void {
+    }
+
 }

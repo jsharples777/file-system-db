@@ -6,8 +6,7 @@ export class migrate {
         debug.enable('life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
         try {
             new MigrateMongoDB();
-        }
-        catch (err:any) {
+        } catch (err: any) {
             console.log(err.message);
         }
     }
