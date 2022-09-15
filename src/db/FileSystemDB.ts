@@ -5,8 +5,6 @@ import {SortOrderItem} from "./sort/SortTypes";
 import {View} from "./view/View";
 import {ViewImpl} from "./view/ViewImpl";
 import {DatabaseManagers} from "./DatabaseManagers";
-import {QueryImpl} from "./query/QueryImpl";
-import {Query} from "./query/Query";
 
 const logger = debug('db');
 require('dotenv').config();

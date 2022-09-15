@@ -10,14 +10,14 @@ import {Util} from "../util/Util";
 
 const logger = debug('collection-file-manager');
 
-enum CollectionFileQueueEntryOperation {
+export enum CollectionFileQueueEntryOperation {
     write,
     delete
 
 }
 
 
-type FileQueueEntry = {
+export type FileQueueEntry = {
     config: CollectionConfig,
     collection: string,
     key: string,

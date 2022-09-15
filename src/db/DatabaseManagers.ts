@@ -5,6 +5,7 @@ import {IndexFileManager} from "./index/IndexFileManager";
 import {IndexManager} from "./index/IndexManager";
 import {LifeCycleManager} from "./life/LifeCycleManager";
 import {FileSystemDB} from "./FileSystemDB";
+import {LogFileManager} from "./log/LogFileManager";
 
 export class DatabaseManagers {
     private collectionFileManager: CollectionFileManager;
@@ -13,6 +14,7 @@ export class DatabaseManagers {
     private indexManager: IndexManager;
     private lifecycleManger: LifeCycleManager;
     private db: FileSystemDB;
+    private logFileManager: LogFileManager;
 
     constructor(db:FileSystemDB,configLocation?: string) {
         this.db = db;
@@ -20,6 +22,7 @@ export class DatabaseManagers {
         if (configLocation) {
             cfgLocation = configLocation;
         }
+
         const config = new ConfigManager().loadConfig(cfgLocation);
         this.lifecycleManger = new LifeCycleManager();
         this.collectionFileManager = new CollectionFileManager();
@@ -30,6 +33,13 @@ export class DatabaseManagers {
         this.indexFileManager.loadConfig(config);
         this.indexManager = new IndexManager(this);
         this.indexManager.loadConfig(config);
+        this.logFileManager = new LogFileManager();
+
+
+
+        if (db.isLoggingChanges()) {
+            this.lifecycleManger.addLife(this.logFileManager);
+        }
 
         this.lifecycleManger.addLife(this.collectionFileManager);
         this.lifecycleManger.addLife(this.indexFileManager);
@@ -58,6 +68,10 @@ export class DatabaseManagers {
 
     getDB(): FileSystemDB {
         return this.db;
+    }
+
+    getLogFileManager():LogFileManager {
+        return this.logFileManager;
     }
 
 
