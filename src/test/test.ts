@@ -1,5 +1,6 @@
 import {FileSystemDB} from "../db/FileSystemDB";
 import debug from "debug";
+import {Order} from "../db/sort/SortTypes";
 
 export class test {
     public constructor() {
@@ -10,7 +11,8 @@ export class test {
             const db = FileSystemDB.getInstance('./cfg/migration.json').initialise();
             console.log(db.collections());
             console.time('collections');
-            db.collection('pms-patients').find();
+            const collection = db.collection('pms-patients');
+            collection.find();
 
             setTimeout(() => {
                 db.collection('pms-patients').findByKey('Aaron--Coghlan-19891014');
@@ -18,6 +20,18 @@ export class test {
 
 
             console.timeEnd('collections');
+
+            const view = collection.select('name.firstname').orderBy('name.firstname',Order.ascending).execute('firstnames');
+            const cursor = view.content();
+            while (cursor.hasNext()) {
+                console.log(cursor.next());
+            }
+
+            const view2 = db.getView('firstnames');
+            const cursor2 = view.content();
+            while (cursor2.hasNext()) {
+                console.log(cursor2.next());
+            }
 
 
             // let collection = db.collection('test');

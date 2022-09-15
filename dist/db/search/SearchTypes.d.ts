@@ -1,15 +1,15 @@
-export declare enum SearchItemComparison {
-    notEquals = "ne",
-    equals = "eq",
-    lessThan = "lt",
-    lessThanEqual = "lte",
-    greaterThan = "gt",
-    greaterThanEqual = "gte",
-    isNull = "null",
-    isNotNull = "notnull"
+export declare enum Compare {
+    notEquals = "!=",
+    equals = "==",
+    lessThan = "<",
+    lessThanEqual = "<=",
+    greaterThan = ">",
+    greaterThanEqual = ">=",
+    isNull = "is null",
+    isNotNull = "is not null"
 }
 export declare type SearchItem = {
     field: string;
-    comparison: SearchItemComparison;
+    comparison: Compare;
     value?: any;
 };

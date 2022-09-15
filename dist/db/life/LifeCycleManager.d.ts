@@ -7,9 +7,9 @@ export declare class LifeCycleManager {
     private interval;
     private isDying;
     constructor();
-    protected configNewLife(life: Life): void;
     addLife(life: Life): void;
     birth(): void;
-    protected aging(): void;
     death(): void;
+    protected configNewLife(life: Life): void;
+    protected aging(): void;
 }

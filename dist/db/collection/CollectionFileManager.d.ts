@@ -14,10 +14,6 @@ export declare class CollectionFileManager implements Configurable, Life, Collec
     writeDataObjectFile(config: CollectionConfig, collection: string, key: string, object: any, checkForDuplicateKey: boolean): void;
     removeDataObjectFile(config: CollectionConfig, collection: string, key: string): void;
     readDataObjectFile(collection: string, key: string): any | null;
-    protected writeCollectionConfig(config: CollectionConfig): void;
-    protected writeDataObjectFileContent(config: CollectionConfig, collection: string, key: string, object: any): void;
-    protected removeDataObjectFileContent(config: CollectionConfig, collection: string, key: string): boolean;
-    protected processFileQueue(): void;
     checkWriteQueueForDataObject(collection: string, key: string): any | null;
     readCollectionConfig(collectionConfig: CollectionConfig): CollectionConfig;
     readEntireCollection(collectionConfig: CollectionConfig): {
@@ -33,4 +29,8 @@ export declare class CollectionFileManager implements Configurable, Life, Collec
     objectAdded(collection: Collection, key: string, object: any): void;
     objectRemoved(collection: Collection, key: string): void;
     objectUpdated(collection: Collection, key: string, object: any): void;
+    protected writeCollectionConfig(config: CollectionConfig): void;
+    protected writeDataObjectFileContent(config: CollectionConfig, collection: string, key: string, object: any): void;
+    protected removeDataObjectFileContent(config: CollectionConfig, collection: string, key: string): boolean;
+    protected processFileQueue(): void;
 }

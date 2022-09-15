@@ -43,5 +43,5 @@ export interface Collection {
     // query
     select(field: string): Query;
 
-    selectMany(fields: string): Query;
+    selectMany(fields: string[]): Query;
 }

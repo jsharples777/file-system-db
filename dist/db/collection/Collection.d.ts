@@ -1,5 +1,6 @@
 import { CollectionConfig, OperationResult } from "../config/Types";
 import { Cursor } from "../cursor/Cursor";
+import { Query } from "../query/Query";
 import { SearchItem } from "../search/SearchTypes";
 import { CollectionListener } from "./CollectionListener";
 export declare type KeyObjectPair = {
@@ -22,4 +23,6 @@ export interface Collection {
     addListener(listener: CollectionListener): void;
     insertMany(keyObjPairs: KeyObjectPair[]): void;
     deleteMany(keys: string[]): void;
+    select(field: string): Query;
+    selectMany(fields: string[]): Query;
 }

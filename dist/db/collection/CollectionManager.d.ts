@@ -8,8 +8,8 @@ export declare class CollectionManager implements Configurable {
     private collectionImplementations;
     private managers;
     constructor(managers: DatabaseManagers);
-    private setupCollection;
     loadConfig(config: DBConfig): void;
     collections(): string[];
     getCollection(name: string): Collection;
+    private setupCollection;
 }

@@ -1,12 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SortOrderType = void 0;
-var SortOrderType;
-(function (SortOrderType) {
-    SortOrderType[SortOrderType["ascending"] = -1] = "ascending";
-    SortOrderType[SortOrderType["descending"] = 1] = "descending";
-})(SortOrderType = exports.SortOrderType || (exports.SortOrderType = {}));
-// export type SortOrder = {
-//     items:SortOrderItem[]
-// }
+exports.Order = void 0;
+var Order;
+(function (Order) {
+    Order["ascending"] = "asc";
+    Order["descending"] = "dsc";
+})(Order = exports.Order || (exports.Order = {}));
 //# sourceMappingURL=SortTypes.js.map

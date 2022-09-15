@@ -8,7 +8,8 @@ const IndexFileManager_1 = require("./index/IndexFileManager");
 const IndexManager_1 = require("./index/IndexManager");
 const LifeCycleManager_1 = require("./life/LifeCycleManager");
 class DatabaseManagers {
-    constructor(configLocation) {
+    constructor(db, configLocation) {
+        this.db = db;
         let cfgLocation = process.env.FILE_SYSTEM_DB_CONFIG || 'cfg/config.json';
         if (configLocation) {
             cfgLocation = configLocation;
@@ -41,6 +42,9 @@ class DatabaseManagers {
     }
     getLifecycleManager() {
         return this.lifecycleManger;
+    }
+    getDB() {
+        return this.db;
     }
 }
 exports.DatabaseManagers = DatabaseManagers;

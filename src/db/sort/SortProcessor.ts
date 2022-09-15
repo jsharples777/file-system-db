@@ -1,4 +1,4 @@
-import {SortOrderItem, SortOrderType} from "./SortTypes";
+import {SortOrderItem, Order} from "./SortTypes";
 import {CursorImpl} from "../cursor/CursorImpl";
 import {Cursor} from "../cursor/Cursor";
 import {Util} from "../util/Util";
@@ -12,34 +12,34 @@ export class Sorter {
         this.sort = this.sort.bind(this);
     }
 
-    public sortByFieldAndOrder(item1: any, item2: any, fieldName: string, order: SortOrderType): number {
+    public sortByFieldAndOrder(item1: any, item2: any, fieldName: string, order: Order): number {
         let result = 0;
         const fieldValue1 = Util.getFieldValue(item1, fieldName);
         const fieldValue2 = Util.getFieldValue(item2, fieldName);
         if (fieldValue1) {
             if (fieldValue2) {
                 if (fieldValue1 > fieldValue2) {
-                    if (order === SortOrderType.ascending) {
+                    if (order === Order.ascending) {
                         result = 1;
                     } else {
                         result = -1;
                     }
                 } else if (fieldValue1 < fieldValue2) {
-                    if (order === SortOrderType.ascending) {
+                    if (order === Order.ascending) {
                         result = -1;
                     } else {
                         result = 1;
                     }
                 }
             } else {
-                if (order === SortOrderType.ascending) {
+                if (order === Order.ascending) {
                     result = 1;
                 } else {
                     result = -1;
                 }
             }
         } else if (fieldValue2) {
-            if (order === SortOrderType.ascending) {
+            if (order === Order.ascending) {
                 result = -1;
             } else {
                 result = 1;

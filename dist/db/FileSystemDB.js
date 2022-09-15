@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FileSystemDB = void 0;
 const debug_1 = __importDefault(require("debug"));
-const ObjectViewImpl_1 = require("./view/ObjectViewImpl");
+const ViewImpl_1 = require("./view/ViewImpl");
 const DatabaseManagers_1 = require("./DatabaseManagers");
 const logger = (0, debug_1.default)('db');
 require('dotenv').config();
@@ -26,7 +26,7 @@ class FileSystemDB {
     }
     initialise() {
         if (!this.isInitialised) {
-            this.managers = new DatabaseManagers_1.DatabaseManagers(this.configLocation);
+            this.managers = new DatabaseManagers_1.DatabaseManagers(this, this.configLocation);
             this.isInitialised = true;
         }
         return this;
@@ -41,7 +41,7 @@ class FileSystemDB {
         this.managers.getLifecycleManager().death();
     }
     addView(collection, name, fields, search, sort) {
-        const view = new ObjectViewImpl_1.ObjectViewImpl(this.managers, collection, name, fields, search, sort);
+        const view = new ViewImpl_1.ViewImpl(this.managers, collection, name, fields, search, sort);
         this.views.push(view);
         return view;
     }
@@ -52,6 +52,19 @@ class FileSystemDB {
             result = this.views[foundIndex];
         }
         return result;
+    }
+    logChanges(logFileLocation) {
+    }
+    isLoggingChanges() {
+        return false;
+    }
+    applyChangeLog(logFileLocation) {
+    }
+    addReplicationLocation(replicateToDir) {
+    }
+    startReplication() {
+    }
+    stopReplication() {
     }
 }
 exports.FileSystemDB = FileSystemDB;

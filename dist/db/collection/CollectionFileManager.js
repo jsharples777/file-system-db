@@ -95,55 +95,6 @@ class CollectionFileManager {
         }
         return result;
     }
-    writeCollectionConfig(config) {
-        var _a;
-        const objectFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${config.name}/${config.name}.vrs`;
-        if (fs_1.default.existsSync(objectFileName)) {
-            logger(`Config File Found for collection ${config.name} - overwriting`);
-            fs_1.default.rmSync(objectFileName);
-        }
-        fs_1.default.writeFileSync(objectFileName, JSON.stringify(config));
-    }
-    writeDataObjectFileContent(config, collection, key, object) {
-        var _a;
-        const objectFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}/${key}.entry`;
-        if (fs_1.default.existsSync(objectFileName)) {
-            logger(`File Found for collection ${collection}, entry ${key} - overwriting`);
-            fs_1.default.rmSync(objectFileName);
-        }
-        fs_1.default.writeFileSync(objectFileName, JSON.stringify(object));
-        this.writeCollectionConfig(config);
-    }
-    removeDataObjectFileContent(config, collection, key) {
-        var _a;
-        let result = false;
-        const objectFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}/${key}.entry`;
-        if (fs_1.default.existsSync(objectFileName)) {
-            result = true;
-            fs_1.default.rmSync(objectFileName);
-            logger(`Deleting entry for collection ${collection}, entry ${key}`);
-            this.writeCollectionConfig(config);
-        }
-        else {
-            logger(`Deleting entry for collection ${collection}, entry ${key} - File not found ${objectFileName}`);
-        }
-        return result;
-    }
-    processFileQueue() {
-        if (!this.isProcessingQueue) {
-            this.isProcessingQueue = true;
-            this.fileWriteQueue.forEach((entry) => {
-                if (entry.operation === CollectionFileQueueEntryOperation.write) {
-                    this.writeDataObjectFileContent(entry.config, entry.collection, entry.key, entry.object);
-                }
-                else {
-                    this.removeDataObjectFileContent(entry.config, entry.collection, entry.key);
-                }
-            });
-            this.fileWriteQueue = [];
-            this.isProcessingQueue = false;
-        }
-    }
     checkWriteQueueForDataObject(collection, key) {
         let result = null;
         this.fileWriteQueue.forEach((entry) => {
@@ -211,6 +162,55 @@ class CollectionFileManager {
     }
     objectUpdated(collection, key, object) {
         this.writeDataObjectFile(collection.getConfig(), collection.getName(), key, object, false);
+    }
+    writeCollectionConfig(config) {
+        var _a;
+        const objectFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${config.name}/${config.name}.vrs`;
+        if (fs_1.default.existsSync(objectFileName)) {
+            logger(`Config File Found for collection ${config.name} - overwriting`);
+            fs_1.default.rmSync(objectFileName);
+        }
+        fs_1.default.writeFileSync(objectFileName, JSON.stringify(config));
+    }
+    writeDataObjectFileContent(config, collection, key, object) {
+        var _a;
+        const objectFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}/${key}.entry`;
+        if (fs_1.default.existsSync(objectFileName)) {
+            logger(`File Found for collection ${collection}, entry ${key} - overwriting`);
+            fs_1.default.rmSync(objectFileName);
+        }
+        fs_1.default.writeFileSync(objectFileName, JSON.stringify(object));
+        this.writeCollectionConfig(config);
+    }
+    removeDataObjectFileContent(config, collection, key) {
+        var _a;
+        let result = false;
+        const objectFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}/${key}.entry`;
+        if (fs_1.default.existsSync(objectFileName)) {
+            result = true;
+            fs_1.default.rmSync(objectFileName);
+            logger(`Deleting entry for collection ${collection}, entry ${key}`);
+            this.writeCollectionConfig(config);
+        }
+        else {
+            logger(`Deleting entry for collection ${collection}, entry ${key} - File not found ${objectFileName}`);
+        }
+        return result;
+    }
+    processFileQueue() {
+        if (!this.isProcessingQueue) {
+            this.isProcessingQueue = true;
+            this.fileWriteQueue.forEach((entry) => {
+                if (entry.operation === CollectionFileQueueEntryOperation.write) {
+                    this.writeDataObjectFileContent(entry.config, entry.collection, entry.key, entry.object);
+                }
+                else {
+                    this.removeDataObjectFileContent(entry.config, entry.collection, entry.key);
+                }
+            });
+            this.fileWriteQueue = [];
+            this.isProcessingQueue = false;
+        }
     }
 }
 exports.CollectionFileManager = CollectionFileManager;

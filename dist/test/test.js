@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.test = void 0;
 const FileSystemDB_1 = require("../db/FileSystemDB");
 const debug_1 = __importDefault(require("debug"));
+const SortTypes_1 = require("../db/sort/SortTypes");
 class test {
     constructor() {
         debug_1.default.enable('life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
@@ -13,11 +14,22 @@ class test {
             const db = FileSystemDB_1.FileSystemDB.getInstance('./cfg/migration.json').initialise();
             console.log(db.collections());
             console.time('collections');
-            db.collection('pms-patients').find();
+            const collection = db.collection('pms-patients');
+            collection.find();
             setTimeout(() => {
                 db.collection('pms-patients').findByKey('Aaron--Coghlan-19891014');
             }, 3000);
             console.timeEnd('collections');
+            const view = collection.select('name.firstname').orderBy('name.firstname', SortTypes_1.Order.ascending).execute('firstnames');
+            const cursor = view.content();
+            while (cursor.hasNext()) {
+                console.log(cursor.next());
+            }
+            const view2 = db.getView('firstnames');
+            const cursor2 = view.content();
+            while (cursor2.hasNext()) {
+                console.log(cursor2.next());
+            }
             // let collection = db.collection('test');
             //
             // let key1 = '1';

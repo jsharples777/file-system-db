@@ -1,15 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SearchItemComparison = void 0;
-var SearchItemComparison;
-(function (SearchItemComparison) {
-    SearchItemComparison["notEquals"] = "ne";
-    SearchItemComparison["equals"] = "eq";
-    SearchItemComparison["lessThan"] = "lt";
-    SearchItemComparison["lessThanEqual"] = "lte";
-    SearchItemComparison["greaterThan"] = "gt";
-    SearchItemComparison["greaterThanEqual"] = "gte";
-    SearchItemComparison["isNull"] = "null";
-    SearchItemComparison["isNotNull"] = "notnull";
-})(SearchItemComparison = exports.SearchItemComparison || (exports.SearchItemComparison = {}));
+exports.Compare = void 0;
+var Compare;
+(function (Compare) {
+    Compare["notEquals"] = "!=";
+    Compare["equals"] = "==";
+    Compare["lessThan"] = "<";
+    Compare["lessThanEqual"] = "<=";
+    Compare["greaterThan"] = ">";
+    Compare["greaterThanEqual"] = ">=";
+    Compare["isNull"] = "is null";
+    Compare["isNotNull"] = "is not null";
+})(Compare = exports.Compare || (exports.Compare = {}));
 //# sourceMappingURL=SearchTypes.js.map

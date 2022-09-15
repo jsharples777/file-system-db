@@ -15,7 +15,7 @@ import {DatabaseManagers} from "../DatabaseManagers";
 
 const logger = debug('object-view');
 
-export class ObjectViewImpl implements View, CollectionListener, Life {
+export class ViewImpl implements View, CollectionListener, Life {
     private listeners: ViewListener[] = [];
     private collection: string;
     private searchFilter?: SearchItem[];
@@ -78,7 +78,7 @@ export class ObjectViewImpl implements View, CollectionListener, Life {
             logger(`View ${this.name} - new item ${key} added to collection which meets criteria, adding and sorting`)
             const viewItem = this.constructViewItemFromItem(object);
             this.items.push({key, viewItem});
-            if (this.sortOrder) {
+            if (this.sortOrder  && this.sortOrder.length > 0) {
                 this.items = SortProcessor.sortItems(this.items, this.sortOrder).toArray();
             }
             this.listeners.forEach((listener) => listener.itemAdded(this, key, viewItem));
@@ -162,7 +162,7 @@ export class ObjectViewImpl implements View, CollectionListener, Life {
                     }
                 });
 
-                if (this.sortOrder) {
+                if (this.sortOrder && this.sortOrder.length > 0) {
                     this.items = SortProcessor.sortItems(this.items, this.sortOrder).toArray();
                 }
 
@@ -182,7 +182,7 @@ export class ObjectViewImpl implements View, CollectionListener, Life {
 
     protected doesEntryMatchViewCriteria(item: any): boolean {
         let result = false;
-        if (this.searchFilter) {
+        if (this.searchFilter && this.searchFilter.length > 0) {
             if (SearchProcessor.doesItemMatchSearchItems(item, this.searchFilter)) {
                 result = true;
             }

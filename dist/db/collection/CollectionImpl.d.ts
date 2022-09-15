@@ -4,6 +4,7 @@ import { SearchItem } from "../search/SearchTypes";
 import { Cursor } from "../cursor/Cursor";
 import { CollectionListener } from "./CollectionListener";
 import { DatabaseManagers } from "../DatabaseManagers";
+import { Query } from "../query/Query";
 export declare class CollectionImpl implements Collection {
     private config;
     private buffer;
@@ -25,4 +26,6 @@ export declare class CollectionImpl implements Collection {
     addListener(listener: CollectionListener): void;
     deleteMany(keys: string[]): void;
     insertMany(keyObjPairs: KeyObjectPair[]): void;
+    select(field: string): Query;
+    selectMany(fields: string[]): Query;
 }

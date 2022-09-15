@@ -4,6 +4,7 @@ import {CollectionManager} from "./collection/CollectionManager";
 import {IndexFileManager} from "./index/IndexFileManager";
 import {IndexManager} from "./index/IndexManager";
 import {LifeCycleManager} from "./life/LifeCycleManager";
+import {FileSystemDB} from "./FileSystemDB";
 
 export class DatabaseManagers {
     private collectionFileManager: CollectionFileManager;
@@ -11,8 +12,10 @@ export class DatabaseManagers {
     private indexFileManager: IndexFileManager;
     private indexManager: IndexManager;
     private lifecycleManger: LifeCycleManager;
+    private db: FileSystemDB;
 
-    constructor(configLocation?: string) {
+    constructor(db:FileSystemDB,configLocation?: string) {
+        this.db = db;
         let cfgLocation = process.env.FILE_SYSTEM_DB_CONFIG || 'cfg/config.json';
         if (configLocation) {
             cfgLocation = configLocation;
@@ -51,6 +54,10 @@ export class DatabaseManagers {
 
     getLifecycleManager(): LifeCycleManager {
         return this.lifecycleManger;
+    }
+
+    getDB(): FileSystemDB {
+        return this.db;
     }
 
 

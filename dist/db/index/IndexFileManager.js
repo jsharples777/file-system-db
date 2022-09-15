@@ -87,16 +87,6 @@ class IndexFileManager {
         }
         return result;
     }
-    processFileQueue() {
-        if (!this.isProcessingQueue) {
-            this.isProcessingQueue = true;
-            this.fileWriteQueue.forEach((index) => {
-                this.writeIndex(index.getIndexVersion(), index.getIndexContent());
-            });
-            this.fileWriteQueue = [];
-            this.isProcessingQueue = false;
-        }
-    }
     die() {
         this.processFileQueue();
     }
@@ -113,6 +103,16 @@ class IndexFileManager {
         return "Index File Manager";
     }
     birth() {
+    }
+    processFileQueue() {
+        if (!this.isProcessingQueue) {
+            this.isProcessingQueue = true;
+            this.fileWriteQueue.forEach((index) => {
+                this.writeIndex(index.getIndexVersion(), index.getIndexContent());
+            });
+            this.fileWriteQueue = [];
+            this.isProcessingQueue = false;
+        }
     }
 }
 exports.IndexFileManager = IndexFileManager;

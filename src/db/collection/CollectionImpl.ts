@@ -10,6 +10,8 @@ import {Cursor} from "../cursor/Cursor";
 import {CollectionListener} from "./CollectionListener";
 import {Util} from "../util/Util";
 import {DatabaseManagers} from "../DatabaseManagers";
+import {Query} from "../query/Query";
+import {QueryImpl} from "../query/QueryImpl";
 
 const logger = debug('collection-implementation');
 
@@ -169,6 +171,20 @@ export class CollectionImpl implements Collection {
         keyObjPairs.forEach((keyObjPair) => {
             this.upsertObject(keyObjPair.key, keyObjPair.object);
         })
+
+    }
+
+    // query
+    select(field: string): Query {
+        const query = new QueryImpl(this.managers.getDB(),this);
+        query.select(field);
+        return query;
+    }
+
+    selectMany(fields: string[]): Query {
+        const query = new QueryImpl(this.managers.getDB(), this);
+        query.selectMany(fields);
+        return query;
 
     }
 

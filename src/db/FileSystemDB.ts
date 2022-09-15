@@ -3,8 +3,10 @@ import {Collection} from "./collection/Collection";
 import {SearchItem} from "./search/SearchTypes";
 import {SortOrderItem} from "./sort/SortTypes";
 import {View} from "./view/View";
-import {ObjectViewImpl} from "./view/ObjectViewImpl";
+import {ViewImpl} from "./view/ViewImpl";
 import {DatabaseManagers} from "./DatabaseManagers";
+import {QueryImpl} from "./query/QueryImpl";
+import {Query} from "./query/Query";
 
 const logger = debug('db');
 require('dotenv').config();
@@ -32,7 +34,7 @@ export class FileSystemDB {
 
     public initialise(): FileSystemDB {
         if (!this.isInitialised) {
-            this.managers = new DatabaseManagers(this.configLocation);
+            this.managers = new DatabaseManagers(this, this.configLocation);
             this.isInitialised = true;
         }
         return this;
@@ -52,7 +54,7 @@ export class FileSystemDB {
     }
 
     public addView(collection: string, name: string, fields: string[], search?: SearchItem[], sort?: SortOrderItem[]): View {
-        const view = new ObjectViewImpl(this.managers, collection, name, fields, search, sort);
+        const view = new ViewImpl(this.managers, collection, name, fields, search, sort);
         this.views.push(view);
         return view;
     }
@@ -63,7 +65,6 @@ export class FileSystemDB {
         if (foundIndex >= 0) {
             result = this.views[foundIndex];
         }
-
         return result;
     }
 
@@ -88,5 +89,6 @@ export class FileSystemDB {
 
     public stopReplication(): void {
     }
+
 
 }

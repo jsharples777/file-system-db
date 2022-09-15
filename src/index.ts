@@ -19,5 +19,5 @@ export {InvalidConfiguration, MissingConfiguration, DuplicateKey} from './db/con
 export {FileSystemDB} from './db/FileSystemDB';
 export {BufferType} from './db/config/Types';
 export {Compare} from './db/search/SearchTypes';
-export {SortOrderType} from './db/sort/SortTypes';
+export {Order} from './db/sort/SortTypes';
 

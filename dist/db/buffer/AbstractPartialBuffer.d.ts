@@ -12,7 +12,6 @@ export declare class AbstractPartialBuffer implements ObjectBuffer, Life {
     private lifeManager;
     constructor(config: CollectionConfig, lifeManager?: LifeCycleManager);
     isComplete(): boolean;
-    private _addObject;
     addObject(key: string, object: any): void;
     getObject(key: string): any;
     hasKey(key: string): boolean;
@@ -20,11 +19,12 @@ export declare class AbstractPartialBuffer implements ObjectBuffer, Life {
     objects(): any[];
     removeObject(key: string): void;
     replaceObject(key: string, object: any): void;
-    protected checkObjectLifespans(): void;
     getName(): string;
     isAlive(): boolean;
     heartbeat(): void;
     birth(): void;
     die(): void;
     getBPM(): number;
+    protected checkObjectLifespans(): void;
+    private _addObject;
 }

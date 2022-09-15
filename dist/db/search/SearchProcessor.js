@@ -14,34 +14,34 @@ class SearchProcessor {
         let result = false;
         if (fieldValue !== undefined) {
             // defined field value, were we looking for not null criteria?
-            if (searchItem.comparison === SearchTypes_1.SearchItemComparison.isNotNull) {
+            if (searchItem.comparison === SearchTypes_1.Compare.isNotNull) {
                 result = true;
             }
             else {
                 // ensure we have a comparison value
                 if (searchItem.value) {
                     switch (searchItem.comparison) {
-                        case SearchTypes_1.SearchItemComparison.equals: {
+                        case SearchTypes_1.Compare.equals: {
                             result = (fieldValue === searchItem.value);
                             break;
                         }
-                        case SearchTypes_1.SearchItemComparison.lessThan: {
+                        case SearchTypes_1.Compare.lessThan: {
                             result = (fieldValue < searchItem.value);
                             break;
                         }
-                        case SearchTypes_1.SearchItemComparison.lessThanEqual: {
+                        case SearchTypes_1.Compare.lessThanEqual: {
                             result = (fieldValue <= searchItem.value);
                             break;
                         }
-                        case SearchTypes_1.SearchItemComparison.greaterThan: {
+                        case SearchTypes_1.Compare.greaterThan: {
                             result = (fieldValue > searchItem.value);
                             break;
                         }
-                        case SearchTypes_1.SearchItemComparison.greaterThanEqual: {
+                        case SearchTypes_1.Compare.greaterThanEqual: {
                             result = (fieldValue >= searchItem.value);
                             break;
                         }
-                        case SearchTypes_1.SearchItemComparison.notEquals: {
+                        case SearchTypes_1.Compare.notEquals: {
                             result = (fieldValue !== searchItem.value);
                             break;
                         }
@@ -51,7 +51,7 @@ class SearchProcessor {
         }
         else {
             // undefined field value, were we looking for null criteria?
-            if (searchItem.comparison === SearchTypes_1.SearchItemComparison.isNull) {
+            if (searchItem.comparison === SearchTypes_1.Compare.isNull) {
                 result = true;
             }
         }
@@ -82,15 +82,6 @@ class SearchProcessor {
         });
         return result;
     }
-    static searchItemsBruteForceForSearchItem(items, searchItem) {
-        let results = [];
-        items.forEach((item) => {
-            if (SearchProcessor.doesItemMatchSearchItem(item, searchItem)) {
-                results.push(item);
-            }
-        });
-        return results;
-    }
     static searchItemsByBruteForce(items, search) {
         // go through each search filter and match the collection items
         search.every((searchItem) => {
@@ -109,11 +100,6 @@ class SearchProcessor {
         });
         return items;
     }
-    static searchCollectionBruteForce(collection, search) {
-        let results = collection.find().toArray();
-        results = SearchProcessor.searchItemsByBruteForce(results, search);
-        return results;
-    }
     static searchCollection(indexManager, collection, search) {
         logger(`Looking for relevant indexes for collection ${collection.getName()} with criteria`);
         logger(search);
@@ -129,6 +115,20 @@ class SearchProcessor {
             const results = SearchProcessor.searchCollectionBruteForce(collection, search);
             return new CursorImpl_1.CursorImpl(results, false);
         }
+    }
+    static searchItemsBruteForceForSearchItem(items, searchItem) {
+        let results = [];
+        items.forEach((item) => {
+            if (SearchProcessor.doesItemMatchSearchItem(item, searchItem)) {
+                results.push(item);
+            }
+        });
+        return results;
+    }
+    static searchCollectionBruteForce(collection, search) {
+        let results = collection.find().toArray();
+        results = SearchProcessor.searchItemsByBruteForce(results, search);
+        return results;
     }
 }
 exports.SearchProcessor = SearchProcessor;

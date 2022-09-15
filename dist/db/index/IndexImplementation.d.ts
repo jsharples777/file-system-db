@@ -15,11 +15,8 @@ export declare class IndexImplementation implements Index, Life {
     private defaultLifespan;
     private managers;
     constructor(dbLocation: string, config: IndexConfig, managers: DatabaseManagers);
-    protected checkIndexUse(): void;
-    protected removeIndexBuffer(): void;
     findMatchingKeys(searchFilter: SearchItem[]): string[];
     getCollection(): string;
-    protected checkIndexLoaded(): void;
     getEntries(): IndexEntry[];
     getFields(): string[];
     getIndexContent(): IndexContent;
@@ -30,13 +27,8 @@ export declare class IndexImplementation implements Index, Life {
     partiallyMatchesFilter(searchFilter: SearchItem[]): boolean;
     objectAdded(collection: Collection, key: string, object: any): void;
     objectRemoved(collection: Collection, key: string): void;
-    private constructIndexEntry;
     objectUpdated(collection: Collection, key: string, object: any): void;
     setVersion(version: number): void;
-    protected rebuildIndex(): void;
-    private indexEntryFieldMatchesSearchItem;
-    private indexEntryMatchesSearchItems;
-    protected checkVersionSync(): void;
     search(search: SearchItem[]): Cursor;
     rebuild(): void;
     die(): void;
@@ -44,4 +36,12 @@ export declare class IndexImplementation implements Index, Life {
     heartbeat(): void;
     isAlive(): boolean;
     birth(): void;
+    protected checkIndexUse(): void;
+    protected removeIndexBuffer(): void;
+    protected checkIndexLoaded(): void;
+    protected rebuildIndex(): void;
+    protected checkVersionSync(): void;
+    private constructIndexEntry;
+    private indexEntryFieldMatchesSearchItem;
+    private indexEntryMatchesSearchItems;
 }

@@ -9,6 +9,7 @@ const debug_1 = __importDefault(require("debug"));
 const SearchProcessor_1 = require("../search/SearchProcessor");
 const CursorImpl_1 = require("../cursor/CursorImpl");
 const Util_1 = require("../util/Util");
+const QueryImpl_1 = require("../query/QueryImpl");
 const logger = (0, debug_1.default)('collection-implementation');
 class CollectionImpl {
     constructor(config, managers) {
@@ -146,6 +147,17 @@ class CollectionImpl {
         keyObjPairs.forEach((keyObjPair) => {
             this.upsertObject(keyObjPair.key, keyObjPair.object);
         });
+    }
+    // query
+    select(field) {
+        const query = new QueryImpl_1.QueryImpl(this.managers.getDB(), this);
+        query.select(field);
+        return query;
+    }
+    selectMany(fields) {
+        const query = new QueryImpl_1.QueryImpl(this.managers.getDB(), this);
+        query.selectMany(fields);
+        return query;
     }
 }
 exports.CollectionImpl = CollectionImpl;
