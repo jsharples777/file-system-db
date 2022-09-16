@@ -15,6 +15,7 @@ class LifeCycleManager {
         this.configs = [];
         this.numberOfBeats = 0;
         this.beatSpacing = 500;
+        this.isSuspended = false;
         this.aging = this.aging.bind(this);
         this.isDying = false;
     }
@@ -57,6 +58,12 @@ class LifeCycleManager {
             });
         }
     }
+    suspend() {
+        this.isSuspended = true;
+    }
+    resume() {
+        this.isSuspended = false;
+    }
     configNewLife(life) {
         const numberOfTicksPerMinute = 60000 / this.beatSpacing;
         let nextBeatDueEveryLifeCycleManagerTick = Math.round(numberOfTicksPerMinute / life.getBPM());
@@ -70,6 +77,8 @@ class LifeCycleManager {
         this.configs.push(config);
     }
     aging() {
+        if (this.isSuspended)
+            return;
         this.numberOfBeats++;
         dLogger(`Aging, number of heart beats ${this.numberOfBeats}`);
         this.configs.forEach((config) => {

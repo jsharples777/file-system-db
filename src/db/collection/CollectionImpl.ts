@@ -176,7 +176,7 @@ export class CollectionImpl implements Collection {
 
     // query
     select(field: string): Query {
-        const query = new QueryImpl(this.managers.getDB(),this);
+        const query = new QueryImpl(this.managers.getDB(), this);
         query.select(field);
         return query;
     }

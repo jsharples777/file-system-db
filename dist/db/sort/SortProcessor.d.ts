@@ -1,4 +1,4 @@
-import { SortOrderItem, Order } from "./SortTypes";
+import { Order, SortOrderItem } from "./SortTypes";
 import { Cursor } from "../cursor/Cursor";
 export declare class Sorter {
     private sortOrder;

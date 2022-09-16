@@ -1,4 +1,4 @@
-import {SortOrderItem, Order} from "./SortTypes";
+import {Order, SortOrderItem} from "./SortTypes";
 import {CursorImpl} from "../cursor/CursorImpl";
 import {Cursor} from "../cursor/Cursor";
 import {Util} from "../util/Util";

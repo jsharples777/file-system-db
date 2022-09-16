@@ -7,13 +7,13 @@ import {v4} from "uuid";
 import {Collection} from "../collection/Collection";
 
 export class QueryImpl implements Query {
-    private fields:string[] = [];
-    private searchItems:SearchItem[] = [];
-    private sortItems:SortOrderItem[] = [];
+    private fields: string[] = [];
+    private searchItems: SearchItem[] = [];
+    private sortItems: SortOrderItem[] = [];
     private db: FileSystemDB;
     private collection: Collection;
 
-    constructor(db:FileSystemDB,collection:Collection) {
+    constructor(db: FileSystemDB, collection: Collection) {
         this.db = db;
         this.collection = collection;
         this.and = this.and.bind(this);
@@ -34,16 +34,16 @@ export class QueryImpl implements Query {
         return this;
     }
 
-    execute(name?:string): View {
+    execute(name?: string): View {
         let viewName = v4();
         if (name) {
             viewName = name;
         }
-        const view = this.db.addView(this.collection.getName(), viewName,this.fields, this.searchItems, this.sortItems);
+        const view = this.db.addView(this.collection.getName(), viewName, this.fields, this.searchItems, this.sortItems);
         return view;
     }
 
-    orderBy(field: string, order?:Order): Query {
+    orderBy(field: string, order?: Order): Query {
         if (!order) {
             order = Order.ascending;
         }

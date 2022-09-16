@@ -16,6 +16,7 @@ export class FileSystemDB {
     private isInitialised: boolean = false;
     private configLocation?: string = undefined;
     private views: View[] = [];
+    private bLogChanges: boolean = false;
 
     public constructor(configLocation?: string) {
         this.initialise = this.initialise.bind(this);
@@ -67,15 +68,21 @@ export class FileSystemDB {
     }
 
     public logChanges(logFileLocation?: string): void {
+        this.bLogChanges = true;
+        if (logFileLocation) {
+            this.managers.getLogFileManager().setLogLocation(logFileLocation);
+            this.managers.getLifecycleManager().addLife(this.managers.getLogFileManager());
+        }
 
     }
 
     public isLoggingChanges(): boolean {
-        return false;
+        return this.bLogChanges;
     }
 
-    public applyChangeLog(logFileLocation?: string): void {
-
+    public applyChangeLog(logFileLocation: string): void {
+        this.managers.getLogFileManager().loadLogFile(logFileLocation);
+        this.managers.getLogFileManager().heartbeat();
     }
 
     public addReplicationLocation(replicateToDir: string): void {

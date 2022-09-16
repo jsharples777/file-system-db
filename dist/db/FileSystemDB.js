@@ -14,6 +14,7 @@ class FileSystemDB {
         this.isInitialised = false;
         this.configLocation = undefined;
         this.views = [];
+        this.bLogChanges = false;
         this.initialise = this.initialise.bind(this);
         this.shutdown = this.shutdown.bind(this);
         this.configLocation = configLocation;
@@ -54,11 +55,18 @@ class FileSystemDB {
         return result;
     }
     logChanges(logFileLocation) {
+        this.bLogChanges = true;
+        if (logFileLocation) {
+            this.managers.getLogFileManager().setLogLocation(logFileLocation);
+            this.managers.getLifecycleManager().addLife(this.managers.getLogFileManager());
+        }
     }
     isLoggingChanges() {
-        return false;
+        return this.bLogChanges;
     }
     applyChangeLog(logFileLocation) {
+        this.managers.getLogFileManager().loadLogFile(logFileLocation);
+        this.managers.getLogFileManager().heartbeat();
     }
     addReplicationLocation(replicateToDir) {
     }

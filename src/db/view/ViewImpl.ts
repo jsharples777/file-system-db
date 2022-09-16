@@ -78,7 +78,7 @@ export class ViewImpl implements View, CollectionListener, Life {
             logger(`View ${this.name} - new item ${key} added to collection which meets criteria, adding and sorting`)
             const viewItem = this.constructViewItemFromItem(object);
             this.items.push({key, viewItem});
-            if (this.sortOrder  && this.sortOrder.length > 0) {
+            if (this.sortOrder && this.sortOrder.length > 0) {
                 this.items = SortProcessor.sortItems(this.items, this.sortOrder).toArray();
             }
             this.listeners.forEach((listener) => listener.itemAdded(this, key, viewItem));

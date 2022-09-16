@@ -3,22 +3,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CollectionFileManager = void 0;
+exports.CollectionFileManager = exports.CollectionFileQueueEntryOperation = void 0;
 const debug_1 = __importDefault(require("debug"));
 const Types_1 = require("../config/Types");
 const fs_1 = __importDefault(require("fs"));
 const Util_1 = require("../util/Util");
 const logger = (0, debug_1.default)('collection-file-manager');
+const dLogger = (0, debug_1.default)('collection-file-manager-detail');
 var CollectionFileQueueEntryOperation;
 (function (CollectionFileQueueEntryOperation) {
-    CollectionFileQueueEntryOperation[CollectionFileQueueEntryOperation["write"] = 0] = "write";
-    CollectionFileQueueEntryOperation[CollectionFileQueueEntryOperation["delete"] = 1] = "delete";
-})(CollectionFileQueueEntryOperation || (CollectionFileQueueEntryOperation = {}));
+    CollectionFileQueueEntryOperation[CollectionFileQueueEntryOperation["write"] = 1] = "write";
+    CollectionFileQueueEntryOperation[CollectionFileQueueEntryOperation["delete"] = -1] = "delete";
+})(CollectionFileQueueEntryOperation = exports.CollectionFileQueueEntryOperation || (exports.CollectionFileQueueEntryOperation = {}));
 class CollectionFileManager {
-    constructor() {
+    constructor(managers) {
         this.config = null;
         this.fileWriteQueue = [];
         this.isProcessingQueue = false;
+        this.managers = managers;
         const queueInterval = parseInt(process.env.FILE_QUEUE_INTERVAL || '500');
         if (isNaN(queueInterval)) {
             this.fileQueueInterval = 500;
@@ -27,6 +29,8 @@ class CollectionFileManager {
             this.fileQueueInterval = queueInterval;
         }
         this.processFileQueue = this.processFileQueue.bind(this);
+        this.addFileEntries = this.addFileEntries.bind(this);
+        this.addFileEntry = this.addFileEntry.bind(this);
     }
     loadConfig(config) {
         this.config = config;
@@ -58,22 +62,34 @@ class CollectionFileManager {
                 throw new Types_1.DuplicateKey(`Key ${key} is already present in collection ${collection}`);
             }
         }
-        this.fileWriteQueue.push({
+        const entry = {
             config: Util_1.Util.copyObject(config),
             collection,
             key,
             object,
             operation: CollectionFileQueueEntryOperation.write
+        };
+        this.fileWriteQueue.push(entry);
+        this.managers.getLogFileManager().addOperation(entry);
+    }
+    addFileEntry(entry) {
+        this.fileWriteQueue.push(entry);
+    }
+    addFileEntries(entries) {
+        entries.forEach((entry) => {
+            this.fileWriteQueue.push(entry);
         });
     }
     removeDataObjectFile(config, collection, key) {
-        this.fileWriteQueue.push({
+        const entry = {
             config: Util_1.Util.copyObject(config),
             collection,
             key,
             object: null,
             operation: CollectionFileQueueEntryOperation.delete
-        });
+        };
+        this.fileWriteQueue.push(entry);
+        this.managers.getLogFileManager().addOperation(entry);
     }
     readDataObjectFile(collection, key) {
         var _a;
@@ -180,6 +196,7 @@ class CollectionFileManager {
             fs_1.default.rmSync(objectFileName);
         }
         fs_1.default.writeFileSync(objectFileName, JSON.stringify(object));
+        dLogger(`Writing data object ${key} for collection ${collection}`);
         this.writeCollectionConfig(config);
     }
     removeDataObjectFileContent(config, collection, key) {
@@ -189,7 +206,7 @@ class CollectionFileManager {
         if (fs_1.default.existsSync(objectFileName)) {
             result = true;
             fs_1.default.rmSync(objectFileName);
-            logger(`Deleting entry for collection ${collection}, entry ${key}`);
+            dLogger(`Deleting entry for collection ${collection}, entry ${key}`);
             this.writeCollectionConfig(config);
         }
         else {

@@ -1,37 +1,54 @@
 import {FileSystemDB} from "../db/FileSystemDB";
 import debug from "debug";
 import {Order} from "../db/sort/SortTypes";
+import {Compare} from "../db/search/SearchTypes";
 
 export class test {
     public constructor() {
-        debug.enable('life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
+        debug.enable('collection-file-manager collection-file-manager-detail log-file-manager life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
 
 
         try {
             const db = FileSystemDB.getInstance('./cfg/migration.json').initialise();
-            console.log(db.collections());
-            console.time('collections');
-            const collection = db.collection('pms-patients');
-            collection.find();
 
+            db.logChanges('./log/logfile.ops');
+            // console.log(db.collections());
+            // console.time('collections');
+            // let collection = db.collection('pms-patients');
+            // collection.find();
+            //
+            // setTimeout(() => {
+            //     db.collection('pms-patients').findByKey('Aaron--Coghlan-19891014');
+            // }, 3000)
+            //
+            //
+            // console.timeEnd('collections');
+            //
+            // const view = collection.select('name.firstname').orderBy('name.firstname',Order.ascending).execute('firstnames');
+            // const cursor = view.content();
+            // while (cursor.hasNext()) {
+            //     console.log(cursor.next());
+            // }
+            //
+            // const view2 = db.getView('firstnames');
+            // const cursor2 = view.content();
+            // while (cursor2.hasNext()) {
+            //     console.log(cursor2.next());
+            // }
+            //
+            let collection = db.collection('pms-users');
+            const items = collection.findBy([{
+                field:'username',
+                comparison:Compare.equals,
+                value:'Dr Jim Sharples'
+            }]).toArray();
+            const user = items[0];
+            user.isCurrent = false;
+            collection.updateObject(user._id,user);
             setTimeout(() => {
-                db.collection('pms-patients').findByKey('Aaron--Coghlan-19891014');
-            }, 3000)
+                db.applyChangeLog('./log/logfile.ops');
+            },3000);
 
-
-            console.timeEnd('collections');
-
-            const view = collection.select('name.firstname').orderBy('name.firstname',Order.ascending).execute('firstnames');
-            const cursor = view.content();
-            while (cursor.hasNext()) {
-                console.log(cursor.next());
-            }
-
-            const view2 = db.getView('firstnames');
-            const cursor2 = view.content();
-            while (cursor2.hasNext()) {
-                console.log(cursor2.next());
-            }
 
 
             // let collection = db.collection('test');

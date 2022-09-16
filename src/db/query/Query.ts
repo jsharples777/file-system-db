@@ -5,6 +5,7 @@ import {Order} from "../sort/SortTypes";
 
 export interface Query {
     select(field: string): Query;
+
     selectMany(fields: string[]): Query;
 
     where(field: string, comparison: Compare, value?: any): Query;
@@ -13,5 +14,5 @@ export interface Query {
 
     orderBy(field: string, order: Order): Query;
 
-    execute(name?:string): View;
+    execute(name?: string): View;
 }

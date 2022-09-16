@@ -6,13 +6,15 @@ import {Collection} from "./Collection";
 import {Life} from "../life/Life";
 import {CollectionListener} from "./CollectionListener";
 import {Util} from "../util/Util";
+import {DatabaseManagers} from "../DatabaseManagers";
 
 
 const logger = debug('collection-file-manager');
+const dLogger = debug('collection-file-manager-detail');
 
 export enum CollectionFileQueueEntryOperation {
-    write,
-    delete
+    write = 1,
+    delete = -1
 
 }
 
@@ -31,8 +33,10 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
     private fileQueueInterval: number;
     private fileWriteQueue: FileQueueEntry[] = [];
     private isProcessingQueue: boolean = false;
+    private managers: DatabaseManagers;
 
-    public constructor() {
+    public constructor(managers: DatabaseManagers) {
+        this.managers = managers;
         const queueInterval = parseInt(process.env.FILE_QUEUE_INTERVAL || '500');
         if (isNaN(queueInterval)) {
             this.fileQueueInterval = 500;
@@ -41,6 +45,8 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
         }
 
         this.processFileQueue = this.processFileQueue.bind(this);
+        this.addFileEntries = this.addFileEntries.bind(this);
+        this.addFileEntry = this.addFileEntry.bind(this);
 
 
     }
@@ -76,23 +82,40 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
                 throw new DuplicateKey(`Key ${key} is already present in collection ${collection}`);
             }
         }
-        this.fileWriteQueue.push({
+        const entry = {
             config: Util.copyObject(config),
             collection,
             key,
             object,
             operation: CollectionFileQueueEntryOperation.write
-        });
+        };
+        this.fileWriteQueue.push(entry);
+        this.managers.getLogFileManager().addOperation(entry);
+    }
+
+    public addFileEntry(entry: FileQueueEntry): void {
+        this.fileWriteQueue.push(entry);
+    }
+
+    public addFileEntries(entries: FileQueueEntry[]): void {
+
+        entries.forEach((entry) => {
+            this.fileWriteQueue.push(entry);
+        })
+
+
     }
 
     public removeDataObjectFile(config: CollectionConfig, collection: string, key: string): void {
-        this.fileWriteQueue.push({
+        const entry = {
             config: Util.copyObject(config),
             collection,
             key,
             object: null,
             operation: CollectionFileQueueEntryOperation.delete
-        });
+        };
+        this.fileWriteQueue.push(entry);
+        this.managers.getLogFileManager().addOperation(entry);
     }
 
     public readDataObjectFile(collection: string, key: string): any | null {
@@ -216,6 +239,7 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
             fs.rmSync(objectFileName);
         }
         fs.writeFileSync(objectFileName, JSON.stringify(object));
+        dLogger(`Writing data object ${key} for collection ${collection}`);
         this.writeCollectionConfig(config);
     }
 
@@ -225,7 +249,7 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
         if (fs.existsSync(objectFileName)) {
             result = true;
             fs.rmSync(objectFileName);
-            logger(`Deleting entry for collection ${collection}, entry ${key}`);
+            dLogger(`Deleting entry for collection ${collection}, entry ${key}`);
             this.writeCollectionConfig(config);
         } else {
             logger(`Deleting entry for collection ${collection}, entry ${key} - File not found ${objectFileName}`);

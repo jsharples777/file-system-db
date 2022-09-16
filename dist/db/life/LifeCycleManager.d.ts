@@ -6,10 +6,13 @@ export declare class LifeCycleManager {
     private beatSpacing;
     private interval;
     private isDying;
+    private isSuspended;
     constructor();
     addLife(life: Life): void;
     birth(): void;
     death(): void;
+    suspend(): void;
+    resume(): void;
     protected configNewLife(life: Life): void;
     protected aging(): void;
 }

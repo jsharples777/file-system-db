@@ -21,6 +21,7 @@ export class LifeCycleManager {
     // @ts-ignore
     private interval: NodeJS.Timer;
     private isDying: boolean;
+    private isSuspended: boolean = false;
 
     public constructor() {
         this.aging = this.aging.bind(this);
@@ -69,6 +70,14 @@ export class LifeCycleManager {
         }
     }
 
+    public suspend(): void {
+        this.isSuspended = true;
+    }
+
+    public resume(): void {
+        this.isSuspended = false;
+    }
+
     protected configNewLife(life: Life): void {
         const numberOfTicksPerMinute = 60000 / this.beatSpacing;
         let nextBeatDueEveryLifeCycleManagerTick = Math.round(numberOfTicksPerMinute / life.getBPM());
@@ -83,6 +92,7 @@ export class LifeCycleManager {
     }
 
     protected aging(): void {
+        if (this.isSuspended) return;
         this.numberOfBeats++;
         dLogger(`Aging, number of heart beats ${this.numberOfBeats}`);
         this.configs.forEach((config) => {

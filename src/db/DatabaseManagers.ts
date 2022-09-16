@@ -16,7 +16,7 @@ export class DatabaseManagers {
     private db: FileSystemDB;
     private logFileManager: LogFileManager;
 
-    constructor(db:FileSystemDB,configLocation?: string) {
+    constructor(db: FileSystemDB, configLocation?: string) {
         this.db = db;
         let cfgLocation = process.env.FILE_SYSTEM_DB_CONFIG || 'cfg/config.json';
         if (configLocation) {
@@ -25,7 +25,7 @@ export class DatabaseManagers {
 
         const config = new ConfigManager().loadConfig(cfgLocation);
         this.lifecycleManger = new LifeCycleManager();
-        this.collectionFileManager = new CollectionFileManager();
+        this.collectionFileManager = new CollectionFileManager(this);
         this.collectionFileManager.loadConfig(config);
         this.collectionManager = new CollectionManager(this);
         this.collectionManager.loadConfig(config);
@@ -33,8 +33,7 @@ export class DatabaseManagers {
         this.indexFileManager.loadConfig(config);
         this.indexManager = new IndexManager(this);
         this.indexManager.loadConfig(config);
-        this.logFileManager = new LogFileManager();
-
+        this.logFileManager = new LogFileManager(this);
 
 
         if (db.isLoggingChanges()) {
@@ -70,7 +69,7 @@ export class DatabaseManagers {
         return this.db;
     }
 
-    getLogFileManager():LogFileManager {
+    getLogFileManager(): LogFileManager {
         return this.logFileManager;
     }
 

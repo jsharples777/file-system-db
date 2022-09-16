@@ -8,6 +8,7 @@ export declare class FileSystemDB {
     private isInitialised;
     private configLocation?;
     private views;
+    private bLogChanges;
     constructor(configLocation?: string);
     static getInstance(configLocation?: string): FileSystemDB;
     initialise(): FileSystemDB;
@@ -18,7 +19,7 @@ export declare class FileSystemDB {
     getView(name: string): View | null;
     logChanges(logFileLocation?: string): void;
     isLoggingChanges(): boolean;
-    applyChangeLog(logFileLocation?: string): void;
+    applyChangeLog(logFileLocation: string): void;
     addReplicationLocation(replicateToDir: string): void;
     startReplication(): void;
     stopReplication(): void;

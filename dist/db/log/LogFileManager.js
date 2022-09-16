@@ -1,102 +1,79 @@
-import debug from 'debug';
-import fs from "fs";
-import {Life} from "../life/Life";
-import {FileQueueEntry} from "../collection/CollectionFileManager";
-import {DatabaseManagers} from "../DatabaseManagers";
-
-
-const logger = debug('log-file-manager');
-
-
-export class LogFileManager implements Life {
-    private logLocation: string;
-    private fileQueueInterval: number;
-    private fileWriteQueue: FileQueueEntry[] = [];
-    private isProcessingQueue: boolean = false;
-    private bIsAlive: boolean = false;
-    private managers: DatabaseManagers;
-
-    public constructor(managers: DatabaseManagers) {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LogFileManager = void 0;
+const debug_1 = __importDefault(require("debug"));
+const fs_1 = __importDefault(require("fs"));
+const logger = (0, debug_1.default)('log-file-manager');
+class LogFileManager {
+    constructor(managers) {
+        this.fileWriteQueue = [];
+        this.isProcessingQueue = false;
+        this.bIsAlive = false;
         this.managers = managers;
         this.logLocation = process.env.LOG_FILE_LOCATION || 'log/operations.json';
-
         const queueInterval = parseInt(process.env.FILE_QUEUE_INTERVAL || '500');
         if (isNaN(queueInterval)) {
             this.fileQueueInterval = 500;
-        } else {
+        }
+        else {
             this.fileQueueInterval = queueInterval;
         }
-
         this.processFileQueue = this.processFileQueue.bind(this);
         this.setLogLocation = this.setLogLocation.bind(this);
         this.addOperation = this.addOperation.bind(this);
         this.loadLogFile = this.loadLogFile.bind(this);
     }
-
-    die(): void {
+    die() {
         this.processFileQueue();
     }
-
-    getBPM(): number {
+    getBPM() {
         return Math.round(60000 / this.fileQueueInterval);
     }
-
-    heartbeat(): void {
+    heartbeat() {
         this.processFileQueue();
     }
-
-    isAlive(): boolean {
+    isAlive() {
         return this.bIsAlive;
     }
-
-    getName(): string {
-        return 'Log File Manager'
+    getName() {
+        return 'Log File Manager';
     }
-
     birth() {
         this.bIsAlive = true;
     }
-
-    public setLogLocation(logLocation: string): void {
+    setLogLocation(logLocation) {
         this.logLocation = logLocation;
     }
-
-    public addOperation(entry: FileQueueEntry): void {
+    addOperation(entry) {
         if (this.managers.getDB().isLoggingChanges()) {
             this.fileWriteQueue.push(entry);
         }
-
     }
-
-    public loadLogFile(logFileLocation: string): void {
+    loadLogFile(logFileLocation) {
         this.managers.getLifecycleManager().suspend();
-
-        const entries: FileQueueEntry[] = [];
-
-        const buffer = fs.readFileSync(logFileLocation);
+        const entries = [];
+        const buffer = fs_1.default.readFileSync(logFileLocation);
         const bufferLines = buffer.toString().split('\r\n');
         bufferLines.forEach((line) => {
             if (line.trim().length > 0) {
                 try {
-                    const entry = <FileQueueEntry>JSON.parse(line.trim());
+                    const entry = JSON.parse(line.trim());
                     entries.push(entry);
-
-                } catch (err) {
+                }
+                catch (err) {
                     console.log(err);
-
                 }
             }
         });
         logger('Loaded ' + entries.length + ' entries from log file ' + logFileLocation);
         this.managers.getCollectionFileManager().addFileEntries(entries);
-        fs.rmSync(logFileLocation);
-
+        fs_1.default.rmSync(logFileLocation);
         this.managers.getLifecycleManager().resume();
-
-
     }
-
-    protected processFileQueue(): void {
+    processFileQueue() {
         if (!this.isProcessingQueue) {
             this.isProcessingQueue = true;
             if (this.fileWriteQueue.length > 0) {
@@ -104,12 +81,13 @@ export class LogFileManager implements Life {
                 this.fileWriteQueue.forEach((entry) => {
                     buffer += JSON.stringify(entry) + '\r\n';
                 });
-                fs.appendFile(this.logLocation, buffer, 'utf8', () => {
+                fs_1.default.appendFile(this.logLocation, buffer, 'utf8', () => {
                 });
                 this.fileWriteQueue = [];
-
             }
             this.isProcessingQueue = false;
         }
     }
 }
+exports.LogFileManager = LogFileManager;
+//# sourceMappingURL=LogFileManager.js.map
