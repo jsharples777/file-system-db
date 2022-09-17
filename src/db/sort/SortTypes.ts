@@ -1,13 +1,9 @@
-export enum SortOrderType {
-    ascending = -1,
-    descending = 1
+export enum Order {
+    ascending = 'asc',
+    descending = 'dsc'
 }
 
 export type SortOrderItem = {
-    field:string,
-    order:SortOrderType,
+    field: string,
+    order: Order,
 }
-
-// export type SortOrder = {
-//     items:SortOrderItem[]
-// }

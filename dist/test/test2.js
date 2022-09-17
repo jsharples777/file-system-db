@@ -15,7 +15,7 @@ class test {
             const db = FileSystemDB_1.FileSystemDB.getInstance('./cfg/migration.json').initialise();
             const cursor = db.collection('pms-appts').findBy([{
                     field: 'start',
-                    comparison: SearchTypes_1.SearchItemComparison.greaterThanEqual,
+                    comparison: SearchTypes_1.Compare.greaterThanEqual,
                     value: 20220801
                 }]);
             while (cursor.hasNext()) {

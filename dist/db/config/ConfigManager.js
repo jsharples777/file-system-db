@@ -28,7 +28,8 @@ const Types_1 = require("./Types");
 const debug_1 = __importDefault(require("debug"));
 const logger = (0, debug_1.default)('config-manager');
 class ConfigManager {
-    constructor() { }
+    constructor() {
+    }
     loadConfig(configLocation) {
         let result;
         if (fs.existsSync(configLocation)) {

@@ -15,39 +15,6 @@ class CollectionManager {
         this.collectionImplementations = [];
         this.managers = managers;
     }
-    setupCollection(name) {
-        var _a, _b;
-        logger(`Setting up collection ${name}`);
-        let result = {
-            bufferSize: 0,
-            bufferType: Types_1.BufferType.NONE,
-            key: "_id",
-            version: 1,
-            name: name
-        };
-        const foundIndex = this.collectionConfigs.findIndex((config) => config.name === name);
-        if (foundIndex >= 0) {
-            result = this.collectionConfigs[foundIndex];
-        }
-        const collectionDir = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${name}`;
-        if (!fs_1.default.existsSync(collectionDir)) {
-            logger(`Setting up collection ${name} - making collection directory ${collectionDir}`);
-            fs_1.default.mkdirSync(collectionDir);
-        }
-        const versionFileName = `${(_b = this.config) === null || _b === void 0 ? void 0 : _b.dbLocation}/${name}/${name}.vrs`;
-        if (!fs_1.default.existsSync(versionFileName)) {
-            logger(`Setting up collection ${name} - making collection version file`);
-            fs_1.default.writeFileSync(versionFileName, JSON.stringify(result));
-        }
-        else {
-            const buffer = fs_1.default.readFileSync(versionFileName);
-            logger(`Setting up collection ${name} - loading existing collection version file`);
-            const currentVersion = JSON.parse(buffer.toString());
-            result.version = currentVersion.version;
-        }
-        logger(result);
-        return result;
-    }
     loadConfig(config) {
         this.config = config;
         // check on each collection version file
@@ -88,6 +55,39 @@ class CollectionManager {
             impl.addListener(this.managers.getCollectionFileManager());
             result = impl;
         }
+        return result;
+    }
+    setupCollection(name) {
+        var _a, _b;
+        logger(`Setting up collection ${name}`);
+        let result = {
+            bufferSize: 0,
+            bufferType: Types_1.BufferType.NONE,
+            key: "_id",
+            version: 1,
+            name: name
+        };
+        const foundIndex = this.collectionConfigs.findIndex((config) => config.name === name);
+        if (foundIndex >= 0) {
+            result = this.collectionConfigs[foundIndex];
+        }
+        const collectionDir = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${name}`;
+        if (!fs_1.default.existsSync(collectionDir)) {
+            logger(`Setting up collection ${name} - making collection directory ${collectionDir}`);
+            fs_1.default.mkdirSync(collectionDir);
+        }
+        const versionFileName = `${(_b = this.config) === null || _b === void 0 ? void 0 : _b.dbLocation}/${name}/${name}.vrs`;
+        if (!fs_1.default.existsSync(versionFileName)) {
+            logger(`Setting up collection ${name} - making collection version file`);
+            fs_1.default.writeFileSync(versionFileName, JSON.stringify(result));
+        }
+        else {
+            const buffer = fs_1.default.readFileSync(versionFileName);
+            logger(`Setting up collection ${name} - loading existing collection version file`);
+            const currentVersion = JSON.parse(buffer.toString());
+            result.version = currentVersion.version;
+        }
+        logger(result);
         return result;
     }
 }

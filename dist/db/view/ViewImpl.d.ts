@@ -1,0 +1,37 @@
+import { View } from "./View";
+import { Cursor } from "../cursor/Cursor";
+import { ViewListener } from "./ViewListener";
+import { CollectionListener } from "../collection/CollectionListener";
+import { Collection } from "../collection/Collection";
+import { SearchItem } from "../search/SearchTypes";
+import { SortOrderItem } from "../sort/SortTypes";
+import { Life } from "../life/Life";
+import { DatabaseManagers } from "../DatabaseManagers";
+export declare class ViewImpl implements View, CollectionListener, Life {
+    private listeners;
+    private collection;
+    private searchFilter?;
+    private sortOrder?;
+    private items;
+    private isInitialised;
+    private recentlyUsed;
+    private fields;
+    private name;
+    private defaultLifespan;
+    private managers;
+    constructor(managers: DatabaseManagers, collectionName: string, name: string, fields: string[], searchFilter?: SearchItem[], sortOrder?: SortOrderItem[]);
+    addListener(listener: ViewListener): void;
+    content(): Cursor;
+    getName(): string;
+    objectAdded(collection: Collection, key: string, object: any): void;
+    objectRemoved(collection: Collection, key: string): void;
+    objectUpdated(collection: Collection, key: string, object: any): void;
+    birth(): void;
+    die(): void;
+    getBPM(): number;
+    heartbeat(): void;
+    isAlive(): boolean;
+    protected checkViewLoaded(): void;
+    protected constructViewItemFromItem(item: any): any;
+    protected doesEntryMatchViewCriteria(item: any): boolean;
+}

@@ -1,24 +1,23 @@
 import * as fs from "fs";
 import {DBConfig, InvalidConfiguration, MissingConfiguration} from "./Types";
 import debug from 'debug';
-import {Configurable} from "./Configurable";
 
 const logger = debug('config-manager');
 
 export class ConfigManager {
 
-    public constructor(){}
+    public constructor() {
+    }
 
-    public loadConfig(configLocation:string):DBConfig {
-        let result:DBConfig;
+    public loadConfig(configLocation: string): DBConfig {
+        let result: DBConfig;
 
         if (fs.existsSync(configLocation)) {
             logger(`Loading configuration from ${configLocation}`);
             const configurationJSON = fs.readFileSync(configLocation);
             try {
                 result = <DBConfig>JSON.parse(configurationJSON.toString());
-            }
-            catch (err) {
+            } catch (err) {
                 throw new InvalidConfiguration(configLocation);
             }                // check the configuration
             if (result.dbLocation) {
@@ -26,8 +25,7 @@ export class ConfigManager {
                     logger(`Creating database location ${result.dbLocation}`);
                     fs.mkdirSync(result.dbLocation);
                 }
-            }
-            else {
+            } else {
                 throw new InvalidConfiguration('Configuration missing FileSystemDB Location');
             }
 
@@ -42,22 +40,18 @@ export class ConfigManager {
                                     fs.mkdirSync(collectionDir);
                                 }
 
-                            }
-                            else {
+                            } else {
                                 throw new InvalidConfiguration(`Collection ${collection.name} missing buffer type`);
                             }
 
-                        }
-                        else {
+                        } else {
                             throw new InvalidConfiguration(`Collection ${collection.name} missing key`);
                         }
-                    }
-                    else {
+                    } else {
                         throw new InvalidConfiguration(`Collection missing name`);
                     }
                 })
-            }
-            else {
+            } else {
                 throw new InvalidConfiguration(`No collections in database`);
             }
 
@@ -70,31 +64,23 @@ export class ConfigManager {
                                 const foundIndex = result.collections.findIndex((collection) => collection.name === index.collection);
                                 if (foundIndex < 0) {
                                     throw new InvalidConfiguration(`Index ${index.name} references collection ${index.collection} which is not configured`);
-                                }
-                                else {
+                                } else {
                                     logger(`Found index ${index.name} for collection ${index.collection} with fields ${index.fields}`);
                                 }
-                            }
-                            else {
+                            } else {
                                 throw new InvalidConfiguration(`Index ${index.name} missing fields`);
                             }
-                        }
-                        else {
+                        } else {
                             throw new InvalidConfiguration(`Index ${index.name} missing collection`);
                         }
-                    }
-                    else {
+                    } else {
                         throw new InvalidConfiguration('Index missing name');
                     }
                 })
             }
 
 
-
-
-
-        }
-        else {
+        } else {
             logger(`${configLocation} does not exist at ${process.cwd()}`);
             throw new MissingConfiguration(configLocation);
         }

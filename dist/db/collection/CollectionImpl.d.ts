@@ -4,6 +4,8 @@ import { SearchItem } from "../search/SearchTypes";
 import { Cursor } from "../cursor/Cursor";
 import { CollectionListener } from "./CollectionListener";
 import { DatabaseManagers } from "../DatabaseManagers";
+import { Query } from "../query/Query";
+import { SortOrderItem } from "../sort/SortTypes";
 export declare class CollectionImpl implements Collection {
     private config;
     private buffer;
@@ -14,15 +16,19 @@ export declare class CollectionImpl implements Collection {
     findByKey(key: string): any;
     getVersion(): number;
     getName(): string;
-    find(): Cursor;
+    protected convertFilterIntoFind(filter: any): Cursor;
+    find(filter?: any): Cursor;
     insertObject(key: string, object: any): OperationResult;
     removeObject(key: string): OperationResult;
     updateObject(key: string, object: any): OperationResult;
-    findBy(search: SearchItem[]): Cursor;
+    findBy(search: SearchItem[], sort?: SortOrderItem[]): Cursor;
     upsertObject(key: string, object: any): OperationResult;
     findOne(search: SearchItem[]): any;
     getKeyFieldName(): string;
     addListener(listener: CollectionListener): void;
-    deleteMany(keys: string[]): void;
+    deleteManyByKey(keys: string[]): void;
+    deleteMany(filter: any): OperationResult;
     insertMany(keyObjPairs: KeyObjectPair[]): void;
+    select(field: string): Query;
+    selectMany(fields: string[]): Query;
 }

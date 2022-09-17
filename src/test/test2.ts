@@ -1,6 +1,5 @@
-
 import debug from "debug";
-import {SearchItemComparison} from "../db/search/SearchTypes";
+import {Compare} from "../db/search/SearchTypes";
 import {FileSystemDB} from "../db/FileSystemDB";
 
 export class test {
@@ -12,14 +11,13 @@ export class test {
         try {
             const db = FileSystemDB.getInstance('./cfg/migration.json').initialise();
             const cursor = db.collection('pms-appts').findBy([{
-                field:'start',
-                comparison: SearchItemComparison.greaterThanEqual,
+                field: 'start',
+                comparison: Compare.greaterThanEqual,
                 value: 20220801
             }]);
             while (cursor.hasNext()) {
                 console.log(cursor.next());
             }
-
 
 
             // console.log(db.collections());
@@ -130,8 +128,7 @@ export class test {
             //         process.exit(0)
             //     },11000);
             // },11000);
-        }
-        catch (err:any) {
+        } catch (err: any) {
             console.log(err.message);
         }
     }

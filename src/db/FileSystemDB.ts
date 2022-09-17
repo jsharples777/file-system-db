@@ -1,11 +1,9 @@
 import debug from 'debug';
-import {CollectionManager} from "./collection/CollectionManager";
 import {Collection} from "./collection/Collection";
-import {LifeCycleManager} from "./life/LifeCycleManager";
 import {SearchItem} from "./search/SearchTypes";
 import {SortOrderItem} from "./sort/SortTypes";
-import {ObjectView} from "./view/ObjectView";
-import {ObjectViewImpl} from "./view/ObjectViewImpl";
+import {View} from "./view/View";
+import {ViewImpl} from "./view/ViewImpl";
 import {DatabaseManagers} from "./DatabaseManagers";
 
 const logger = debug('db');
@@ -15,6 +13,16 @@ export class FileSystemDB {
     private static _instance: FileSystemDB;
     // @ts-ignore
     private managers: DatabaseManagers;
+    private isInitialised: boolean = false;
+    private configLocation?: string = undefined;
+    private views: View[] = [];
+    private bLogChanges: boolean = false;
+
+    public constructor(configLocation?: string) {
+        this.initialise = this.initialise.bind(this);
+        this.shutdown = this.shutdown.bind(this);
+        this.configLocation = configLocation;
+    }
 
     public static getInstance(configLocation?: string): FileSystemDB {
         if (!FileSystemDB._instance) {
@@ -23,20 +31,9 @@ export class FileSystemDB {
         return FileSystemDB._instance;
     }
 
-
-    private isInitialised: boolean = false;
-    private configLocation?: string = undefined;
-    private views: ObjectView[] = [];
-
-    public constructor(configLocation?: string) {
-        this.initialise = this.initialise.bind(this);
-        this.shutdown = this.shutdown.bind(this);
-        this.configLocation = configLocation;
-    }
-
     public initialise(): FileSystemDB {
         if (!this.isInitialised) {
-            this.managers = new DatabaseManagers(this.configLocation);
+            this.managers = new DatabaseManagers(this, this.configLocation);
             this.isInitialised = true;
         }
         return this;
@@ -55,19 +52,48 @@ export class FileSystemDB {
         this.managers.getLifecycleManager().death();
     }
 
-    public addView(collection: string, name: string, fields: string[], search?: SearchItem[], sort?: SortOrderItem[]): ObjectView {
-        const view = new ObjectViewImpl(this.managers,collection, name, fields, search, sort);
+    public addView(collection: string, name: string, fields: string[], search?: SearchItem[], sort?: SortOrderItem[]): View {
+        const view = new ViewImpl(this.managers, collection, name, fields, search, sort);
         this.views.push(view);
         return view;
     }
 
-    public getView(name: string): ObjectView | null {
-        let result: ObjectView | null = null;
+    public getView(name: string): View | null {
+        let result: View | null = null;
         const foundIndex = this.views.findIndex((view) => view.getName() === name);
         if (foundIndex >= 0) {
             result = this.views[foundIndex];
         }
-
         return result;
     }
+
+    public logChanges(logFileLocation?: string): void {
+        this.bLogChanges = true;
+        if (logFileLocation) {
+            this.managers.getLogFileManager().setLogLocation(logFileLocation);
+            this.managers.getLifecycleManager().addLife(this.managers.getLogFileManager());
+        }
+
+    }
+
+    public isLoggingChanges(): boolean {
+        return this.bLogChanges;
+    }
+
+    public applyChangeLog(logFileLocation: string): void {
+        this.managers.getLogFileManager().loadLogFile(logFileLocation);
+        this.managers.getLogFileManager().heartbeat();
+    }
+
+    public addReplicationLocation(replicateToDir: string): void {
+
+    }
+
+    public startReplication(): void {
+    }
+
+    public stopReplication(): void {
+    }
+
+
 }

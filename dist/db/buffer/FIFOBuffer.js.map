@@ -1,1 +1,1 @@
-{"version":3,"file":"FIFOBuffer.js","sourceRoot":"","sources":["../../../src/db/buffer/FIFOBuffer.ts"],"names":[],"mappings":";;;AAAA,mEAA8D;AAG9D,MAAa,UAAW,SAAQ,6CAAqB;IACjD,YAAY,MAAuB;QAC/B,KAAK,CAAC,MAAM,CAAC,CAAC;IAClB,CAAC;CACJ;AAJD,gCAIC"}
+{"version":3,"file":"FIFOBuffer.js","sourceRoot":"","sources":["../../../src/db/buffer/FIFOBuffer.ts"],"names":[],"mappings":";;;AAAA,mEAA8D;AAG9D,MAAa,UAAW,SAAQ,6CAAqB;IACjD,YAAY,MAAwB;QAChC,KAAK,CAAC,MAAM,CAAC,CAAC;IAClB,CAAC;CACJ;AAJD,gCAIC"}

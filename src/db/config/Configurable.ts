@@ -1,5 +1,5 @@
 import {DBConfig} from "./Types";
 
 export interface Configurable {
-    loadConfig(config:DBConfig):void;
+    loadConfig(config: DBConfig): void;
 }

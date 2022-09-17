@@ -15,20 +15,9 @@ class LifeCycleManager {
         this.configs = [];
         this.numberOfBeats = 0;
         this.beatSpacing = 500;
+        this.isSuspended = false;
         this.aging = this.aging.bind(this);
         this.isDying = false;
-    }
-    configNewLife(life) {
-        const numberOfTicksPerMinute = 60000 / this.beatSpacing;
-        let nextBeatDueEveryLifeCycleManagerTick = Math.round(numberOfTicksPerMinute / life.getBPM());
-        if (nextBeatDueEveryLifeCycleManagerTick < 1)
-            nextBeatDueEveryLifeCycleManagerTick = 1;
-        dLogger(`Heartbeat ${life.getName()} - beat every ${nextBeatDueEveryLifeCycleManagerTick} ticks`);
-        const config = {
-            life,
-            nextBeat: nextBeatDueEveryLifeCycleManagerTick
-        };
-        this.configs.push(config);
     }
     addLife(life) {
         logger(`Adding heartbeat ${life.getName()}`);
@@ -55,19 +44,6 @@ class LifeCycleManager {
             this.aging();
         }, this.beatSpacing);
     }
-    aging() {
-        this.numberOfBeats++;
-        dLogger(`Aging, number of heart beats ${this.numberOfBeats}`);
-        this.configs.forEach((config) => {
-            if (config.life.isAlive()) {
-                dLogger(`Checking ${config.life.getName()} who should beat every ${config.nextBeat} beats`);
-                if (this.numberOfBeats % config.nextBeat === 0) {
-                    hbLogger(`Checking ${config.life.getName()} who should beat every ${config.nextBeat} beats - beating now`);
-                    config.life.heartbeat();
-                }
-            }
-        });
-    }
     death() {
         if (!this.isDying) {
             this.isDying = true;
@@ -81,6 +57,39 @@ class LifeCycleManager {
                 logger(`${heartbeat.getName()} dead`);
             });
         }
+    }
+    suspend() {
+        this.isSuspended = true;
+    }
+    resume() {
+        this.isSuspended = false;
+    }
+    configNewLife(life) {
+        const numberOfTicksPerMinute = 60000 / this.beatSpacing;
+        let nextBeatDueEveryLifeCycleManagerTick = Math.round(numberOfTicksPerMinute / life.getBPM());
+        if (nextBeatDueEveryLifeCycleManagerTick < 1)
+            nextBeatDueEveryLifeCycleManagerTick = 1;
+        dLogger(`Heartbeat ${life.getName()} - beat every ${nextBeatDueEveryLifeCycleManagerTick} ticks`);
+        const config = {
+            life,
+            nextBeat: nextBeatDueEveryLifeCycleManagerTick
+        };
+        this.configs.push(config);
+    }
+    aging() {
+        if (this.isSuspended)
+            return;
+        this.numberOfBeats++;
+        dLogger(`Aging, number of heart beats ${this.numberOfBeats}`);
+        this.configs.forEach((config) => {
+            if (config.life.isAlive()) {
+                dLogger(`Checking ${config.life.getName()} who should beat every ${config.nextBeat} beats`);
+                if (this.numberOfBeats % config.nextBeat === 0) {
+                    hbLogger(`Checking ${config.life.getName()} who should beat every ${config.nextBeat} beats - beating now`);
+                    config.life.heartbeat();
+                }
+            }
+        });
     }
 }
 exports.LifeCycleManager = LifeCycleManager;

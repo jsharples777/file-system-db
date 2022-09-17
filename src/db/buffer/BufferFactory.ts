@@ -11,6 +11,10 @@ const logger = debug('buffer-factory');
 
 export class BufferFactory {
     private static _instance: BufferFactory;
+
+    private constructor() {
+    }
+
     public static getInstance(): BufferFactory {
         if (!BufferFactory._instance) {
             BufferFactory._instance = new BufferFactory();
@@ -18,12 +22,8 @@ export class BufferFactory {
         return BufferFactory._instance;
     }
 
-
-    private constructor(){
-    }
-
-    public createBuffer(config:CollectionConfig, lifeManager:LifeCycleManager):ObjectBuffer {
-        let result:ObjectBuffer;
+    public createBuffer(config: CollectionConfig, lifeManager: LifeCycleManager): ObjectBuffer {
+        let result: ObjectBuffer;
         switch (config.bufferType) {
             case BufferType.NONE: {
                 result = new EmptyBuffer();
@@ -38,7 +38,7 @@ export class BufferFactory {
                 break;
             }
             case BufferType.LIFESPAN: {
-                result = new LifespanBuffer(config,lifeManager);
+                result = new LifespanBuffer(config, lifeManager);
                 break;
             }
         }

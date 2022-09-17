@@ -16,7 +16,7 @@ class Sorter {
         if (fieldValue1) {
             if (fieldValue2) {
                 if (fieldValue1 > fieldValue2) {
-                    if (order === SortTypes_1.SortOrderType.ascending) {
+                    if (order === SortTypes_1.Order.ascending) {
                         result = 1;
                     }
                     else {
@@ -24,7 +24,7 @@ class Sorter {
                     }
                 }
                 else if (fieldValue1 < fieldValue2) {
-                    if (order === SortTypes_1.SortOrderType.ascending) {
+                    if (order === SortTypes_1.Order.ascending) {
                         result = -1;
                     }
                     else {
@@ -33,7 +33,7 @@ class Sorter {
                 }
             }
             else {
-                if (order === SortTypes_1.SortOrderType.ascending) {
+                if (order === SortTypes_1.Order.ascending) {
                     result = 1;
                 }
                 else {
@@ -42,7 +42,7 @@ class Sorter {
             }
         }
         else if (fieldValue2) {
-            if (order === SortTypes_1.SortOrderType.ascending) {
+            if (order === SortTypes_1.Order.ascending) {
                 result = -1;
             }
             else {

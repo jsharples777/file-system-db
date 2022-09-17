@@ -1,24 +1,22 @@
 import {Index} from "./Index";
 import {IndexConfig, IndexContent, IndexEntry, IndexVersion} from "../config/Types";
-import {CollectionManager} from "../collection/CollectionManager";
 import debug from 'debug';
-import {FileSystemDB} from "../FileSystemDB";
-import {IndexFileManager} from "./IndexFileManager";
 import {SearchItem} from "../search/SearchTypes";
 import {SearchProcessor} from "../search/SearchProcessor";
 import {Cursor} from "../cursor/Cursor";
 import {CursorImpl} from "../cursor/CursorImpl";
 import {Collection} from "../collection/Collection";
 import {Life} from "../life/Life";
-import {LifeCycleManager} from "../life/LifeCycleManager";
 import {Util} from "../util/Util";
 import {DatabaseManagers} from "../DatabaseManagers";
+import {SortOrderItem} from "../sort/SortTypes";
+import {SortProcessor} from "../sort/SortProcessor";
 
 
 const logger = debug('index-implementation');
 const dLogger = debug('index-implementation-detail');
 
-export class IndexImplementation implements Index,Life {
+export class IndexImplementation implements Index, Life {
     private config: IndexConfig;
     private dbLocation: string;
     private version: IndexVersion;
@@ -29,7 +27,7 @@ export class IndexImplementation implements Index,Life {
     private managers: DatabaseManagers;
 
 
-    constructor(dbLocation: string, config: IndexConfig, managers:DatabaseManagers) {
+    constructor(dbLocation: string, config: IndexConfig, managers: DatabaseManagers) {
         this.dbLocation = dbLocation;
         this.config = config;
         this.managers = managers;
@@ -56,22 +54,6 @@ export class IndexImplementation implements Index,Life {
 
     }
 
-    protected checkIndexUse(): void {
-        if (this.indexInUse) {
-            this.indexInUse = false;
-        } else {
-            if (this.indexLoaded) this.removeIndexBuffer();
-        }
-    }
-
-    protected removeIndexBuffer(): void {
-        logger(`Index hasn't been used in ${this.defaultLifespan} seconds, removing buffer`);
-        this.content.entries = [];
-        this.indexLoaded = false;
-        this.indexInUse = false;
-    }
-
-
     findMatchingKeys(searchFilter: SearchItem[]): string[] {
         this.checkIndexLoaded();
         return [];
@@ -79,16 +61,6 @@ export class IndexImplementation implements Index,Life {
 
     getCollection(): string {
         return this.config.collection + '';
-    }
-
-    protected checkIndexLoaded(): void {
-        if (!this.indexLoaded) {
-            const result = this.managers.getIndexFileManager().readIndex(this.config.collection, this.config.name);
-            this.version = result.version;
-            this.content = result.content;
-            this.indexLoaded = true;
-        }
-        this.indexInUse = true;
     }
 
     getEntries(): IndexEntry[] {
@@ -122,8 +94,8 @@ export class IndexImplementation implements Index,Life {
     matchesFilter(searchFilter: SearchItem[]): boolean {
         let result = true;
         searchFilter.forEach((searchItem) => {
-           const foundIndex = this.config.fields.findIndex((field) => field === searchItem.field);
-           if (foundIndex < 0) result = false;
+            const foundIndex = this.config.fields.findIndex((field) => field === searchItem.field);
+            if (foundIndex < 0) result = false;
         });
         return result;
     }
@@ -137,7 +109,7 @@ export class IndexImplementation implements Index,Life {
         return result;
     }
 
-    objectAdded(collection:Collection, key: string, object: any): void {
+    objectAdded(collection: Collection, key: string, object: any): void {
         this.checkIndexLoaded();
         const config = collection.getConfig();
         logger(`Creating new index entry for ${key}`);
@@ -148,7 +120,7 @@ export class IndexImplementation implements Index,Life {
         this.managers.getIndexFileManager().writeIndexFile(this);
     }
 
-    objectRemoved(collection:Collection, key: string): void {
+    objectRemoved(collection: Collection, key: string): void {
         this.checkIndexLoaded();
         const config = collection.getConfig();
         const foundIndex = this.content.entries.findIndex((entry) => entry.keyValue === key);
@@ -161,25 +133,7 @@ export class IndexImplementation implements Index,Life {
         this.managers.getIndexFileManager().writeIndexFile(this);
     }
 
-    private constructIndexEntry(key: string, object: any): IndexEntry {
-        const indexEntry: IndexEntry = {
-            keyValue: key,
-            fieldValues: []
-        }
-        // find each field for index config
-        this.config.fields.forEach((field => {
-            const fieldValue = Util.getFieldValue(object, field);
-            if (fieldValue) {
-                indexEntry.fieldValues.push({
-                    field: field,
-                    value: fieldValue
-                });
-            }
-        }));
-        return indexEntry;
-    }
-
-    objectUpdated(collection:Collection, key: string, object: any): void {
+    objectUpdated(collection: Collection, key: string, object: any): void {
         this.checkIndexLoaded();
         const config = collection.getConfig();
         const foundIndex = this.content.entries.findIndex((entry) => entry.keyValue === key);
@@ -188,8 +142,7 @@ export class IndexImplementation implements Index,Life {
             const newEntry = this.constructIndexEntry(key, object);
             this.content.entries.splice(foundIndex, 1, newEntry);
 
-        }
-        else {
+        } else {
             logger(`Adding index entry for ${key}`);
             const newEntry = this.constructIndexEntry(key, object);
             this.content.entries.push(newEntry);
@@ -206,77 +159,14 @@ export class IndexImplementation implements Index,Life {
         this.content.version = version;
     }
 
-    protected rebuildIndex(): void {
-        if (this.config) {
-            const collection = this.managers.getCollectionManager().getCollection(this.config.collection);
-            const versionNumber = collection.getVersion();
-            const indexContent: IndexContent = {
-                version: versionNumber,
-                entries: []
-            }
-            const entries = collection.find().toArray();
-            const keyField = collection.getKeyFieldName();
-            entries.forEach((entry) => {
-                const keyValue = entry[keyField];
-                if (keyValue) {
-                    const indexEntry = this.constructIndexEntry(keyValue,entry);
-                    indexContent.entries.push(indexEntry);
-                }
-            });
-            this.version.version = versionNumber;
-            this.content = indexContent;
-            this.indexLoaded = true;
-            this.indexInUse = true;
-            this.managers.getIndexFileManager().writeIndexFile(this);
-        }
-    }
-
-    private indexEntryFieldMatchesSearchItem(entry:IndexEntry, searchItem:SearchItem):boolean {
-        let result = false;
-        const foundIndex = entry.fieldValues.findIndex((fieldValue) => fieldValue.field === searchItem.field);
-        if (foundIndex >= 0) {
-            const entryValue = entry.fieldValues[foundIndex].value;
-            result = SearchProcessor.doesValueMatchSearchItem(entryValue,searchItem);
-            dLogger(`Comparing entry value ${entryValue} with ${searchItem.value} and comparison "${searchItem.comparison}" with result ${result}`);
-
-        }
-        return result;
-    }
-
-    private indexEntryMatchesSearchItems(entry:IndexEntry, searchItems:SearchItem[]):boolean {
-        let result = true;
-        // every value must match
-        searchItems.every((searchItem) => {
-            if (this.indexEntryFieldMatchesSearchItem(entry, searchItem)) {
-                return true;
-            }
-            else {
-                result = false;
-                return false;
-            }
-
-        });
-        return result;
-    }
-
-    protected checkVersionSync():void {
-        const collectionVersion = this.managers.getCollectionManager().getCollection(this.config.collection).getVersion();
-        // check versions
-        if ((this.version.version !== collectionVersion) || (this.content.version !== collectionVersion)) {
-            logger(`Index ${this.config.name} has version ${this.version.version} which does not match collection ${this.config.collection} version ${collectionVersion} - rebuilding`);
-            this.version.version = collectionVersion;
-            this.rebuildIndex();
-        }
-    }
-
-    search(search: SearchItem[]): Cursor {
-        let results:any[] = [];
+    search(search: SearchItem[],sort:SortOrderItem[]): Cursor {
+        let results: any[] = [];
 
 
         logger(`Searching using index ${this.config.name} for collection ${this.config.collection} with search criteria`);
         logger(search);
         // what fields are we searching with?
-        const indexSearchItems:SearchItem[] = [];
+        const indexSearchItems: SearchItem[] = [];
         search.forEach((searchItem) => {
             const foundIndex = this.config.fields.findIndex((field) => field === searchItem.field);
             if (foundIndex >= 0) {
@@ -290,7 +180,7 @@ export class IndexImplementation implements Index,Life {
 
 
         this.checkVersionSync();
-        const matchingEntries:IndexEntry[] = [];
+        const matchingEntries: IndexEntry[] = [];
         this.content.entries.forEach((entry) => {
             dLogger(`Searching using index ${this.config.name} for collection ${this.config.collection} - checking entry`);
             dLogger(entry);
@@ -311,7 +201,12 @@ export class IndexImplementation implements Index,Life {
         }
         logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - loaded ${results.length} matching items`);
 
-        return new CursorImpl(results);
+        if (sort) {
+            return SortProcessor.sortItems(results,sort);
+        }
+        else {
+            return new CursorImpl(results);
+        }
     }
 
     rebuild(): void {
@@ -322,7 +217,7 @@ export class IndexImplementation implements Index,Life {
     }
 
     getBPM(): number {
-        return Math.round(60/(this.defaultLifespan / 2));
+        return Math.round(60 / (this.defaultLifespan / 2));
     }
 
     heartbeat(): void {
@@ -332,7 +227,113 @@ export class IndexImplementation implements Index,Life {
     isAlive(): boolean {
         return true;
     }
+
     birth() {
+    }
+
+    protected checkIndexUse(): void {
+        if (this.indexInUse) {
+            this.indexInUse = false;
+        } else {
+            if (this.indexLoaded) this.removeIndexBuffer();
+        }
+    }
+
+    protected removeIndexBuffer(): void {
+        logger(`Index hasn't been used in ${this.defaultLifespan} seconds, removing buffer`);
+        this.content.entries = [];
+        this.indexLoaded = false;
+        this.indexInUse = false;
+    }
+
+    protected checkIndexLoaded(): void {
+        if (!this.indexLoaded) {
+            const result = this.managers.getIndexFileManager().readIndex(this.config.collection, this.config.name);
+            this.version = result.version;
+            this.content = result.content;
+            this.indexLoaded = true;
+        }
+        this.indexInUse = true;
+    }
+
+    protected rebuildIndex(): void {
+        if (this.config) {
+            const collection = this.managers.getCollectionManager().getCollection(this.config.collection);
+            const versionNumber = collection.getVersion();
+            const indexContent: IndexContent = {
+                version: versionNumber,
+                entries: []
+            }
+            const entries = collection.find().toArray();
+            const keyField = collection.getKeyFieldName();
+            entries.forEach((entry) => {
+                const keyValue = entry[keyField];
+                if (keyValue) {
+                    const indexEntry = this.constructIndexEntry(keyValue, entry);
+                    indexContent.entries.push(indexEntry);
+                }
+            });
+            this.version.version = versionNumber;
+            this.content = indexContent;
+            this.indexLoaded = true;
+            this.indexInUse = true;
+            this.managers.getIndexFileManager().writeIndexFile(this);
+        }
+    }
+
+    protected checkVersionSync(): void {
+        const collectionVersion = this.managers.getCollectionManager().getCollection(this.config.collection).getVersion();
+        // check versions
+        if ((this.version.version !== collectionVersion) || (this.content.version !== collectionVersion)) {
+            logger(`Index ${this.config.name} has version ${this.version.version} which does not match collection ${this.config.collection} version ${collectionVersion} - rebuilding`);
+            this.version.version = collectionVersion;
+            this.rebuildIndex();
+        }
+    }
+
+    private constructIndexEntry(key: string, object: any): IndexEntry {
+        const indexEntry: IndexEntry = {
+            keyValue: key,
+            fieldValues: []
+        }
+        // find each field for index config
+        this.config.fields.forEach((field => {
+            const fieldValue = Util.getFieldValue(object, field);
+            if (fieldValue) {
+                indexEntry.fieldValues.push({
+                    field: field,
+                    value: fieldValue
+                });
+            }
+        }));
+        return indexEntry;
+    }
+
+    private indexEntryFieldMatchesSearchItem(entry: IndexEntry, searchItem: SearchItem): boolean {
+        let result = false;
+        const foundIndex = entry.fieldValues.findIndex((fieldValue) => fieldValue.field === searchItem.field);
+        if (foundIndex >= 0) {
+            const entryValue = entry.fieldValues[foundIndex].value;
+            result = SearchProcessor.doesValueMatchSearchItem(entryValue, searchItem);
+            dLogger(`Comparing entry value ${entryValue} with ${searchItem.value} and comparison "${searchItem.comparison}" with result ${result}`);
+
+        }
+        return result;
+    }
+
+    private indexEntryMatchesSearchItems(entry: IndexEntry, searchItems: SearchItem[]): boolean {
+        let result = true;
+        // every value must match
+        searchItems.every((searchItem) => {
+            if (this.indexEntryFieldMatchesSearchItem(entry, searchItem)) {
+                return true;
+            } else {
+                result = false;
+                return false;
+            }
+
+        });
+        return result;
     }
 
 

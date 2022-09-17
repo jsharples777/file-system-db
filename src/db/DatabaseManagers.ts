@@ -4,6 +4,8 @@ import {CollectionManager} from "./collection/CollectionManager";
 import {IndexFileManager} from "./index/IndexFileManager";
 import {IndexManager} from "./index/IndexManager";
 import {LifeCycleManager} from "./life/LifeCycleManager";
+import {FileSystemDB} from "./FileSystemDB";
+import {LogFileManager} from "./log/LogFileManager";
 
 export class DatabaseManagers {
     private collectionFileManager: CollectionFileManager;
@@ -11,15 +13,19 @@ export class DatabaseManagers {
     private indexFileManager: IndexFileManager;
     private indexManager: IndexManager;
     private lifecycleManger: LifeCycleManager;
+    private db: FileSystemDB;
+    private logFileManager: LogFileManager;
 
-    constructor(configLocation?:string) {
+    constructor(db: FileSystemDB, configLocation?: string) {
+        this.db = db;
         let cfgLocation = process.env.FILE_SYSTEM_DB_CONFIG || 'cfg/config.json';
         if (configLocation) {
             cfgLocation = configLocation;
         }
+
         const config = new ConfigManager().loadConfig(cfgLocation);
         this.lifecycleManger = new LifeCycleManager();
-        this.collectionFileManager = new CollectionFileManager();
+        this.collectionFileManager = new CollectionFileManager(this);
         this.collectionFileManager.loadConfig(config);
         this.collectionManager = new CollectionManager(this);
         this.collectionManager.loadConfig(config);
@@ -27,32 +33,45 @@ export class DatabaseManagers {
         this.indexFileManager.loadConfig(config);
         this.indexManager = new IndexManager(this);
         this.indexManager.loadConfig(config);
+        this.logFileManager = new LogFileManager(this);
+
+
+        if (db.isLoggingChanges()) {
+            this.lifecycleManger.addLife(this.logFileManager);
+        }
 
         this.lifecycleManger.addLife(this.collectionFileManager);
         this.lifecycleManger.addLife(this.indexFileManager);
         this.lifecycleManger.birth();
     }
 
-    getCollectionManager():CollectionManager {
+    getCollectionManager(): CollectionManager {
         return this.collectionManager;
     }
 
-    getCollectionFileManager():CollectionFileManager {
+    getCollectionFileManager(): CollectionFileManager {
         return this.collectionFileManager;
     }
 
-    getIndexManager():IndexManager {
+    getIndexManager(): IndexManager {
         return this.indexManager;
     }
 
-    getIndexFileManager():IndexFileManager {
+    getIndexFileManager(): IndexFileManager {
         return this.indexFileManager;
     }
 
-    getLifecycleManager():LifeCycleManager {
+    getLifecycleManager(): LifeCycleManager {
         return this.lifecycleManger;
     }
 
+    getDB(): FileSystemDB {
+        return this.db;
+    }
+
+    getLogFileManager(): LogFileManager {
+        return this.logFileManager;
+    }
 
 
 }

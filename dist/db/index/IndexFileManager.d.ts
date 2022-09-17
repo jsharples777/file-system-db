@@ -15,11 +15,11 @@ export declare class IndexFileManager implements Configurable, Life {
         version: IndexVersion;
         content: IndexContent;
     };
-    protected processFileQueue(): void;
     die(): void;
     getBPM(): number;
     heartbeat(): void;
     isAlive(): boolean;
     getName(): string;
     birth(): void;
+    protected processFileQueue(): void;
 }

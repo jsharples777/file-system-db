@@ -1,5 +1,5 @@
 export class Util {
-    public static copyObject(object:any):any {
+    public static copyObject(object: any): any {
         let result = undefined;
         if (object) {
             result = JSON.parse(JSON.stringify(object));
@@ -30,7 +30,7 @@ export class Util {
         return result;
     }
 
-    public static setFieldValue(item:any, field:string, value:any):void {
+    public static setFieldValue(item: any, field: string, value: any): void {
         if (value) {
             const fieldParts = field.split('.');
             if (fieldParts.length > 1) {
@@ -38,8 +38,7 @@ export class Util {
                 fieldParts.forEach((fieldPart, index) => {
                     if (index === (fieldParts.length - 1)) {
                         previousValue[fieldPart] = value;
-                    }
-                    else {
+                    } else {
                         if (!previousValue[fieldPart]) {
                             previousValue[fieldPart] = {};
                         }

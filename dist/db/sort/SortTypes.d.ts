@@ -1,8 +1,8 @@
-export declare enum SortOrderType {
-    ascending = -1,
-    descending = 1
+export declare enum Order {
+    ascending = "asc",
+    descending = "dsc"
 }
 export declare type SortOrderItem = {
     field: string;
-    order: SortOrderType;
+    order: Order;
 };
