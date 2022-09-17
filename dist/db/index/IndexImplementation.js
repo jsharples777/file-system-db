@@ -8,6 +8,7 @@ const debug_1 = __importDefault(require("debug"));
 const SearchProcessor_1 = require("../search/SearchProcessor");
 const CursorImpl_1 = require("../cursor/CursorImpl");
 const Util_1 = require("../util/Util");
+const SortProcessor_1 = require("../sort/SortProcessor");
 const logger = (0, debug_1.default)('index-implementation');
 const dLogger = (0, debug_1.default)('index-implementation-detail');
 class IndexImplementation {
@@ -128,7 +129,7 @@ class IndexImplementation {
         this.version.version = version;
         this.content.version = version;
     }
-    search(search) {
+    search(search, sort) {
         let results = [];
         logger(`Searching using index ${this.config.name} for collection ${this.config.collection} with search criteria`);
         logger(search);
@@ -165,7 +166,12 @@ class IndexImplementation {
             });
         }
         logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - loaded ${results.length} matching items`);
-        return new CursorImpl_1.CursorImpl(results);
+        if (sort) {
+            return SortProcessor_1.SortProcessor.sortItems(results, sort);
+        }
+        else {
+            return new CursorImpl_1.CursorImpl(results);
+        }
     }
     rebuild() {
         this.rebuildIndex();

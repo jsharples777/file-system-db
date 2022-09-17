@@ -5,6 +5,8 @@ import debug from 'debug';
 import {Cursor} from "../cursor/Cursor";
 import {CursorImpl} from "../cursor/CursorImpl";
 import {Util} from "../util/Util";
+import {SortOrderItem} from "../sort/SortTypes";
+import {SortProcessor} from "../sort/SortProcessor";
 
 const logger = debug('search-processor');
 
@@ -101,7 +103,7 @@ export class SearchProcessor {
         return items;
     }
 
-    public static searchCollection(indexManager: IndexManager, collection: Collection, search: SearchItem[]): Cursor {
+    public static searchCollection(indexManager: IndexManager, collection: Collection, search: SearchItem[],sort?:SortOrderItem[]): Cursor {
 
         logger(`Looking for relevant indexes for collection ${collection.getName()} with criteria`);
         logger(search);
@@ -109,12 +111,17 @@ export class SearchProcessor {
         const index = indexManager.getMatchingIndex(collection.getName(), search);
         if (index) {
             logger(`Found index ${index.getName()} - using to search`);
-            return index.search(search);
+            return index.search(search,sort);
         } else {
             // perform a manual search (not efficient!)
             logger(`No index - brute forcing`);
             const results = SearchProcessor.searchCollectionBruteForce(collection, search);
-            return new CursorImpl(results, false);
+            if (sort) {
+                return SortProcessor.sortItems(results,sort);
+            }
+            else {
+                return new CursorImpl(results, false);
+            }
         }
     }
 

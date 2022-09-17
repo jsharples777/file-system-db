@@ -104,6 +104,7 @@ export class LogFileManager implements Life {
                 this.fileWriteQueue.forEach((entry) => {
                     buffer += JSON.stringify(entry) + '\r\n';
                 });
+                console.log(buffer);
                 fs.appendFile(this.logLocation, buffer, 'utf8', () => {
                 });
                 this.fileWriteQueue = [];

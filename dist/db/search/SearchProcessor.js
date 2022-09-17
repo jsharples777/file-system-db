@@ -8,6 +8,7 @@ const SearchTypes_1 = require("./SearchTypes");
 const debug_1 = __importDefault(require("debug"));
 const CursorImpl_1 = require("../cursor/CursorImpl");
 const Util_1 = require("../util/Util");
+const SortProcessor_1 = require("../sort/SortProcessor");
 const logger = (0, debug_1.default)('search-processor');
 class SearchProcessor {
     static doesValueMatchSearchItem(fieldValue, searchItem) {
@@ -100,20 +101,25 @@ class SearchProcessor {
         });
         return items;
     }
-    static searchCollection(indexManager, collection, search) {
+    static searchCollection(indexManager, collection, search, sort) {
         logger(`Looking for relevant indexes for collection ${collection.getName()} with criteria`);
         logger(search);
         // do we have an index for this collection/search?
         const index = indexManager.getMatchingIndex(collection.getName(), search);
         if (index) {
             logger(`Found index ${index.getName()} - using to search`);
-            return index.search(search);
+            return index.search(search, sort);
         }
         else {
             // perform a manual search (not efficient!)
             logger(`No index - brute forcing`);
             const results = SearchProcessor.searchCollectionBruteForce(collection, search);
-            return new CursorImpl_1.CursorImpl(results, false);
+            if (sort) {
+                return SortProcessor_1.SortProcessor.sortItems(results, sort);
+            }
+            else {
+                return new CursorImpl_1.CursorImpl(results, false);
+            }
         }
     }
     static searchItemsBruteForceForSearchItem(items, searchItem) {

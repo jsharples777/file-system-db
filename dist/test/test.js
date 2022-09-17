@@ -6,13 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.test = void 0;
 const FileSystemDB_1 = require("../db/FileSystemDB");
 const debug_1 = __importDefault(require("debug"));
-const SearchTypes_1 = require("../db/search/SearchTypes");
 class test {
     constructor() {
         debug_1.default.enable('collection-file-manager collection-file-manager-detail log-file-manager life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
         try {
-            const db = FileSystemDB_1.FileSystemDB.getInstance('./cfg/migration.json').initialise();
-            db.logChanges('./log/logfile.ops');
+            // const db = FileSystemDB.getInstance('./cfg/migration.json').initialise();
+            const db = FileSystemDB_1.FileSystemDB.getInstance().initialise();
+            //db.logChanges('./log/logfile.ops');
             // console.log(db.collections());
             // console.time('collections');
             // let collection = db.collection('pms-patients');
@@ -37,53 +37,51 @@ class test {
             //     console.log(cursor2.next());
             // }
             //
-            let collection = db.collection('pms-users');
-            const items = collection.findBy([{
-                    field: 'username',
-                    comparison: SearchTypes_1.Compare.equals,
-                    value: 'Dr Jim Sharples'
-                }]).toArray();
-            const user = items[0];
-            user.isCurrent = false;
-            collection.updateObject(user._id, user);
-            setTimeout(() => {
-                db.applyChangeLog('./log/logfile.ops');
-            }, 3000);
-            // let collection = db.collection('test');
-            //
-            // let key1 = '1';
-            // let key2 = '2';
-            // let key3 = '3';
-            // let key4 = '4';
-            // let key5 = '5';
-            // let key6 = '6';
-            //
-            // collection.upsertObject(key1,{_id:key1,dates: { createdDate:5},test:1})
-            // collection.upsertObject(key2,{_id:key2,dates: { createdDate:6},test:2})
-            // collection.upsertObject(key3,{_id:key3,dates: { createdDate:7},test:3})
-            // collection.upsertObject(key4,{_id:key4,dates: { createdDate:8},test:4})
-            // collection.upsertObject(key5,{_id:key5,dates: { createdDate:9},test:5})
-            // collection.upsertObject(key6,{_id:key6,dates: { createdDate:10},test:6})
-            //
-            // const findAll = collection.find();
-            // while (findAll.hasNext()) {
-            //     console.log(findAll.next());
+            // let collection = db.collection('pms-users');
+            // const items = collection.find({
+            //     username:'Dr Jim Sharples'
+            // });
+            // while (items.hasNext()) {
+            //     console.log(items.next());
             // }
-            //
-            //
-            //
-            // const cursor = collection.findBy([{
-            //         comparison: SearchItemComparison.greaterThan,
-            //         field: "dates.createdDate",
-            //         value: 7
-            //     },{
-            //         comparison: SearchItemComparison.greaterThan,
-            //         field: "fake",
-            //         value: 7
-            //     }]).sort([{
-            //     field: "dates.createdDate",
-            //     order: SortOrderType.ascending
-            // }]);
+            // const user = items[0];
+            // user.isCurrent = false;
+            // collection.updateObject(user._id,user);
+            // setTimeout(() => {
+            //     db.applyChangeLog('./log/logfile.ops');
+            // },3000);
+            // const users = collection.find({isCurrent:false,username:'Admin'});
+            // while (users.hasNext()) {
+            //     console.log(users.next());
+            // }
+            // collection = db.collection('pms-vaccines');
+            // const vaccines = collection.find({stockRemaining:{lte:3}});
+            // while (vaccines.hasNext()) {
+            //     console.log(vaccines.next());
+            // }
+            let collection = db.collection('test');
+            let key1 = '1';
+            let key2 = '2';
+            let key3 = '3';
+            let key4 = '4';
+            let key5 = '5';
+            let key6 = '6';
+            collection.upsertObject(key1, { _id: key1, dates: { createdDate: 5 }, test: 1 });
+            collection.upsertObject(key2, { _id: key2, dates: { createdDate: 6 }, test: 2 });
+            collection.upsertObject(key3, { _id: key3, dates: { createdDate: 7 }, test: 3 });
+            collection.upsertObject(key4, { _id: key4, dates: { createdDate: 8 }, test: 4 });
+            collection.upsertObject(key5, { _id: key5, dates: { createdDate: 9 }, test: 5 });
+            collection.upsertObject(key6, { _id: key6, dates: { createdDate: 10 }, test: 6 });
+            const findAll = collection.find();
+            while (findAll.hasNext()) {
+                console.log(findAll.next());
+            }
+            const result = collection.deleteMany({ test: { lte: 3 } });
+            console.log(result);
+            const find = collection.find();
+            while (find.hasNext()) {
+                console.log(find.next());
+            }
             //
             // while (cursor.hasNext()) {
             //     console.log(cursor.next())

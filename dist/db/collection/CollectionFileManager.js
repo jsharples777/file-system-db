@@ -69,7 +69,13 @@ class CollectionFileManager {
             object,
             operation: CollectionFileQueueEntryOperation.write
         };
-        this.fileWriteQueue.push(entry);
+        if (config.highVolumeChanges) {
+            logger(`Immediately writing file ${key} for collection ${collection}`);
+            this.writeDataObjectFileContent(config, collection, key, object);
+        }
+        else {
+            this.fileWriteQueue.push(entry);
+        }
         this.managers.getLogFileManager().addOperation(entry);
     }
     addFileEntry(entry) {
@@ -88,7 +94,13 @@ class CollectionFileManager {
             object: null,
             operation: CollectionFileQueueEntryOperation.delete
         };
-        this.fileWriteQueue.push(entry);
+        if (config.highVolumeChanges) {
+            logger(`Immediately removing file ${key} for collection ${collection}`);
+            this.removeDataObjectFileContent(config, collection, key);
+        }
+        else {
+            this.fileWriteQueue.push(entry);
+        }
         this.managers.getLogFileManager().addOperation(entry);
     }
     readDataObjectFile(collection, key) {

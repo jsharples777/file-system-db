@@ -15,6 +15,7 @@ export declare type CollectionConfig = {
     bufferType: BufferType;
     bufferSize?: number;
     bufferItemLifecycleSeconds?: number;
+    highVolumeChanges?: number;
     version: number;
 };
 export declare type IndexConfig = {

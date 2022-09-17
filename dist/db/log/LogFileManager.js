@@ -81,6 +81,7 @@ class LogFileManager {
                 this.fileWriteQueue.forEach((entry) => {
                     buffer += JSON.stringify(entry) + '\r\n';
                 });
+                console.log(buffer);
                 fs_1.default.appendFile(this.logLocation, buffer, 'utf8', () => {
                 });
                 this.fileWriteQueue = [];

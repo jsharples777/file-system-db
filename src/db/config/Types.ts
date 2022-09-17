@@ -19,6 +19,7 @@ export type CollectionConfig = {
     bufferType: BufferType,
     bufferSize?: number,
     bufferItemLifecycleSeconds?: number,
+    highVolumeChanges?:number,
     version: number
 }
 

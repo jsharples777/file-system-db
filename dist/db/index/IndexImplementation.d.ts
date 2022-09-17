@@ -5,6 +5,7 @@ import { Cursor } from "../cursor/Cursor";
 import { Collection } from "../collection/Collection";
 import { Life } from "../life/Life";
 import { DatabaseManagers } from "../DatabaseManagers";
+import { SortOrderItem } from "../sort/SortTypes";
 export declare class IndexImplementation implements Index, Life {
     private config;
     private dbLocation;
@@ -29,7 +30,7 @@ export declare class IndexImplementation implements Index, Life {
     objectRemoved(collection: Collection, key: string): void;
     objectUpdated(collection: Collection, key: string, object: any): void;
     setVersion(version: number): void;
-    search(search: SearchItem[]): Cursor;
+    search(search: SearchItem[], sort: SortOrderItem[]): Cursor;
     rebuild(): void;
     die(): void;
     getBPM(): number;

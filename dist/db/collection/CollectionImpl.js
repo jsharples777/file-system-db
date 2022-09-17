@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CollectionImpl = void 0;
 const BufferFactory_1 = require("../buffer/BufferFactory");
 const debug_1 = __importDefault(require("debug"));
+const SearchTypes_1 = require("../search/SearchTypes");
 const SearchProcessor_1 = require("../search/SearchProcessor");
 const CursorImpl_1 = require("../cursor/CursorImpl");
 const Util_1 = require("../util/Util");
@@ -63,21 +64,78 @@ class CollectionImpl {
     getName() {
         return this.config.name;
     }
-    find() {
-        logger(`Collection ${this.config.name} - find all`);
-        let result = [];
-        if (this.buffer.isComplete()) {
-            logger(`Collection ${this.config.name} - find all - buffer is complete, getting from there`);
-            result = this.buffer.objects();
+    convertFilterIntoFind(filter) {
+        const fields = Object.getOwnPropertyNames(filter);
+        const searchItems = [];
+        fields.forEach((field) => {
+            const fieldValue = filter[field];
+            let comparison = SearchTypes_1.Compare.equals;
+            let compareValue = null;
+            if (fieldValue.gt) {
+                comparison = SearchTypes_1.Compare.greaterThan;
+                compareValue = fieldValue.gt;
+            }
+            else if (fieldValue.gte) {
+                comparison = SearchTypes_1.Compare.greaterThanEqual;
+                compareValue = fieldValue.gte;
+            }
+            else if (fieldValue.lt) {
+                comparison = SearchTypes_1.Compare.lessThan;
+                compareValue = fieldValue.lt;
+            }
+            else if (fieldValue.lte) {
+                comparison = SearchTypes_1.Compare.lessThanEqual;
+                compareValue = fieldValue.lte;
+            }
+            else if (fieldValue.eq) {
+                comparison = SearchTypes_1.Compare.equals;
+                compareValue = fieldValue.eq;
+            }
+            else if (fieldValue.neq) {
+                comparison = SearchTypes_1.Compare.notEquals;
+                compareValue = fieldValue.neq;
+            }
+            else if (fieldValue.isnotnull) {
+                comparison = SearchTypes_1.Compare.isNotNull;
+            }
+            else if (fieldValue.isnull) {
+                comparison = SearchTypes_1.Compare.isNull;
+            }
+            else {
+                comparison = SearchTypes_1.Compare.equals;
+                compareValue = fieldValue;
+            }
+            const searchItem = {
+                field: field,
+                comparison: comparison,
+                value: compareValue
+            };
+            searchItems.push(searchItem);
+        });
+        return this.findBy(searchItems);
+    }
+    find(filter) {
+        if (filter) {
+            return this.convertFilterIntoFind(filter);
         }
         else {
-            logger(`Collection ${this.config.name} - find all - loading all files`);
-            const contentAndConfig = this.managers.getCollectionFileManager().readEntireCollection(this.config);
-            this.buffer.initialise(contentAndConfig.content);
-            this.config = contentAndConfig.config;
-            result = contentAndConfig.content;
+            let result = [];
+            logger(`Collection ${this.config.name} - find`);
+            if (filter)
+                logger(filter);
+            if (this.buffer.isComplete()) {
+                logger(`Collection ${this.config.name} - find all - buffer is complete, getting from there`);
+                result = this.buffer.objects();
+            }
+            else {
+                logger(`Collection ${this.config.name} - find all - loading all files`);
+                const contentAndConfig = this.managers.getCollectionFileManager().readEntireCollection(this.config);
+                this.buffer.initialise(contentAndConfig.content);
+                this.config = contentAndConfig.config;
+                result = contentAndConfig.content;
+            }
+            return new CursorImpl_1.CursorImpl(result);
         }
-        return new CursorImpl_1.CursorImpl(result);
     }
     insertObject(key, object) {
         let result = {
@@ -99,9 +157,7 @@ class CollectionImpl {
         };
         logger(`Collection ${this.config.name} - remove ${key}`);
         this.config.version++;
-        //CollectionFileManager.getInstance().removeDataObjectFile(this.config,this.config.name, key);
         this.buffer.removeObject(key);
-        // IndexManager.getInstance().entryDeleted(this.config.name,key,this.config.version);
         this.listeners.forEach((listener) => listener.objectRemoved(this, key));
         return result;
     }
@@ -117,8 +173,8 @@ class CollectionImpl {
         this.listeners.forEach((listener) => listener.objectUpdated(this, key, object));
         return result;
     }
-    findBy(search) {
-        return SearchProcessor_1.SearchProcessor.searchCollection(this.managers.getIndexManager(), this, search);
+    findBy(search, sort) {
+        return SearchProcessor_1.SearchProcessor.searchCollection(this.managers.getIndexManager(), this, search, sort);
     }
     upsertObject(key, object) {
         return this.updateObject(key, object);
@@ -138,10 +194,28 @@ class CollectionImpl {
     addListener(listener) {
         this.listeners.push(listener);
     }
-    deleteMany(keys) {
+    deleteManyByKey(keys) {
         keys.forEach((key) => {
             this.removeObject(key);
         });
+    }
+    deleteMany(filter) {
+        let result = {
+            _id: '',
+            numberOfObjects: 0,
+            completed: true
+        };
+        const keys = [];
+        const cursor = this.find(filter);
+        while (cursor.hasNext()) {
+            const obj = cursor.next();
+            if (obj[this.config.key]) {
+                keys.push(obj[this.config.key]);
+            }
+        }
+        result.numberOfObjects = keys.length;
+        this.deleteManyByKey(keys);
+        return result;
     }
     insertMany(keyObjPairs) {
         keyObjPairs.forEach((keyObjPair) => {

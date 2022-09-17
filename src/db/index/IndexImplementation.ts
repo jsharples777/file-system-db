@@ -9,6 +9,8 @@ import {Collection} from "../collection/Collection";
 import {Life} from "../life/Life";
 import {Util} from "../util/Util";
 import {DatabaseManagers} from "../DatabaseManagers";
+import {SortOrderItem} from "../sort/SortTypes";
+import {SortProcessor} from "../sort/SortProcessor";
 
 
 const logger = debug('index-implementation');
@@ -157,7 +159,7 @@ export class IndexImplementation implements Index, Life {
         this.content.version = version;
     }
 
-    search(search: SearchItem[]): Cursor {
+    search(search: SearchItem[],sort:SortOrderItem[]): Cursor {
         let results: any[] = [];
 
 
@@ -199,7 +201,12 @@ export class IndexImplementation implements Index, Life {
         }
         logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - loaded ${results.length} matching items`);
 
-        return new CursorImpl(results);
+        if (sort) {
+            return SortProcessor.sortItems(results,sort);
+        }
+        else {
+            return new CursorImpl(results);
+        }
     }
 
     rebuild(): void {
