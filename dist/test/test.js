@@ -8,10 +8,12 @@ const FileSystemDB_1 = require("../db/FileSystemDB");
 const debug_1 = __importDefault(require("debug"));
 class test {
     constructor() {
-        debug_1.default.enable('collection-file-manager collection-file-manager-detail log-file-manager life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
+        debug_1.default.enable('db collection-file-manager collection-file-manager-detail log-file-manager life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
         try {
             // const db = FileSystemDB.getInstance('./cfg/migration.json').initialise();
             const db = FileSystemDB_1.FileSystemDB.getInstance().initialise();
+            const replicationDB = db.addReplicationLocation('test', './replication-db/', true);
+            db.startReplication();
             //db.logChanges('./log/logfile.ops');
             // console.log(db.collections());
             // console.time('collections');

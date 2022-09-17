@@ -2,14 +2,19 @@ import { Collection } from "./collection/Collection";
 import { SearchItem } from "./search/SearchTypes";
 import { SortOrderItem } from "./sort/SortTypes";
 import { View } from "./view/View";
-export declare class FileSystemDB {
+import { CollectionListener } from "./collection/CollectionListener";
+export declare class FileSystemDB implements CollectionListener {
     private static _instance;
     private managers;
     private isInitialised;
-    private configLocation?;
+    private configLocation;
     private views;
     private bLogChanges;
-    constructor(configLocation?: string);
+    private isReplicating;
+    private replicationDBs;
+    private overrideConfigDBDir;
+    private name;
+    constructor(name: string, configLocation?: string, overrideConfigDBDir?: string);
     static getInstance(configLocation?: string): FileSystemDB;
     initialise(): FileSystemDB;
     collections(): string[];
@@ -20,7 +25,10 @@ export declare class FileSystemDB {
     logChanges(logFileLocation?: string): void;
     isLoggingChanges(): boolean;
     applyChangeLog(logFileLocation: string): void;
-    addReplicationLocation(replicateToDir: string): void;
+    addReplicationLocation(name: string, replicateToDir: string, replaceExistingContent: boolean): FileSystemDB;
     startReplication(): void;
     stopReplication(): void;
+    objectAdded(collection: Collection, key: string, object: any): void;
+    objectRemoved(collection: Collection, key: string): void;
+    objectUpdated(collection: Collection, key: string, object: any): void;
 }

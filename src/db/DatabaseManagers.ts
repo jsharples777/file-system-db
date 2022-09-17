@@ -6,6 +6,7 @@ import {IndexManager} from "./index/IndexManager";
 import {LifeCycleManager} from "./life/LifeCycleManager";
 import {FileSystemDB} from "./FileSystemDB";
 import {LogFileManager} from "./log/LogFileManager";
+import {DBConfig} from "./config/Types";
 
 export class DatabaseManagers {
     private collectionFileManager: CollectionFileManager;
@@ -15,24 +16,28 @@ export class DatabaseManagers {
     private lifecycleManger: LifeCycleManager;
     private db: FileSystemDB;
     private logFileManager: LogFileManager;
+    private config:DBConfig;
 
-    constructor(db: FileSystemDB, configLocation?: string) {
+    constructor(db: FileSystemDB, configLocation?: string,overrideDBDir?:string) {
         this.db = db;
         let cfgLocation = process.env.FILE_SYSTEM_DB_CONFIG || 'cfg/config.json';
         if (configLocation) {
             cfgLocation = configLocation;
         }
 
-        const config = new ConfigManager().loadConfig(cfgLocation);
+        this.config = new ConfigManager().loadConfig(cfgLocation);
+        if (overrideDBDir) {
+            this.config.dbLocation = overrideDBDir;
+        }
         this.lifecycleManger = new LifeCycleManager();
         this.collectionFileManager = new CollectionFileManager(this);
-        this.collectionFileManager.loadConfig(config);
+        this.collectionFileManager.loadConfig(this.config);
         this.collectionManager = new CollectionManager(this);
-        this.collectionManager.loadConfig(config);
+        this.collectionManager.loadConfig(this.config);
         this.indexFileManager = new IndexFileManager();
-        this.indexFileManager.loadConfig(config);
+        this.indexFileManager.loadConfig(this.config);
         this.indexManager = new IndexManager(this);
-        this.indexManager.loadConfig(config);
+        this.indexManager.loadConfig(this.config);
         this.logFileManager = new LogFileManager(this);
 
 
@@ -43,6 +48,10 @@ export class DatabaseManagers {
         this.lifecycleManger.addLife(this.collectionFileManager);
         this.lifecycleManger.addLife(this.indexFileManager);
         this.lifecycleManger.birth();
+    }
+
+    getConfig():DBConfig {
+        return this.config;
     }
 
     getCollectionManager(): CollectionManager {

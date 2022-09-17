@@ -2,15 +2,19 @@ import {FileSystemDB} from "../db/FileSystemDB";
 import debug from "debug";
 import {Order} from "../db/sort/SortTypes";
 import {Compare} from "../db/search/SearchTypes";
+import {IndexFileManager} from "../db/index/IndexFileManager";
 
 export class test {
     public constructor() {
-        debug.enable('collection-file-manager collection-file-manager-detail log-file-manager life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
+        debug.enable('db collection-file-manager collection-file-manager-detail log-file-manager life-cycle-manager object-view config-manager collection-manager file-manager abstract-partial-buffer collection-implementation index-file-manager index-implementation index-implementation-detail index-manager');
 
 
         try {
             // const db = FileSystemDB.getInstance('./cfg/migration.json').initialise();
             const db = FileSystemDB.getInstance().initialise();
+
+            const replicationDB = db.addReplicationLocation('test','./replication-db/',true);
+            db.startReplication();
 
             //db.logChanges('./log/logfile.ops');
             // console.log(db.collections());

@@ -58,45 +58,10 @@ export class CollectionManager implements Configurable {
             const impl = new CollectionImpl(config, this.managers);
             this.collectionImplementations.push(impl);
             impl.addListener(this.managers.getCollectionFileManager());
+            impl.addListener(this.managers.getDB());
             result = impl;
         }
         return result;
     }
 
-    private setupCollection(name: string): CollectionConfig {
-        logger(`Setting up collection ${name}`);
-        let result: CollectionConfig = {
-            bufferSize: 0,
-            bufferType: BufferType.NONE,
-            key: "_id",
-            version: 1,
-            name: name
-        }
-
-        const foundIndex = this.collectionConfigs.findIndex((config) => config.name === name);
-        if (foundIndex >= 0) {
-            result = this.collectionConfigs[foundIndex];
-        }
-
-
-        const collectionDir = `${this.config?.dbLocation}/${name}`;
-        if (!fs.existsSync(collectionDir)) {
-            logger(`Setting up collection ${name} - making collection directory ${collectionDir}`);
-            fs.mkdirSync(collectionDir);
-        }
-
-        const versionFileName = `${this.config?.dbLocation}/${name}/${name}.vrs`;
-        if (!fs.existsSync(versionFileName)) {
-            logger(`Setting up collection ${name} - making collection version file`);
-            fs.writeFileSync(versionFileName, JSON.stringify(result));
-        } else {
-            const buffer = fs.readFileSync(versionFileName);
-            logger(`Setting up collection ${name} - loading existing collection version file`);
-            const currentVersion = <CollectionConfig>JSON.parse(buffer.toString());
-            result.version = currentVersion.version;
-        }
-
-        logger(result);
-        return result;
-    }
 }
