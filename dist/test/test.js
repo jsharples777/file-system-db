@@ -76,7 +76,7 @@ class test {
             while (findAll.hasNext()) {
                 console.log(findAll.next());
             }
-            const result = collection.deleteMany({ test: { lte: 3 } });
+            const result = collection.deleteMany({ "dates.createdDate": { gte: 8 } });
             console.log(result);
             const find = collection.find();
             while (find.hasNext()) {
