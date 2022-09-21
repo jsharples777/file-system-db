@@ -11,5 +11,4 @@ export declare class CollectionManager implements Configurable {
     loadConfig(config: DBConfig): void;
     collections(): string[];
     getCollection(name: string): Collection;
-    private setupCollection;
 }

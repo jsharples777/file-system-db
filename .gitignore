@@ -3,3 +3,4 @@
 /db/
 /migration-db/
 /cfg/migration.json
+/replication-db/

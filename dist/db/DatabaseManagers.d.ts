@@ -5,6 +5,7 @@ import { IndexManager } from "./index/IndexManager";
 import { LifeCycleManager } from "./life/LifeCycleManager";
 import { FileSystemDB } from "./FileSystemDB";
 import { LogFileManager } from "./log/LogFileManager";
+import { DBConfig } from "./config/Types";
 export declare class DatabaseManagers {
     private collectionFileManager;
     private collectionManager;
@@ -13,7 +14,9 @@ export declare class DatabaseManagers {
     private lifecycleManger;
     private db;
     private logFileManager;
-    constructor(db: FileSystemDB, configLocation?: string);
+    private config;
+    constructor(db: FileSystemDB, configLocation?: string, overrideDBDir?: string);
+    getConfig(): DBConfig;
     getCollectionManager(): CollectionManager;
     getCollectionFileManager(): CollectionFileManager;
     getIndexManager(): IndexManager;

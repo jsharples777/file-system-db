@@ -140,11 +140,12 @@ class CollectionFileManager {
         const configFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collectionConfig.name}/${collectionConfig.name}.vrs`;
         if (!fs_1.default.existsSync(configFileName)) {
             result.version = 1;
-            fs_1.default.writeFileSync(configFileName, JSON.stringify(result));
         }
         else {
-            result = JSON.parse(fs_1.default.readFileSync(configFileName).toString());
+            const existingVrsFile = JSON.parse(fs_1.default.readFileSync(configFileName).toString());
+            result.version = existingVrsFile.version;
         }
+        fs_1.default.writeFileSync(configFileName, JSON.stringify(result));
         return result;
     }
     readEntireCollection(collectionConfig) {

@@ -168,10 +168,12 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
         const configFileName = `${this.config?.dbLocation}/${collectionConfig.name}/${collectionConfig.name}.vrs`;
         if (!fs.existsSync(configFileName)) {
             result.version = 1;
-            fs.writeFileSync(configFileName, JSON.stringify(result));
+
         } else {
-            result = <CollectionConfig>JSON.parse(fs.readFileSync(configFileName).toString());
+            const existingVrsFile = <CollectionConfig>JSON.parse(fs.readFileSync(configFileName).toString());
+            result.version = existingVrsFile.version;
         }
+        fs.writeFileSync(configFileName, JSON.stringify(result));
         return result;
     }
 
