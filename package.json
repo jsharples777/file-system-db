@@ -1,6 +1,6 @@
 {
   "name": "file-system-database",
-  "version": "0.2.7-1",
+  "version": "0.2.7-2",
   "description": "A simple socket framework for persistent JSON objects using the file system",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
