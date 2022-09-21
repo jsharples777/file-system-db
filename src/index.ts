@@ -20,4 +20,5 @@ export {FileSystemDB} from './db/FileSystemDB';
 export {BufferType} from './db/config/Types';
 export {Compare} from './db/search/SearchTypes';
 export {Order} from './db/sort/SortTypes';
+export {FileSystemDBHelper} from './db/util/FileSystemDBHelper'
 

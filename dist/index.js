@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Order = exports.Compare = exports.BufferType = exports.FileSystemDB = exports.DuplicateKey = exports.MissingConfiguration = exports.InvalidConfiguration = void 0;
+exports.FileSystemDBHelper = exports.Order = exports.Compare = exports.BufferType = exports.FileSystemDB = exports.DuplicateKey = exports.MissingConfiguration = exports.InvalidConfiguration = void 0;
 var Types_1 = require("./db/config/Types");
 Object.defineProperty(exports, "InvalidConfiguration", { enumerable: true, get: function () { return Types_1.InvalidConfiguration; } });
 Object.defineProperty(exports, "MissingConfiguration", { enumerable: true, get: function () { return Types_1.MissingConfiguration; } });
@@ -13,4 +13,6 @@ var SearchTypes_1 = require("./db/search/SearchTypes");
 Object.defineProperty(exports, "Compare", { enumerable: true, get: function () { return SearchTypes_1.Compare; } });
 var SortTypes_1 = require("./db/sort/SortTypes");
 Object.defineProperty(exports, "Order", { enumerable: true, get: function () { return SortTypes_1.Order; } });
+var FileSystemDBHelper_1 = require("./db/util/FileSystemDBHelper");
+Object.defineProperty(exports, "FileSystemDBHelper", { enumerable: true, get: function () { return FileSystemDBHelper_1.FileSystemDBHelper; } });
 //# sourceMappingURL=index.js.map
