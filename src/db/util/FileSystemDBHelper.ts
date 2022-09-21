@@ -2,10 +2,11 @@ import {FileSystemDB} from "../FileSystemDB";
 import {SearchItem} from "../search/SearchTypes";
 import {SortOrderItem} from "../sort/SortTypes";
 import {Cursor} from "../cursor/Cursor";
+import {OperationResult} from "../config/Types";
 
 export class FileSystemDBHelper {
 
-    public static findAll(collection: string, stateName: string, search?: SearchItem[], sort?: SortOrderItem[]):any[] {
+    public static findAll(collection: string, search?: SearchItem[], sort?: SortOrderItem[]):any[] {
         const db: FileSystemDB = FileSystemDB.getInstance();
         let cursor: Cursor;
         if (search) {
@@ -27,65 +28,95 @@ export class FileSystemDBHelper {
         return result;
     }
 
-    public static updateCompositeObject(collectionName: string, propertyName: string, owningObjectKey:string, subObject:any):void {
+    public static updateCompositeObject(collectionName: string, propertyName: string, owningObjectKey:string, subObject:any):OperationResult {
+        const result:OperationResult = {_id: owningObjectKey, completed: true, numberOfObjects: 0}
+
         const db = FileSystemDB.getInstance();
         const collection = db.collection(collectionName);
         const owningObject = collection.findByKey(owningObjectKey);
-        owningObject[propertyName] = subObject;
-        collection.updateObject(owningObjectKey, owningObject);
+        if (owningObject) {
+            owningObject[propertyName] = subObject;
+            collection.updateObject(owningObjectKey, owningObject);
+            result.numberOfObjects = 1;
+        }
+
+        return result;
     }
 
-    public static removeCompositeObject(collectionName: string, stateName: string, owningObjectKey:string):void {
+    public static removeCompositeObject(collectionName: string, propertyName: string, owningObjectKey:string):OperationResult {
+        const result:OperationResult = {_id: owningObjectKey, completed: true, numberOfObjects: 0}
         const db = FileSystemDB.getInstance();
         const collection = db.collection(collectionName);
         const owningObject = collection.findByKey(owningObjectKey);
-        delete owningObject[stateName];
-        collection.updateObject(owningObjectKey, owningObject);
+        if (owningObject) {
+            delete owningObject[propertyName];
+            collection.updateObject(owningObjectKey, owningObject);
+            result.numberOfObjects = 1;
+        }
+        return result;
     }
 
-    public static updateCompositeArrayElement(collectionName: string, stateName:string, owningObjectKey:string, subObjectKey:string, subObject:any):void {
+    public static updateCompositeArrayElement(collectionName: string, propertyName:string, owningObjectKey:string, subObjectKey:string, subObject:any):OperationResult {
+        const result:OperationResult = {_id: owningObjectKey, completed: true, numberOfObjects: 0}
         const db = FileSystemDB.getInstance();
         const collection = db.collection(collectionName);
         const owningObject = collection.findByKey(owningObjectKey);
-        const subObjectArray: any[] = owningObject[stateName];
-        if (subObjectArray) {
-            const foundIndex = subObjectArray.findIndex((subObject) => subObject._id === subObjectKey);
-            if (foundIndex >= 0) {
-                subObjectArray.splice(foundIndex, 1, subObject);
+        if (owningObject) {
+            const subObjectArray: any[] = owningObject[propertyName];
+            if (subObjectArray) {
+                const foundIndex = subObjectArray.findIndex((subObject) => subObject._id === subObjectKey);
+                if (foundIndex >= 0) {
+                    subObjectArray.splice(foundIndex, 1, subObject);
+                }
+            }
+            else {
+                owningObject[propertyName] = [subObject];
+            }
+            collection.updateObject(owningObjectKey, owningObject);
+            result.numberOfObjects = 1;
+        }
+        return result;
+    }
+
+    public static insertElementIntoCompositeArray(collectionName: string, propertyName:string, owningObjectKey:string, subObject:any):OperationResult {
+        const result:OperationResult = {_id: owningObjectKey, completed: true, numberOfObjects: 0}
+        const db = FileSystemDB.getInstance();
+        const collection = db.collection(collectionName);
+        const owningObject = collection.findByKey(owningObjectKey);
+        if (owningObject) {
+            const subObjectArray: any[] = owningObject[propertyName];
+            if (subObjectArray) {
+                subObjectArray.push(subObject);
+            }
+            else {
+                owningObject[propertyName] = [subObject];
+            }
+            collection.updateObject(owningObjectKey, owningObject);
+            result.numberOfObjects = 1;
+        }
+        return result;
+    }
+
+    public static removeCompositeArrayElement(collectionName: string, propertyName:string, owningObjectKey:string, subObjectKey:string):OperationResult {
+        const result:OperationResult = {_id: subObjectKey, completed: true, numberOfObjects: 0}
+        const db = FileSystemDB.getInstance();
+        const collection = db.collection(collectionName);
+        const owningObject = collection.findByKey(owningObjectKey);
+        if (owningObject) {
+            const subObjectArray: any[] = owningObject[propertyName];
+            if (subObjectArray) {
+                const foundIndex = subObjectArray.findIndex((subObject) => subObject._id === subObjectKey);
+                if (foundIndex >= 0) {
+                    subObjectArray.splice(foundIndex, 1);
+                    collection.updateObject(owningObjectKey, owningObject);
+                    result.numberOfObjects = 1;
+                }
             }
         }
         else {
-            owningObject[stateName] = [subObject];
+            result._id = owningObjectKey;
         }
-        collection.updateObject(owningObjectKey, owningObject);
-    }
-
-    public static insertElementIntoCompositeArray(collectionName: string, stateName:string, owningObjectKey:string, subObject:any):void {
-        const db = FileSystemDB.getInstance();
-        const collection = db.collection(collectionName);
-        const owningObject = collection.findByKey(owningObjectKey);
-        const subObjectArray: any[] = owningObject[stateName];
-        if (subObjectArray) {
-            subObjectArray.push(subObject);
-        }
-        else {
-            owningObject[stateName] = [subObject];
-        }
-        collection.updateObject(owningObjectKey, owningObject);
-    }
-
-    public static removeCompositeArrayElement(collectionName: string, stateName:string, owningObjectKey:string, subObjectKey:string):void {
-        const db = FileSystemDB.getInstance();
-        const collection = db.collection(collectionName);
-        const owningObject = collection.findByKey(owningObjectKey);
-        const subObjectArray: any[] = owningObject[stateName];
-        if (subObjectArray) {
-            const foundIndex = subObjectArray.findIndex((subObject) => subObject._id === subObjectKey);
-            if (foundIndex >= 0) {
-                subObjectArray.splice(foundIndex, 1);
-            }
-        }
-        collection.updateObject(owningObjectKey, owningObject);
+        return result;
     }
 
 }

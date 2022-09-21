@@ -44,9 +44,9 @@ export class CollectionImpl implements Collection {
         return Util.copyObject(this.config);
     }
 
-    findByKey(key: string) {
+    findByKey(key: string):any {
         logger(`Collection ${this.config.name} - find by key ${key}`);
-        let result: any | null = null;
+        let result: any | undefined = undefined;
         if (this.buffer.hasKey(key)) {
             logger(`Collection ${this.config.name} - find by key ${key} - found in buffer`);
             result = this.buffer.getObject(key);

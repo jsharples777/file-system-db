@@ -36,7 +36,7 @@ class CollectionImpl {
     }
     findByKey(key) {
         logger(`Collection ${this.config.name} - find by key ${key}`);
-        let result = null;
+        let result = undefined;
         if (this.buffer.hasKey(key)) {
             logger(`Collection ${this.config.name} - find by key ${key} - found in buffer`);
             result = this.buffer.getObject(key);
