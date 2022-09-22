@@ -6,11 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CollectionImpl = void 0;
 const BufferFactory_1 = require("../buffer/BufferFactory");
 const debug_1 = __importDefault(require("debug"));
-const SearchTypes_1 = require("../search/SearchTypes");
 const SearchProcessor_1 = require("../search/SearchProcessor");
 const CursorImpl_1 = require("../cursor/CursorImpl");
 const Util_1 = require("../util/Util");
 const QueryImpl_1 = require("../query/QueryImpl");
+const FileSystemDBHelper_1 = require("../util/FileSystemDBHelper");
 const logger = (0, debug_1.default)('collection-implementation');
 class CollectionImpl {
     constructor(config, managers) {
@@ -64,59 +64,10 @@ class CollectionImpl {
     getName() {
         return this.config.name;
     }
-    convertFilterIntoFind(filter) {
-        const fields = Object.getOwnPropertyNames(filter);
-        const searchItems = [];
-        fields.forEach((field) => {
-            const fieldValue = filter[field];
-            let comparison = SearchTypes_1.Compare.equals;
-            let compareValue = null;
-            if (fieldValue.gt) {
-                comparison = SearchTypes_1.Compare.greaterThan;
-                compareValue = fieldValue.gt;
-            }
-            else if (fieldValue.gte) {
-                comparison = SearchTypes_1.Compare.greaterThanEqual;
-                compareValue = fieldValue.gte;
-            }
-            else if (fieldValue.lt) {
-                comparison = SearchTypes_1.Compare.lessThan;
-                compareValue = fieldValue.lt;
-            }
-            else if (fieldValue.lte) {
-                comparison = SearchTypes_1.Compare.lessThanEqual;
-                compareValue = fieldValue.lte;
-            }
-            else if (fieldValue.eq) {
-                comparison = SearchTypes_1.Compare.equals;
-                compareValue = fieldValue.eq;
-            }
-            else if (fieldValue.neq) {
-                comparison = SearchTypes_1.Compare.notEquals;
-                compareValue = fieldValue.neq;
-            }
-            else if (fieldValue.isnotnull) {
-                comparison = SearchTypes_1.Compare.isNotNull;
-            }
-            else if (fieldValue.isnull) {
-                comparison = SearchTypes_1.Compare.isNull;
-            }
-            else {
-                comparison = SearchTypes_1.Compare.equals;
-                compareValue = fieldValue;
-            }
-            const searchItem = {
-                field: field,
-                comparison: comparison,
-                value: compareValue
-            };
-            searchItems.push(searchItem);
-        });
-        return this.findBy(searchItems);
-    }
     find(filter) {
         if (filter) {
-            return this.convertFilterIntoFind(filter);
+            const searchItems = FileSystemDBHelper_1.FileSystemDBHelper.convertFilterIntoFind(filter);
+            return this.findBy(searchItems);
         }
         else {
             let result = [];

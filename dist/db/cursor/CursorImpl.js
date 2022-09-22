@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CursorImpl = void 0;
 const SortProcessor_1 = require("../sort/SortProcessor");
 const Util_1 = require("../util/Util");
+const FileSystemDBHelper_1 = require("../util/FileSystemDBHelper");
 class CursorImpl {
     constructor(items, copyObjects = true) {
         if (copyObjects) {
@@ -29,6 +30,11 @@ class CursorImpl {
     }
     sort(sortOrder) {
         return SortProcessor_1.SortProcessor.sortItems(this.items, sortOrder);
+    }
+    sortByFilter(filter) {
+        // assume the filter is in the format {fieldName:1|-1,fieldName2:1|-1}
+        const sortItems = FileSystemDBHelper_1.FileSystemDBHelper.convertFilterIntoSort(filter);
+        return this.sort(sortItems);
     }
 }
 exports.CursorImpl = CursorImpl;

@@ -2,6 +2,7 @@ import {Cursor} from "./Cursor";
 import {SortOrderItem} from "../sort/SortTypes";
 import {SortProcessor} from "../sort/SortProcessor";
 import {Util} from "../util/Util";
+import {FileSystemDBHelper} from "../util/FileSystemDBHelper";
 
 export class CursorImpl implements Cursor {
     protected items: any[];
@@ -35,6 +36,12 @@ export class CursorImpl implements Cursor {
 
     sort(sortOrder: SortOrderItem[]): Cursor {
         return SortProcessor.sortItems(this.items, sortOrder);
+    }
+
+    sortByFilter(filter:any):Cursor {
+        // assume the filter is in the format {fieldName:1|-1,fieldName2:1|-1}
+        const sortItems = FileSystemDBHelper.convertFilterIntoSort(filter);
+        return this.sort(sortItems);
     }
 
 

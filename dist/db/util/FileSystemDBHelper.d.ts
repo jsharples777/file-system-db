@@ -9,4 +9,6 @@ export declare class FileSystemDBHelper {
     static updateCompositeArrayElement(collectionName: string, propertyName: string, owningObjectKey: string, subObjectKey: string, subObject: any): OperationResult;
     static insertElementIntoCompositeArray(collectionName: string, propertyName: string, owningObjectKey: string, subObject: any): OperationResult;
     static removeCompositeArrayElement(collectionName: string, propertyName: string, owningObjectKey: string, subObjectKey: string): OperationResult;
+    static convertFilterIntoFind(filter: any): SearchItem[];
+    static convertFilterIntoSort(filter: any): SortOrderItem[];
 }

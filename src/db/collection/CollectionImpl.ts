@@ -13,6 +13,7 @@ import {DatabaseManagers} from "../DatabaseManagers";
 import {Query} from "../query/Query";
 import {QueryImpl} from "../query/QueryImpl";
 import {SortOrderItem} from "../sort/SortTypes";
+import {FileSystemDBHelper} from "../util/FileSystemDBHelper";
 
 const logger = debug('collection-implementation');
 
@@ -77,61 +78,11 @@ export class CollectionImpl implements Collection {
         return this.config.name;
     }
 
-    protected convertFilterIntoFind(filter:any):Cursor {
-        const fields = Object.getOwnPropertyNames(filter);
-        const searchItems:SearchItem[] = [];
-        fields.forEach((field) => {
-            const fieldValue = filter[field];
-            let comparison = Compare.equals;
-                let compareValue:any = null;
-                if (fieldValue.gt) {
-                    comparison = Compare.greaterThan;
-                    compareValue = fieldValue.gt;
-                }
-                else if (fieldValue.gte) {
-                    comparison = Compare.greaterThanEqual;
-                    compareValue = fieldValue.gte;
-                }
-                else if (fieldValue.lt) {
-                    comparison = Compare.lessThan;
-                    compareValue = fieldValue.lt;
-                }
-                else if (fieldValue.lte) {
-                    comparison = Compare.lessThanEqual;
-                    compareValue = fieldValue.lte;
-                }
-                else if (fieldValue.eq) {
-                    comparison = Compare.equals;
-                    compareValue = fieldValue.eq;
-                }
-                else if (fieldValue.neq) {
-                    comparison = Compare.notEquals;
-                    compareValue = fieldValue.neq;
-                }
-                else if (fieldValue.isnotnull) {
-                    comparison = Compare.isNotNull;
-                }
-                else if (fieldValue.isnull) {
-                    comparison = Compare.isNull;
-                }
-                else {
-                    comparison = Compare.equals;
-                    compareValue = fieldValue;
-                }
-                const searchItem:SearchItem = {
-                    field: field,
-                    comparison: comparison,
-                    value: compareValue
-                }
-                searchItems.push(searchItem);
-        });
-
-        return this.findBy(searchItems);
-    }
 
     find(filter?:any): Cursor {
         if (filter) {
-            return this.convertFilterIntoFind(filter);
+            const searchItems = FileSystemDBHelper.convertFilterIntoFind(filter);
+            return this.findBy(searchItems);
         }
         else {
             let result: any[] = [];

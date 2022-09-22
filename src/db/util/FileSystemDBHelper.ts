@@ -1,6 +1,6 @@
 import {FileSystemDB} from "../FileSystemDB";
-import {SearchItem} from "../search/SearchTypes";
-import {SortOrderItem} from "../sort/SortTypes";
+import {Compare, SearchItem} from "../search/SearchTypes";
+import {Order, SortOrderItem} from "../sort/SortTypes";
 import {Cursor} from "../cursor/Cursor";
 import {OperationResult} from "../config/Types";
 
@@ -118,5 +118,76 @@ export class FileSystemDBHelper {
         }
         return result;
     }
+
+    public static convertFilterIntoFind(filter:any):SearchItem[] {
+        const fields = Object.getOwnPropertyNames(filter);
+        const searchItems:SearchItem[] = [];
+        fields.forEach((field) => {
+            const fieldValue = filter[field];
+            let comparison = Compare.equals;
+            let compareValue:any = null;
+            if (fieldValue.gt) {
+                comparison = Compare.greaterThan;
+                compareValue = fieldValue.gt;
+            }
+            else if (fieldValue.gte) {
+                comparison = Compare.greaterThanEqual;
+                compareValue = fieldValue.gte;
+            }
+            else if (fieldValue.lt) {
+                comparison = Compare.lessThan;
+                compareValue = fieldValue.lt;
+            }
+            else if (fieldValue.lte) {
+                comparison = Compare.lessThanEqual;
+                compareValue = fieldValue.lte;
+            }
+            else if (fieldValue.eq) {
+                comparison = Compare.equals;
+                compareValue = fieldValue.eq;
+            }
+            else if (fieldValue.neq) {
+                comparison = Compare.notEquals;
+                compareValue = fieldValue.neq;
+            }
+            else if (fieldValue.isnotnull) {
+                comparison = Compare.isNotNull;
+            }
+            else if (fieldValue.isnull) {
+                comparison = Compare.isNull;
+            }
+            else {
+                comparison = Compare.equals;
+                compareValue = fieldValue;
+            }
+            const searchItem:SearchItem = {
+                field: field,
+                comparison: comparison,
+                value: compareValue
+            }
+            searchItems.push(searchItem);
+        });
+
+        return searchItems;
+    }
+
+    public static convertFilterIntoSort(filter:any):SortOrderItem[] {
+        const fields = Object.getOwnPropertyNames(filter);
+        const items:SortOrderItem[] = [];
+        fields.forEach((field) => {
+            const fieldValue = filter[field];
+            let order = Order.ascending;
+            if (fieldValue < 0) {
+                order = Order.descending;
+            }
+            items.push({
+                field:field,
+                order:order
+            });
+        });
+
+        return items;
+    }
+
 
 }

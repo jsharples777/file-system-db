@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FileSystemDBHelper = void 0;
 const FileSystemDB_1 = require("../FileSystemDB");
+const SearchTypes_1 = require("../search/SearchTypes");
+const SortTypes_1 = require("../sort/SortTypes");
 class FileSystemDBHelper {
     static findAll(collection, search, sort) {
         const db = FileSystemDB_1.FileSystemDB.getInstance();
@@ -106,6 +108,72 @@ class FileSystemDBHelper {
             result._id = owningObjectKey;
         }
         return result;
+    }
+    static convertFilterIntoFind(filter) {
+        const fields = Object.getOwnPropertyNames(filter);
+        const searchItems = [];
+        fields.forEach((field) => {
+            const fieldValue = filter[field];
+            let comparison = SearchTypes_1.Compare.equals;
+            let compareValue = null;
+            if (fieldValue.gt) {
+                comparison = SearchTypes_1.Compare.greaterThan;
+                compareValue = fieldValue.gt;
+            }
+            else if (fieldValue.gte) {
+                comparison = SearchTypes_1.Compare.greaterThanEqual;
+                compareValue = fieldValue.gte;
+            }
+            else if (fieldValue.lt) {
+                comparison = SearchTypes_1.Compare.lessThan;
+                compareValue = fieldValue.lt;
+            }
+            else if (fieldValue.lte) {
+                comparison = SearchTypes_1.Compare.lessThanEqual;
+                compareValue = fieldValue.lte;
+            }
+            else if (fieldValue.eq) {
+                comparison = SearchTypes_1.Compare.equals;
+                compareValue = fieldValue.eq;
+            }
+            else if (fieldValue.neq) {
+                comparison = SearchTypes_1.Compare.notEquals;
+                compareValue = fieldValue.neq;
+            }
+            else if (fieldValue.isnotnull) {
+                comparison = SearchTypes_1.Compare.isNotNull;
+            }
+            else if (fieldValue.isnull) {
+                comparison = SearchTypes_1.Compare.isNull;
+            }
+            else {
+                comparison = SearchTypes_1.Compare.equals;
+                compareValue = fieldValue;
+            }
+            const searchItem = {
+                field: field,
+                comparison: comparison,
+                value: compareValue
+            };
+            searchItems.push(searchItem);
+        });
+        return searchItems;
+    }
+    static convertFilterIntoSort(filter) {
+        const fields = Object.getOwnPropertyNames(filter);
+        const items = [];
+        fields.forEach((field) => {
+            const fieldValue = filter[field];
+            let order = SortTypes_1.Order.ascending;
+            if (fieldValue < 0) {
+                order = SortTypes_1.Order.descending;
+            }
+            items.push({
+                field: field,
+                order: order
+            });
+        });
+        return items;
     }
 }
 exports.FileSystemDBHelper = FileSystemDBHelper;
