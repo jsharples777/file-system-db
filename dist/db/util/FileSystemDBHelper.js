@@ -116,19 +116,19 @@ class FileSystemDBHelper {
             const fieldValue = filter[field];
             let comparison = SearchTypes_1.Compare.equals;
             let compareValue = null;
-            if (fieldValue.gt) {
+            if (fieldValue.$gt) {
                 comparison = SearchTypes_1.Compare.greaterThan;
                 compareValue = fieldValue.gt;
             }
-            else if (fieldValue.gte) {
+            else if (fieldValue.$gte) {
                 comparison = SearchTypes_1.Compare.greaterThanEqual;
                 compareValue = fieldValue.gte;
             }
-            else if (fieldValue.lt) {
+            else if (fieldValue.$lt) {
                 comparison = SearchTypes_1.Compare.lessThan;
                 compareValue = fieldValue.lt;
             }
-            else if (fieldValue.lte) {
+            else if (fieldValue.$lte) {
                 comparison = SearchTypes_1.Compare.lessThanEqual;
                 compareValue = fieldValue.lte;
             }
@@ -136,7 +136,7 @@ class FileSystemDBHelper {
                 comparison = SearchTypes_1.Compare.equals;
                 compareValue = fieldValue.eq;
             }
-            else if (fieldValue.neq) {
+            else if (fieldValue.$ne) {
                 comparison = SearchTypes_1.Compare.notEquals;
                 compareValue = fieldValue.neq;
             }
