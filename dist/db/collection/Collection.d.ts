@@ -35,6 +35,7 @@ export interface Collection {
     insertMany(keyObjPairs: KeyObjectPair[]): void;
     deleteManyByKey(keys: string[]): void;
     deleteMany(filter: any): OperationResult;
+    deleteAll(): void;
     select(field: string): Query;
     selectMany(fields: string[]): Query;
 }

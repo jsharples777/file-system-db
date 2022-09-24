@@ -336,5 +336,9 @@ export class IndexImplementation implements Index, Life {
         return result;
     }
 
+    removeAll(collection: Collection): void {
+        this.rebuild();
+    }
+
 
 }

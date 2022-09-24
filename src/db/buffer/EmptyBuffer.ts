@@ -29,4 +29,7 @@ export class EmptyBuffer implements ObjectBuffer {
         return false;
     }
 
+    clear(): void {
+    }
+
 }

@@ -118,6 +118,8 @@ class FileSystemDB {
             });
         }
     }
+    removeAll(collection) {
+    }
 }
 exports.FileSystemDB = FileSystemDB;
 //# sourceMappingURL=FileSystemDB.js.map

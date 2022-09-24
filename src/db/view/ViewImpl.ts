@@ -192,4 +192,9 @@ export class ViewImpl implements View, CollectionListener, Life {
         return result;
     }
 
+    removeAll(collection: Collection): void {
+        this.items = [];
+        this.isInitialised = false;
+    }
+
 }

@@ -216,4 +216,12 @@ export class CollectionImpl implements Collection {
 
     }
 
+    deleteAll(): void {
+        logger(`Collection ${this.config.name} - deleting all`);
+        this.config.version++;
+        this.buffer.clear();
+        this.listeners.forEach((listener) => listener.removeAll(this));
+
+    }
+
 }

@@ -52,6 +52,7 @@ export interface Collection {
 
     deleteManyByKey(keys: string[]): void;
     deleteMany(filter:any): OperationResult;
+    deleteAll(): void;
 
     // query
     select(field: string): Query;

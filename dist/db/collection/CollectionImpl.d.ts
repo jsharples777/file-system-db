@@ -30,4 +30,5 @@ export declare class CollectionImpl implements Collection {
     insertMany(keyObjPairs: KeyObjectPair[]): void;
     select(field: string): Query;
     selectMany(fields: string[]): Query;
+    deleteAll(): void;
 }

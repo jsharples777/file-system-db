@@ -11,6 +11,7 @@ export declare class AbstractPartialBuffer implements ObjectBuffer, Life {
     private defaultBufferItemLifespan;
     private lifeManager;
     constructor(config: CollectionConfig, lifeManager?: LifeCycleManager);
+    clear(): void;
     isComplete(): boolean;
     addObject(key: string, object: any): void;
     getObject(key: string): any;

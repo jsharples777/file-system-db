@@ -8,4 +8,5 @@ export declare class EmptyBuffer implements ObjectBuffer {
     replaceObject(key: string, object: any): void;
     initialise(objects: any[]): void;
     isComplete(): boolean;
+    clear(): void;
 }

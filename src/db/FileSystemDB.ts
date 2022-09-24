@@ -144,4 +144,7 @@ export class FileSystemDB implements CollectionListener{
             })
         }
     }
+
+    removeAll(collection: Collection): void {
+    }
 }

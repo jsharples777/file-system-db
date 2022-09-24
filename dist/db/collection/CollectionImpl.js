@@ -184,6 +184,12 @@ class CollectionImpl {
         query.selectMany(fields);
         return query;
     }
+    deleteAll() {
+        logger(`Collection ${this.config.name} - deleting all`);
+        this.config.version++;
+        this.buffer.clear();
+        this.listeners.forEach((listener) => listener.removeAll(this));
+    }
 }
 exports.CollectionImpl = CollectionImpl;
 //# sourceMappingURL=CollectionImpl.js.map
