@@ -128,19 +128,19 @@ export class FileSystemDBHelper {
             let compareValue:any = null;
             if (fieldValue.$gt) {
                 comparison = Compare.greaterThan;
-                compareValue = fieldValue.gt;
+                compareValue = fieldValue.$gt;
             }
             else if (fieldValue.$gte) {
                 comparison = Compare.greaterThanEqual;
-                compareValue = fieldValue.gte;
+                compareValue = fieldValue.$gte;
             }
             else if (fieldValue.$lt) {
                 comparison = Compare.lessThan;
-                compareValue = fieldValue.lt;
+                compareValue = fieldValue.$lt;
             }
             else if (fieldValue.$lte) {
                 comparison = Compare.lessThanEqual;
-                compareValue = fieldValue.lte;
+                compareValue = fieldValue.$lte;
             }
             else if (fieldValue.eq) {
                 comparison = Compare.equals;
@@ -148,7 +148,7 @@ export class FileSystemDBHelper {
             }
             else if (fieldValue.$ne) {
                 comparison = Compare.notEquals;
-                compareValue = fieldValue.neq;
+                compareValue = fieldValue.$ne;
             }
             else if (fieldValue.isnotnull) {
                 comparison = Compare.isNotNull;

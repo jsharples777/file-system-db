@@ -118,19 +118,19 @@ class FileSystemDBHelper {
             let compareValue = null;
             if (fieldValue.$gt) {
                 comparison = SearchTypes_1.Compare.greaterThan;
-                compareValue = fieldValue.gt;
+                compareValue = fieldValue.$gt;
             }
             else if (fieldValue.$gte) {
                 comparison = SearchTypes_1.Compare.greaterThanEqual;
-                compareValue = fieldValue.gte;
+                compareValue = fieldValue.$gte;
             }
             else if (fieldValue.$lt) {
                 comparison = SearchTypes_1.Compare.lessThan;
-                compareValue = fieldValue.lt;
+                compareValue = fieldValue.$lt;
             }
             else if (fieldValue.$lte) {
                 comparison = SearchTypes_1.Compare.lessThanEqual;
-                compareValue = fieldValue.lte;
+                compareValue = fieldValue.$lte;
             }
             else if (fieldValue.eq) {
                 comparison = SearchTypes_1.Compare.equals;
@@ -138,7 +138,7 @@ class FileSystemDBHelper {
             }
             else if (fieldValue.$ne) {
                 comparison = SearchTypes_1.Compare.notEquals;
-                compareValue = fieldValue.neq;
+                compareValue = fieldValue.$ne;
             }
             else if (fieldValue.isnotnull) {
                 comparison = SearchTypes_1.Compare.isNotNull;
