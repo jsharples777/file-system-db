@@ -19,7 +19,7 @@ export class SearchProcessor {
                 result = true;
             } else {
                 // ensure we have a comparison value
-                if (searchItem.value) {
+                if (searchItem.value !== undefined) {
                     switch (searchItem.comparison) {
                         case Compare.equals: {
                             result = (fieldValue === searchItem.value);

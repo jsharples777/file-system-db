@@ -10,12 +10,19 @@ export class test {
 
 
         try {
-            // const db = FileSystemDB.getInstance('./cfg/migration.json').initialise();
-            const db = FileSystemDB.getInstance().initialise();
+            const db = FileSystemDB.getInstance('./cfg/migration.json').initialise();
+            //const db = FileSystemDB.getInstance().initialise();
 
-            const replicationDB = db.addReplicationLocation('test','./replication-db/',true);
-            db.startReplication();
+            // const replicationDB = db.addReplicationLocation('test','./replication-db/',true);
+            // db.startReplication();
 
+            const filter = {providerNo: {$ne: ''}};
+
+            const col = FileSystemDB.getInstance().collection('pms-users');
+            let cursor = col.find(filter);
+            while (cursor.hasNext()) {
+                console.log(cursor.next());
+            }
             //db.logChanges('./log/logfile.ops');
             // console.log(db.collections());
             // console.time('collections');
@@ -67,39 +74,36 @@ export class test {
             // }
 
 
-
-            let collection = db.collection('test');
-
-            let key1 = '1';
-            let key2 = '2';
-            let key3 = '3';
-            let key4 = '4';
-            let key5 = '5';
-            let key6 = '6';
-
-            collection.upsertObject(key1,{_id:key1,dates: { createdDate:5},test:1})
-            collection.upsertObject(key2,{_id:key2,dates: { createdDate:6},test:2})
-            collection.upsertObject(key3,{_id:key3,dates: { createdDate:7},test:3})
-            collection.upsertObject(key4,{_id:key4,dates: { createdDate:8},test:4})
-            collection.upsertObject(key5,{_id:key5,dates: { createdDate:9},test:5})
-            collection.upsertObject(key6,{_id:key6,dates: { createdDate:10},test:6})
-
-            const findAll = collection.find();
-            while (findAll.hasNext()) {
-                console.log(findAll.next());
-            }
-
-
-            const result = collection.deleteMany({"dates.createdDate":{gte:8}});
-
-            console.log(result);
-
-            const find = collection.find();
-            while (find.hasNext()) {
-                console.log(find.next());
-            }
-
-
+            // let collection = db.collection('test');
+            //
+            // let key1 = '1';
+            // let key2 = '2';
+            // let key3 = '3';
+            // let key4 = '4';
+            // let key5 = '5';
+            // let key6 = '6';
+            //
+            // collection.upsertObject(key1, {_id: key1, dates: {createdDate: 5}, test: 1})
+            // collection.upsertObject(key2, {_id: key2, dates: {createdDate: 6}, test: 2})
+            // collection.upsertObject(key3, {_id: key3, dates: {createdDate: 7}, test: 3})
+            // collection.upsertObject(key4, {_id: key4, dates: {createdDate: 8}, test: 4})
+            // collection.upsertObject(key5, {_id: key5, dates: {createdDate: 9}, test: 5})
+            // collection.upsertObject(key6, {_id: key6, dates: {createdDate: 10}, test: 6})
+            //
+            // const findAll = collection.find();
+            // while (findAll.hasNext()) {
+            //     console.log(findAll.next());
+            // }
+            //
+            //
+            // const result = collection.deleteMany({"dates.createdDate": {gte: 8}});
+            //
+            // console.log(result);
+            //
+            // const find = collection.find();
+            // while (find.hasNext()) {
+            //     console.log(find.next());
+            // }
 
 
             //

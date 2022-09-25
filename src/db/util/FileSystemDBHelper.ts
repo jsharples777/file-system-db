@@ -126,34 +126,34 @@ export class FileSystemDBHelper {
             const fieldValue = filter[field];
             let comparison = Compare.equals;
             let compareValue:any = null;
-            if (fieldValue.$gt) {
+            if (fieldValue.$gt !== undefined) {
                 comparison = Compare.greaterThan;
                 compareValue = fieldValue.$gt;
             }
-            else if (fieldValue.$gte) {
+            else if (fieldValue.$gte !== undefined) {
                 comparison = Compare.greaterThanEqual;
                 compareValue = fieldValue.$gte;
             }
-            else if (fieldValue.$lt) {
+            else if (fieldValue.$lt !== undefined) {
                 comparison = Compare.lessThan;
                 compareValue = fieldValue.$lt;
             }
-            else if (fieldValue.$lte) {
+            else if (fieldValue.$lte !== undefined) {
                 comparison = Compare.lessThanEqual;
                 compareValue = fieldValue.$lte;
             }
-            else if (fieldValue.eq) {
+            else if (fieldValue.eq !== undefined) {
                 comparison = Compare.equals;
                 compareValue = fieldValue.eq;
             }
-            else if (fieldValue.$ne) {
+            else if (fieldValue.$ne !== undefined) {
                 comparison = Compare.notEquals;
                 compareValue = fieldValue.$ne;
             }
-            else if (fieldValue.isnotnull) {
+            else if (fieldValue.isnotnull !== undefined) {
                 comparison = Compare.isNotNull;
             }
-            else if (fieldValue.isnull) {
+            else if (fieldValue.isnull !== undefined) {
                 comparison = Compare.isNull;
             }
             else {
