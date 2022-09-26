@@ -34,4 +34,5 @@ export declare class ViewImpl implements View, CollectionListener, Life {
     protected checkViewLoaded(): void;
     protected constructViewItemFromItem(item: any): any;
     protected doesEntryMatchViewCriteria(item: any): boolean;
+    removeAll(collection: Collection): void;
 }

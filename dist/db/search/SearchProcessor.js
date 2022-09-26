@@ -20,7 +20,7 @@ class SearchProcessor {
             }
             else {
                 // ensure we have a comparison value
-                if (searchItem.value) {
+                if (searchItem.value !== undefined) {
                     switch (searchItem.comparison) {
                         case SearchTypes_1.Compare.equals: {
                             result = (fieldValue === searchItem.value);

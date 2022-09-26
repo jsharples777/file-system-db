@@ -22,6 +22,8 @@ class EmptyBuffer {
     isComplete() {
         return false;
     }
+    clear() {
+    }
 }
 exports.EmptyBuffer = EmptyBuffer;
 //# sourceMappingURL=EmptyBuffer.js.map

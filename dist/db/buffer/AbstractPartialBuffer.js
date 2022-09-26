@@ -59,6 +59,9 @@ class AbstractPartialBuffer {
             }
         }
     }
+    clear() {
+        this.bufferContent = [];
+    }
     isComplete() {
         return false;
     }

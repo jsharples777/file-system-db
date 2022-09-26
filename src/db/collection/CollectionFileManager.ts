@@ -47,8 +47,13 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
         this.processFileQueue = this.processFileQueue.bind(this);
         this.addFileEntries = this.addFileEntries.bind(this);
         this.addFileEntry = this.addFileEntry.bind(this);
+        this.removeAll = this.removeAll.bind(this);
 
 
+    }
+
+    removeAll(collection: Collection): void {
+        this.readEntireCollection(collection.getConfig());
     }
 
     loadConfig(config: DBConfig): void {
@@ -199,6 +204,20 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
 
 
         return results;
+    }
+
+    public deleteEntireCollection(collectionConfig: CollectionConfig): void {
+        logger(`Removing collection ${collectionConfig.name}`);
+
+
+        const collectionDir = `${this.config?.dbLocation}/${collectionConfig.name}`;
+        const files: string[] = fs.readdirSync(collectionDir);
+        files.forEach((file) => {
+            if (file.endsWith('.entry')) {
+                const key = file.split('.')[0];
+                this.removeDataObjectFile(collectionConfig,collectionConfig.name,key);
+            }
+        });
     }
 
     die(): void {

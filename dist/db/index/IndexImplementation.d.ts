@@ -45,4 +45,5 @@ export declare class IndexImplementation implements Index, Life {
     private constructIndexEntry;
     private indexEntryFieldMatchesSearchItem;
     private indexEntryMatchesSearchItems;
+    removeAll(collection: Collection): void;
 }

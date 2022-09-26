@@ -167,6 +167,10 @@ class ViewImpl {
         }
         return result;
     }
+    removeAll(collection) {
+        this.items = [];
+        this.isInitialised = false;
+    }
 }
 exports.ViewImpl = ViewImpl;
 //# sourceMappingURL=ViewImpl.js.map

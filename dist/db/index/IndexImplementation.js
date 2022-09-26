@@ -287,6 +287,9 @@ class IndexImplementation {
         });
         return result;
     }
+    removeAll(collection) {
+        this.rebuild();
+    }
 }
 exports.IndexImplementation = IndexImplementation;
 //# sourceMappingURL=IndexImplementation.js.map

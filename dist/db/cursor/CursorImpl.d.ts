@@ -8,4 +8,5 @@ export declare class CursorImpl implements Cursor {
     next(): any;
     toArray(): any[];
     sort(sortOrder: SortOrderItem[]): Cursor;
+    sortByFilter(filter: any): Cursor;
 }

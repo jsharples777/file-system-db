@@ -67,6 +67,10 @@ export class AbstractPartialBuffer implements ObjectBuffer, Life {
 
     }
 
+    clear(): void {
+        this.bufferContent = [];
+    }
+
 
     isComplete(): boolean {
         return false;

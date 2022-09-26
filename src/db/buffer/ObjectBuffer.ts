@@ -21,4 +21,6 @@ export interface ObjectBuffer {
     initialise(objects: any[]): void;
 
     isComplete(): boolean;
+
+    clear():void;
 }

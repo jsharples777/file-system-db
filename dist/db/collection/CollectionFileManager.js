@@ -31,6 +31,10 @@ class CollectionFileManager {
         this.processFileQueue = this.processFileQueue.bind(this);
         this.addFileEntries = this.addFileEntries.bind(this);
         this.addFileEntry = this.addFileEntry.bind(this);
+        this.removeAll = this.removeAll.bind(this);
+    }
+    removeAll(collection) {
+        this.readEntireCollection(collection.getConfig());
     }
     loadConfig(config) {
         this.config = config;
@@ -165,6 +169,18 @@ class CollectionFileManager {
         });
         results.config = this.readCollectionConfig(collectionConfig);
         return results;
+    }
+    deleteEntireCollection(collectionConfig) {
+        var _a;
+        logger(`Removing collection ${collectionConfig.name}`);
+        const collectionDir = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collectionConfig.name}`;
+        const files = fs_1.default.readdirSync(collectionDir);
+        files.forEach((file) => {
+            if (file.endsWith('.entry')) {
+                const key = file.split('.')[0];
+                this.removeDataObjectFile(collectionConfig, collectionConfig.name, key);
+            }
+        });
     }
     die() {
         this.processFileQueue();

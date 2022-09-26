@@ -1,3 +1,1 @@
-export declare class test {
-    constructor();
-}
+export {};

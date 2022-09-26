@@ -4,4 +4,5 @@ export interface Cursor {
     next(): any;
     toArray(): any[];
     sort(sortOrder: SortOrderItem[]): Cursor;
+    sortByFilter(sort?: any): Cursor;
 }

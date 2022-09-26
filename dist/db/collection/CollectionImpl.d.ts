@@ -16,7 +16,6 @@ export declare class CollectionImpl implements Collection {
     findByKey(key: string): any;
     getVersion(): number;
     getName(): string;
-    protected convertFilterIntoFind(filter: any): Cursor;
     find(filter?: any): Cursor;
     insertObject(key: string, object: any): OperationResult;
     removeObject(key: string): OperationResult;
@@ -31,4 +30,5 @@ export declare class CollectionImpl implements Collection {
     insertMany(keyObjPairs: KeyObjectPair[]): void;
     select(field: string): Query;
     selectMany(fields: string[]): Query;
+    deleteAll(): void;
 }

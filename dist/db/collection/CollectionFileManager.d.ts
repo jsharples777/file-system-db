@@ -22,6 +22,7 @@ export declare class CollectionFileManager implements Configurable, Life, Collec
     private isProcessingQueue;
     private managers;
     constructor(managers: DatabaseManagers);
+    removeAll(collection: Collection): void;
     loadConfig(config: DBConfig): void;
     isDuplicateKey(collection: string, key: string): boolean;
     writeDataObjectFile(config: CollectionConfig, collection: string, key: string, object: any, checkForDuplicateKey: boolean): void;
@@ -35,6 +36,7 @@ export declare class CollectionFileManager implements Configurable, Life, Collec
         config: CollectionConfig;
         content: any[];
     };
+    deleteEntireCollection(collectionConfig: CollectionConfig): void;
     die(): void;
     getBPM(): number;
     heartbeat(): void;
