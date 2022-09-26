@@ -77,7 +77,7 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
             }
         })
 
-        logger(`Is duplicate key for collection ${collection} and key ${key} = ${result}`);
+        dLogger(`Is duplicate key for collection ${collection} and key ${key} = ${result}`);
         return result;
     }
 
@@ -95,7 +95,7 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
             operation: CollectionFileQueueEntryOperation.write
         };
         if (config.highVolumeChanges) {
-            logger(`Immediately writing file ${key} for collection ${collection}`);
+            dLogger(`Immediately writing file ${key} for collection ${collection}`);
             this.writeDataObjectFileContent(config,collection,key,object);
         }
         else {
@@ -126,7 +126,7 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
             operation: CollectionFileQueueEntryOperation.delete
         };
         if (config.highVolumeChanges) {
-            logger(`Immediately removing file ${key} for collection ${collection}`);
+            dLogger(`Immediately removing file ${key} for collection ${collection}`);
             this.removeDataObjectFileContent(config, collection,key);
         }
         else {
@@ -144,13 +144,13 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
             const content = fs.readFileSync(objectFileName);
             try {
                 result = JSON.parse(content.toString());
-                logger(`Loading entry for collection ${collection}, entry ${key}`);
+                dLogger(`Loading entry for collection ${collection}, entry ${key}`);
             } catch (err) {
                 //invalid JSON - delete the file
                 fs.rmSync(objectFileName);
             }
         } else {
-            logger(`File Not Found for collection ${collection}, entry ${key}`);
+            dLogger(`File Not Found for collection ${collection}, entry ${key}`);
         }
 
         return result;
@@ -258,7 +258,7 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
     protected writeCollectionConfig(config: CollectionConfig): void {
         const objectFileName = `${this.config?.dbLocation}/${config.name}/${config.name}.vrs`;
         if (fs.existsSync(objectFileName)) {
-            logger(`Config File Found for collection ${config.name} - overwriting`);
+            dLogger(`Config File Found for collection ${config.name} - overwriting`);
             fs.rmSync(objectFileName);
         }
         fs.writeFileSync(objectFileName, JSON.stringify(config));
@@ -268,7 +268,7 @@ export class CollectionFileManager implements Configurable, Life, CollectionList
     protected writeDataObjectFileContent(config: CollectionConfig, collection: string, key: string, object: any): void {
         const objectFileName = `${this.config?.dbLocation}/${collection}/${key}.entry`;
         if (fs.existsSync(objectFileName)) {
-            logger(`File Found for collection ${collection}, entry ${key} - overwriting`);
+            dLogger(`File Found for collection ${collection}, entry ${key} - overwriting`);
             fs.rmSync(objectFileName);
         }
         fs.writeFileSync(objectFileName, JSON.stringify(object));

@@ -57,7 +57,7 @@ class CollectionFileManager {
                 return true;
             }
         });
-        logger(`Is duplicate key for collection ${collection} and key ${key} = ${result}`);
+        dLogger(`Is duplicate key for collection ${collection} and key ${key} = ${result}`);
         return result;
     }
     writeDataObjectFile(config, collection, key, object, checkForDuplicateKey) {
@@ -74,7 +74,7 @@ class CollectionFileManager {
             operation: CollectionFileQueueEntryOperation.write
         };
         if (config.highVolumeChanges) {
-            logger(`Immediately writing file ${key} for collection ${collection}`);
+            dLogger(`Immediately writing file ${key} for collection ${collection}`);
             this.writeDataObjectFileContent(config, collection, key, object);
         }
         else {
@@ -99,7 +99,7 @@ class CollectionFileManager {
             operation: CollectionFileQueueEntryOperation.delete
         };
         if (config.highVolumeChanges) {
-            logger(`Immediately removing file ${key} for collection ${collection}`);
+            dLogger(`Immediately removing file ${key} for collection ${collection}`);
             this.removeDataObjectFileContent(config, collection, key);
         }
         else {
@@ -115,7 +115,7 @@ class CollectionFileManager {
             const content = fs_1.default.readFileSync(objectFileName);
             try {
                 result = JSON.parse(content.toString());
-                logger(`Loading entry for collection ${collection}, entry ${key}`);
+                dLogger(`Loading entry for collection ${collection}, entry ${key}`);
             }
             catch (err) {
                 //invalid JSON - delete the file
@@ -123,7 +123,7 @@ class CollectionFileManager {
             }
         }
         else {
-            logger(`File Not Found for collection ${collection}, entry ${key}`);
+            dLogger(`File Not Found for collection ${collection}, entry ${key}`);
         }
         return result;
     }
@@ -212,7 +212,7 @@ class CollectionFileManager {
         var _a;
         const objectFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${config.name}/${config.name}.vrs`;
         if (fs_1.default.existsSync(objectFileName)) {
-            logger(`Config File Found for collection ${config.name} - overwriting`);
+            dLogger(`Config File Found for collection ${config.name} - overwriting`);
             fs_1.default.rmSync(objectFileName);
         }
         fs_1.default.writeFileSync(objectFileName, JSON.stringify(config));
@@ -221,7 +221,7 @@ class CollectionFileManager {
         var _a;
         const objectFileName = `${(_a = this.config) === null || _a === void 0 ? void 0 : _a.dbLocation}/${collection}/${key}.entry`;
         if (fs_1.default.existsSync(objectFileName)) {
-            logger(`File Found for collection ${collection}, entry ${key} - overwriting`);
+            dLogger(`File Found for collection ${collection}, entry ${key} - overwriting`);
             fs_1.default.rmSync(objectFileName);
         }
         fs_1.default.writeFileSync(objectFileName, JSON.stringify(object));
