@@ -14,17 +14,16 @@
     "migrate": "ts-node src/test/migrate.ts"
   },
   "dependencies": {
-    "@types/fs-extra": "^9.0.13",
     "debug": "^4.3.2",
     "dotenv": "^10.0.0",
     "fs-extra": "^10.1.0",
     "moment": "^2.29.1",
-    "mongo-access-jps": "^1.0.1",
-    "mongodb": "^4.9.1",
+    "mongodb": "^4.10.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/debug": "^4.1.7",
+    "@types/fs-extra": "^9.0.13",
     "@types/node": "^16.9.6",
     "@types/uuid": "^8.3.2",
     "typescript": "^4.3.5"
