@@ -10,7 +10,7 @@
   "scripts": {
     "compile": "tsc",
     "compile.watch": "tsc-watch",
-    "test": "ts-node src/test/test.ts",
+    "test": "ts-node src/test/test2.ts",
     "migrate": "ts-node src/test/migrate.ts"
   },
   "dependencies": {

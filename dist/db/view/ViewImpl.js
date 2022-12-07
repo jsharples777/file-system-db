@@ -117,11 +117,9 @@ class ViewImpl {
             this.recentlyUsed = false;
         }
         else {
-            if (this.isInitialised) {
-                this.isInitialised = false;
-                logger(`View ${this.name} - unused for lifespan of ${this.defaultLifespan} seconds - resetting`);
-                this.items = [];
-            }
+            this.isInitialised = false;
+            logger(`View ${this.name} - unused for lifespan of ${this.defaultLifespan} seconds - resetting`);
+            this.items = [];
         }
     }
     isAlive() {

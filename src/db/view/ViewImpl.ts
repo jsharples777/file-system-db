@@ -136,11 +136,9 @@ export class ViewImpl implements View, CollectionListener, Life {
         if (this.recentlyUsed) {
             this.recentlyUsed = false;
         } else {
-            if (this.isInitialised) {
-                this.isInitialised = false;
-                logger(`View ${this.name} - unused for lifespan of ${this.defaultLifespan} seconds - resetting`);
-                this.items = [];
-            }
+            this.isInitialised = false;
+            logger(`View ${this.name} - unused for lifespan of ${this.defaultLifespan} seconds - resetting`);
+            this.items = [];
         }
     }
 
