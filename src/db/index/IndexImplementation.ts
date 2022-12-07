@@ -190,16 +190,24 @@ export class IndexImplementation implements Index, Life {
         });
         logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - found ${matchingEntries.length} matching index entries`);
         // for all found matches, load the items from the collection
+        const entriesUsingIndex:any[] = [];
         if (matchingEntries.length > 0) {
             const collection = this.managers.getCollectionManager().getCollection(this.config.collection);
             matchingEntries.forEach((matchingEntry) => {
                 const item = collection.findByKey(matchingEntry.keyValue);
                 if (item) {
-                    results.push(item);
+                    entriesUsingIndex.push(item);
                 }
             })
         }
-        logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - loaded ${results.length} matching items`);
+        logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - loaded ${results.length} matching items - checking against full search criteria`);
+        entriesUsingIndex.forEach((entry) => {
+            if (SearchProcessor.doesItemMatchSearchItems(entry,search)) {
+                results.push(entry);
+            }
+        })
+
+
 
         if (sort) {
             return SortProcessor.sortItems(results,sort);
