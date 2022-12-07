@@ -200,12 +200,21 @@ export class IndexImplementation implements Index, Life {
                 }
             })
         }
-        logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - loaded ${results.length} matching items - checking against full search criteria`);
-        entriesUsingIndex.forEach((entry) => {
-            if (SearchProcessor.doesItemMatchSearchItems(entry,search)) {
-                results.push(entry);
-            }
-        })
+        logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - loaded ${entriesUsingIndex.length} matching items`);
+
+        if (search.length > indexSearchItems.length) {
+            logger('Refining index search results by the full search criteria');
+            entriesUsingIndex.forEach((entry) => {
+                if (SearchProcessor.doesItemMatchSearchItems(entry,search)) {
+                    results.push(entry);
+                }
+            })
+            logger(`Searching using index ${this.config.name} for collection ${this.config.collection} - refined to ${results.length} matching items`);
+        }
+        else {
+            results = entriesUsingIndex;
+        }
+
 
 
 
