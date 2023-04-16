@@ -59,7 +59,7 @@ class ViewImpl {
         if (this.doesEntryMatchViewCriteria(object)) {
             logger(`View ${this.name} - new item ${key} added to collection which meets criteria, adding and sorting`);
             const viewItem = this.constructViewItemFromItem(object);
-            this.items.push({ key, viewItem });
+            this.items.push(viewItem);
             if (this.sortOrder && this.sortOrder.length > 0) {
                 this.items = SortProcessor_1.SortProcessor.sortItems(this.items, this.sortOrder).toArray();
             }
